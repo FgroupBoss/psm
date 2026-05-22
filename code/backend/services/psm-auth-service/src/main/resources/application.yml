@@ -4,8 +4,19 @@ server:
 spring:
   application:
     name: psm-auth-service
+  datasource:
+    url: ${PSM_AUTH_DB_URL:jdbc:mysql://localhost:3306/psm_auth?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${PSM_AUTH_DB_USERNAME:psm}
+    password: ${PSM_AUTH_DB_PASSWORD:psm}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+psm:
+  auth:
+    token-ttl-seconds: ${PSM_AUTH_TOKEN_TTL_SECONDS:7200}
+    refresh-token-ttl-seconds: ${PSM_AUTH_REFRESH_TOKEN_TTL_SECONDS:604800}
+    sso-state-ttl-seconds: ${PSM_AUTH_SSO_STATE_TTL_SECONDS:600}
+    public-base-url: ${PSM_AUTH_PUBLIC_BASE_URL:http://localhost:18081}
 
 logging:
   level:
     root: info
-
