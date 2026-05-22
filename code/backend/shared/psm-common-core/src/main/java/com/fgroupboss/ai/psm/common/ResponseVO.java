@@ -27,6 +27,10 @@ public class ResponseVO<T> implements Serializable {
         return new ResponseVO<T>(code, message, null);
     }
 
+    public static <T> ResponseVO<T> success() {
+        return new ResponseVO<T>(0, "success", null);
+    }
+
     public int getCode() {
         return code;
     }
@@ -51,4 +55,3 @@ public class ResponseVO<T> implements Serializable {
         this.data = data;
     }
 }
-
