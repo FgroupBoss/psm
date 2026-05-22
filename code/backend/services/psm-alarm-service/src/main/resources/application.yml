@@ -1,0 +1,7 @@
+server:
+  port: 18087
+
+spring:
+  application:
+    name: psm-alarm-service
+

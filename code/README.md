@@ -64,3 +64,22 @@ code
 - `scripts/New-FrontendApp.ps1`
 - `scripts/New-FrontendPackage.ps1`
 
+## Demo 启动
+
+后端：
+
+```powershell
+cd code\backend
+mvn -pl services/psm-auth-service -am spring-boot:run
+```
+
+前端：
+
+```powershell
+cd code\frontend
+npm install
+npm run dev:admin
+```
+
+访问 `http://localhost:5173`，管理端会通过 Vite 代理请求 `http://localhost:18081/api/demo`。
+

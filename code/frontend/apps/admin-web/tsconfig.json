@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true
+  },
+  "include": ["src", "vite.config.ts"],
+  "references": [
+    { "path": "../../packages/api-client" },
+    { "path": "../../packages/domain-types" },
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/auth" },
+    { "path": "../../packages/utils" }
+  ]
+}
+

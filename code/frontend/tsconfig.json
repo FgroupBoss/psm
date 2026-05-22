@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/domain-types" },
+    { "path": "./packages/api-client" },
+    { "path": "./packages/auth" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/utils" },
+    { "path": "./apps/admin-web" },
+    { "path": "./apps/mobile-site" },
+    { "path": "./apps/dashboard-web" }
+  ]
+}
+

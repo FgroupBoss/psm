@@ -1,0 +1,29 @@
+{
+  "name": "psm-platform-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:admin": "vite --config apps/admin-web/vite.config.ts",
+    "dev:mobile": "vite --config apps/mobile-site/vite.config.ts",
+    "dev:dashboard": "vite --config apps/dashboard-web/vite.config.ts",
+    "build": "tsc --noEmit -p tsconfig.check.json && vite build --config apps/admin-web/vite.config.ts && vite build --config apps/mobile-site/vite.config.ts && vite build --config apps/dashboard-web/vite.config.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.check.json"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "typescript": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  }
+}

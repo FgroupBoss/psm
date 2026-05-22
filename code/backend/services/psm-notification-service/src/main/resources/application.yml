@@ -1,0 +1,7 @@
+server:
+  port: 18093
+
+spring:
+  application:
+    name: psm-notification-service
+

@@ -20,3 +20,20 @@
 
 当前仅保留目录骨架，不锁定 Vue/React 技术栈。正式实现前再根据团队能力和客户环境确认。
 
+## 当前脚手架
+
+- TypeScript。
+- Vite。
+- React。
+- npm workspaces。
+- `admin-web` 提供 demo 页面，请求后端 `/api/demo`。
+
+## 本地验证
+
+```powershell
+npm install
+npm run typecheck
+npm run dev:admin
+```
+
+`admin-web` 默认端口为 `5173`，并将 `/api` 代理到 `http://localhost:18081`。

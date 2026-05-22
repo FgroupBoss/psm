@@ -21,7 +21,7 @@
 
 - **Java 8**（`javax.*`：servlet、validation、annotation）；勿使用仅 Java 9+ 的 API（如 `var`、模块系统私有 JDK API）。
 - **Spring Boot 2.7.18**，内嵌 **Tomcat 9**；可选 Maven profile `tongweb` 替换容器，勿在默认代码路径硬依赖 TongWeb。
-- **Maven** 单模块 `agent-assist-backend`；父 BOM：`rx-copilot-platform-dependencies`，入口：`com.yuntongxun.ai.copilot.Application`。
+- **Maven** 
 - **日志**：`spring-boot-starter-log4j2` + Disruptor；勿引入默认 `spring-boot-starter-logging`（与现有 pom 排除策略冲突）。
 - **数据**：MyBatis-Plus、Druid；SQL 映射在 `src/main/resources/mapper/**/*.xml`。
 - **中间件**：Redis、RabbitMQ、Elasticsearch（按模块使用）、**Nacos** 注册与配置（`bootstrap.yml` + 远程 `database.yml` / `redis.yml` 等）。
@@ -33,7 +33,7 @@
 
 ## 包与分层
 
-- 根包：`com.yuntongxun.ai.copilot`，主要业务在 **`assist`**（坐席辅助）与 **`subscription`**（订阅计费）等子包。
+- 根包：`com.fgroupboss.ai`
 - **Controller** → **Service**（接口 + `impl`）→ **Mapper**；请求/响应使用 **`model.dto` / `model.vo`**，持久化使用 **`model.entity`**。
 - Controller 可继承 **`AbstractController`** 获取租户/用户信息；统一返回 **`ResponseVO`**。
 - 业务错误抛 **`AssistException`**（配合 **`ExceptionEnum`** 或明确 code/message）；勿在 Controller 吞掉异常；全局处理见 **`GlobalExceptionHandler`**。

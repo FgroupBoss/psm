@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, "Microsoft YaHei", sans-serif;
+  color: #17202a;
+  background: #f5f7fa;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.panel {
+  width: min(720px, 100%);
+  padding: 32px;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #476582;
+  font-size: 14px;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 28px;
+}
+
+.summary {
+  margin: 0 0 24px;
+  line-height: 1.7;
+}
+
+.result {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 6px;
+  background: #edf4ff;
+  color: #163b66;
+}
+

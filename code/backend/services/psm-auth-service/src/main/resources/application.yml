@@ -1,0 +1,11 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: psm-auth-service
+
+logging:
+  level:
+    root: info
+

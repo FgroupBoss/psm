@@ -25,7 +25,32 @@ New-Item -ItemType Directory -Path "$packageRoot\src" -Force | Out-Null
 
 "@ | Set-Content -Path "$packageRoot\README.md" -Encoding UTF8
 
-New-Item -ItemType File -Path "$packageRoot\src\.gitkeep" -Force | Out-Null
+@"
+{
+  "name": "@psm/$Name",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}
+"@ | Set-Content -Path "$packageRoot\package.json" -Encoding UTF8
+
+@"
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true
+  },
+  "include": ["src"]
+}
+"@ | Set-Content -Path "$packageRoot\tsconfig.json" -Encoding UTF8
+
+@"
+export const packageName = '@psm/$Name';
+"@ | Set-Content -Path "$packageRoot\src\index.ts" -Encoding UTF8
 
 Write-Host "Created frontend package: $packageRoot"
-

@@ -22,6 +22,22 @@
 | 文件 | MinIO/S3/企业对象存储 |
 | 观测 | Prometheus、Grafana、ELK/Loki、OpenTelemetry |
 
+## 当前脚手架
+
+- Java 8 编译级别。
+- Spring Boot 2.7.18。
+- Maven 多模块。
+- 默认 Web starter 排除 `spring-boot-starter-logging`，使用 `spring-boot-starter-log4j2`。
+- `psm-common-core` 提供 `ResponseVO` 和 demo 类型。
+- `psm-auth-service` 提供 `/api/demo`，用于前后端联调。
+
+## 本地验证
+
+```powershell
+mvn -DskipTests=false test
+mvn -pl services/psm-auth-service -am spring-boot:run
+```
+
 ## 服务目录约定
 
 ```text
@@ -42,4 +58,3 @@ com.company.psm.<module>
   infrastructure/  持久化、外部系统、消息、缓存
   interfaces/      Controller、Consumer、Job
 ```
-

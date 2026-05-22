@@ -1,0 +1,7 @@
+server:
+  port: 18094
+
+spring:
+  application:
+    name: psm-audit-service
+
