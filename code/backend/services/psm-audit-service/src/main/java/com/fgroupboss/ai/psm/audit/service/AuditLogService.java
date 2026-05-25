@@ -1,35 +1,32 @@
 package com.fgroupboss.ai.psm.audit.service;
 
-import com.fgroupboss.ai.psm.audit.model.AuditLogRecord;
-import com.fgroupboss.ai.psm.audit.repository.AuditLogRepository;
-import com.fgroupboss.ai.psm.common.BusinessException;
+import com.fgroupboss.ai.psm.audit.model.vo.AuditLogRecordVO;
 import com.fgroupboss.ai.psm.common.PageResult;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Service
-public class AuditLogService {
+/**
+ * 审计日志查询服务。
+ *
+ * <p>接口只暴露查询条件与响应对象，持久化实体和 SQL 细节由实现层封装。</p>
+ */
+public interface AuditLogService {
 
-    private final AuditLogRepository repository;
-
-    public AuditLogService(AuditLogRepository repository) {
-        this.repository = repository;
-    }
-
-    public PageResult<AuditLogRecord> page(Long tenantId, String bizType, Long bizId, String action,
-                                           String operatorName, LocalDateTime startTime, LocalDateTime endTime,
-                                           int pageNo, int pageSize) {
-        if (tenantId == null || tenantId.longValue() <= 0L) {
-            throw new BusinessException(400, "tenantId is required");
-        }
-        int normalizedPageNo = Math.max(pageNo, 1);
-        int normalizedPageSize = Math.min(Math.max(pageSize, 1), 200);
-        int offset = (normalizedPageNo - 1) * normalizedPageSize;
-        long total = repository.count(tenantId, bizType, bizId, action, operatorName, startTime, endTime);
-        List<AuditLogRecord> records = repository.list(tenantId, bizType, bizId, action, operatorName,
-                startTime, endTime, normalizedPageSize, offset);
-        return new PageResult<AuditLogRecord>(total, normalizedPageNo, normalizedPageSize, records);
-    }
+    /**
+     * 按租户和可选条件分页查询关键数据变更审计日志。
+     *
+     * @param tenantId 租户 ID
+     * @param bizType 业务类型
+     * @param bizId 业务数据 ID
+     * @param action 操作动作
+     * @param operatorName 操作人名称关键字
+     * @param startTime 操作开始时间
+     * @param endTime 操作结束时间
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页大小，上限 200
+     * @return 审计日志分页结果
+     */
+    PageResult<AuditLogRecordVO> page(Long tenantId, String bizType, Long bizId, String action,
+                                      String operatorName, LocalDateTime startTime, LocalDateTime endTime,
+                                      int pageNo, int pageSize);
 }

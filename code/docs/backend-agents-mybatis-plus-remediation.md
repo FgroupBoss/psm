@@ -52,8 +52,8 @@ Gateway 没有数据库访问，主要整改 Service 接口拆分、包名、日
 | 服务 | 范围 | 当前状态 | 当前阶段 | 完成项 | 遗留项 / 下一步 | 最后更新 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `psm-auth-service` | DB + Controller + Service + Mapper + DTO/VO/Entity | 已完成 | 阶段 2 | 引入 MyBatis-Plus；迁移 `controller/service.impl/mapper/model.*`；删除 `AuthRepository`；DTO 校验与 VO 脱敏完成；接口/实现注释补齐；模块及全量测试通过 | 无 | 2026-05-25 |
-| `psm-master-data-service` | DB + Controller + Service + Mapper + DTO/VO/Entity | 未开始 | 阶段 3 | 无 | 拆 `MasterDataItem` 与基础数据多表 Mapper，替换动态 Repository SQL | 2026-05-25 |
-| `psm-audit-service` | DB + Controller + Service + Mapper + VO/Entity | 未开始 | 阶段 4 | 无 | 替换 `AuditLogRepository`，迁移动态查询到 Mapper XML | 2026-05-25 |
+| `psm-master-data-service` | DB + Controller + Service + Mapper + DTO/VO/Entity | 已完成 | 阶段 3 | 引入 MyBatis-Plus；迁移 `controller/service.impl/mapper/model.*`；删除 `MasterDataRepository` 与 `BaseDataRepository`；拆分主数据与基础台账多表 Mapper/XML；DTO 校验与参数校验异常处理完成；接口/实现注释补齐；单模块测试通过 | 无 | 2026-05-25 |
+| `psm-audit-service` | DB + Controller + Service + Mapper + VO/Entity | 已完成 | 阶段 4 | 引入 MyBatis-Plus；迁移 `controller/service.impl/mapper/model.*`；删除 `AuditLogRepository`；动态分页查询迁移到 Mapper XML；接口/实现注释补齐；单模块测试通过 | 无 | 2026-05-25 |
 | `psm-gateway` | Controller + Service + 日志风格 | 已完成 | 阶段 5 | Controller 迁入 `controller`；`GatewayAuthService` 拆为接口与 `service.impl` 实现；日志与构造注入已调整；单模块测试通过 | 无 | 2026-05-25 |
 | 其他后端服务 | 启动类 / 配置 / 占位模块 | 暂不改动 | 暂不纳入 | 已确认本轮不做结构性重构 | 后续新增业务代码时按本规范落地 | 2026-05-25 |
 
@@ -75,34 +75,34 @@ Gateway 没有数据库访问，主要整改 Service 接口拆分、包名、日
 
 ### psm-master-data-service 进度明细
 
-- [ ] POM 引入 MyBatis-Plus 与 validation。
-- [ ] 启动类增加 `@MapperScan`。
-- [ ] `interfaces` 迁移为 `controller`。
-- [ ] `MasterDataService` 拆为接口与 `service.impl.MasterDataServiceImpl`。
-- [ ] `BaseDataService` 拆为接口与 `service.impl.BaseDataServiceImpl`。
-- [ ] 删除 `MasterDataRepository`，新增 `MasterDataItemMapper` 与 XML。
-- [ ] 删除 `BaseDataRepository`，新增基础数据多表 Mapper 与 XML。
-- [ ] 新增 `BaseAreaEntity`、`BaseUnitEntity`、`BaseEquipmentEntity`、`MonitorPointEntity`。
-- [ ] `model` 拆分为 `model.dto`、`model.vo`、`model.entity`。
-- [ ] `attributes json` 字段确认 TypeHandler 或 Service 层转换方案。
-- [ ] Controller 入参增加 `@Valid`，DTO 增加 `javax.validation` 注解。
-- [ ] 全局异常处理补充参数校验异常。
-- [ ] 日志统一为 `@Slf4j`。
-- [ ] 构造注入统一为 `@RequiredArgsConstructor`。
+- [x] POM 引入 MyBatis-Plus 与 validation。
+- [x] 启动类增加 `@MapperScan`。
+- [x] `interfaces` 迁移为 `controller`。
+- [x] `MasterDataService` 拆为接口与 `service.impl.MasterDataServiceImpl`。
+- [x] `BaseDataService` 拆为接口与 `service.impl.BaseDataServiceImpl`。
+- [x] 删除 `MasterDataRepository`，新增 `MasterDataItemMapper` 与 XML。
+- [x] 删除 `BaseDataRepository`，新增基础数据多表 Mapper 与 XML。
+- [x] 新增 `BaseAreaEntity`、`BaseUnitEntity`、`BaseEquipmentEntity`、`MonitorPointEntity`。
+- [x] `model` 拆分为 `model.dto`、`model.vo`、`model.entity`。
+- [x] `attributes json` 字段采用 Service 层转换方案。
+- [x] Controller 入参增加 `@Valid`，DTO 增加 `javax.validation` 注解。
+- [x] 全局异常处理补充参数校验异常。
+- [x] 日志统一为 `@Slf4j`。
+- [x] 构造注入统一为 `@RequiredArgsConstructor`。
 - [x] 单模块测试通过。
 
 ### psm-audit-service 进度明细
 
-- [ ] POM 引入 MyBatis-Plus。
-- [ ] 启动类增加 `@MapperScan`。
-- [ ] `interfaces` 迁移为 `controller`。
-- [ ] `AuditLogService` 拆为接口与 `service.impl.AuditLogServiceImpl`。
-- [ ] 删除 `AuditLogRepository`，新增 `AuditChangeLogMapper` 与 XML。
-- [ ] `AuditLogRecord` 拆分为 `AuditChangeLogEntity` 与 `AuditLogRecordVO`。
-- [ ] 动态分页查询迁移到 Mapper XML。
-- [ ] 日志统一为 `@Slf4j`。
-- [ ] 构造注入统一为 `@RequiredArgsConstructor`。
-- [ ] 单模块测试通过。
+- [x] POM 引入 MyBatis-Plus。
+- [x] 启动类增加 `@MapperScan`。
+- [x] `interfaces` 迁移为 `controller`。
+- [x] `AuditLogService` 拆为接口与 `service.impl.AuditLogServiceImpl`。
+- [x] 删除 `AuditLogRepository`，新增 `AuditChangeLogMapper` 与 XML。
+- [x] `AuditLogRecord` 拆分为 `AuditChangeLogEntity` 与 `AuditLogRecordVO`。
+- [x] 动态分页查询迁移到 Mapper XML。
+- [x] 日志统一为 `@Slf4j`。
+- [x] 构造注入统一为 `@RequiredArgsConstructor`。
+- [x] 单模块测试通过。
 
 ### psm-gateway 进度明细
 
@@ -112,7 +112,7 @@ Gateway 没有数据库访问，主要整改 Service 接口拆分、包名、日
 - [x] 日志统一为 `@Slf4j`。
 - [x] 构造注入统一为 `@RequiredArgsConstructor`。
 - [x] 保持代理异常状态码透传逻辑。
-- [ ] 单模块测试通过。
+- [x] 单模块测试通过。
 
 ## 统一技术方案
 
@@ -361,10 +361,10 @@ private String username;
 ### 阶段 1：基础设施
 
 - [x] 父 POM 增加 MyBatis-Plus 版本管理。
-- [ ] DB 子模块引入 MyBatis-Plus starter。
-- [ ] DB 子模块移除直接 `spring-boot-starter-jdbc`。
-- [ ] 增加 validation 依赖。
-- [ ] DB 服务启动类增加 `@MapperScan`。
+- [x] DB 子模块引入 MyBatis-Plus starter。
+- [x] DB 子模块移除直接 `spring-boot-starter-jdbc`。
+- [x] 增加 validation 依赖。
+- [x] DB 服务启动类增加 `@MapperScan`。
 - [ ] 配置或确认 mapper XML 扫描路径。
 
 ### 阶段 2：psm-auth-service
@@ -379,20 +379,20 @@ private String username;
 
 ### 阶段 3：psm-master-data-service
 
-- [ ] 拆分包结构。
-- [ ] 拆 `MasterDataItem` 相关 Entity/Mapper/XML。
-- [ ] 拆 `BaseArea/BaseUnit/BaseEquipment/MonitorPoint` Entity/Mapper/XML。
-- [ ] 用 Service 路由替代 Repository 动态拼表。
-- [ ] 补 DTO 校验。
-- [ ] 更新测试。
-- [ ] 单模块测试通过。
+- [x] 拆分包结构。
+- [x] 拆 `MasterDataItem` 相关 Entity/Mapper/XML。
+- [x] 拆 `BaseArea/BaseUnit/BaseEquipment/MonitorPoint` Entity/Mapper/XML。
+- [x] 用 Service 路由替代 Repository 动态拼表。
+- [x] 补 DTO 校验。
+- [x] 更新测试。
+- [x] 单模块测试通过。
 
 ### 阶段 4：psm-audit-service
 
-- [ ] 拆分包结构。
-- [ ] 用 Mapper + XML 替换 `AuditLogRepository`。
-- [ ] 拆分 Service 接口与实现。
-- [ ] 更新测试。
+- [x] 拆分包结构。
+- [x] 用 Mapper + XML 替换 `AuditLogRepository`。
+- [x] 拆分 Service 接口与实现。
+- [x] 更新测试。
 - [ ] 单模块测试通过。
 
 ### 阶段 5：psm-gateway

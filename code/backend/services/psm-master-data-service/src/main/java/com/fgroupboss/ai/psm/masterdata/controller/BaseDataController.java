@@ -1,0 +1,114 @@
+package com.fgroupboss.ai.psm.masterdata.controller;
+
+import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.ResponseVO;
+import com.fgroupboss.ai.psm.common.UserContextHeaders;
+import com.fgroupboss.ai.psm.common.UserContextResolver;
+import com.fgroupboss.ai.psm.masterdata.config.BaseDataType;
+import com.fgroupboss.ai.psm.masterdata.model.dto.BaseDataRequest;
+import com.fgroupboss.ai.psm.masterdata.model.vo.BaseDataRecordVO;
+import com.fgroupboss.ai.psm.masterdata.service.BaseDataService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.List;
+
+/**
+ * 基础台账管理接口。
+ */
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
+public class BaseDataController {
+
+    private final BaseDataService service;
+
+    @PostMapping("/{type:areas|units|equipments|monitor-points}")
+    public ResponseVO<BaseDataRecordVO> create(@PathVariable String type,
+                                               @Valid @RequestBody BaseDataRequest request,
+                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(service.create(BaseDataType.fromPath(type), request, operator(userId, username, operator)));
+    }
+
+    @PutMapping("/{type:areas|units|equipments|monitor-points}/{id}")
+    public ResponseVO<BaseDataRecordVO> update(@PathVariable String type,
+                                               @PathVariable Long id,
+                                               @Valid @RequestBody BaseDataRequest request,
+                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(service.update(BaseDataType.fromPath(type), id, request, operator(userId, username, operator)));
+    }
+
+    @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/enable")
+    public ResponseVO<Void> enable(@PathVariable String type,
+                                   @PathVariable Long id,
+                                   @RequestParam Long tenantId,
+                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.enable(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+        return ResponseVO.success();
+    }
+
+    @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/disable")
+    public ResponseVO<Void> disable(@PathVariable String type,
+                                    @PathVariable Long id,
+                                    @RequestParam Long tenantId,
+                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.disable(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+        return ResponseVO.success();
+    }
+
+    @DeleteMapping("/{type:areas|units|equipments|monitor-points}/{id}")
+    public ResponseVO<Void> delete(@PathVariable String type,
+                                   @PathVariable Long id,
+                                   @RequestParam Long tenantId,
+                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.delete(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+        return ResponseVO.success();
+    }
+
+    @GetMapping("/{type:areas|units|equipments|monitor-points}/{id}")
+    public ResponseVO<BaseDataRecordVO> get(@PathVariable String type,
+                                            @PathVariable Long id,
+                                            @RequestParam Long tenantId) {
+        return ResponseVO.success(service.get(BaseDataType.fromPath(type), tenantId, id));
+    }
+
+    @GetMapping("/{type:areas|units|equipments|monitor-points}")
+    public ResponseVO<PageResult<BaseDataRecordVO>> page(@PathVariable String type,
+                                                         @RequestParam Long tenantId,
+                                                         @RequestParam(required = false) String keyword,
+                                                         @RequestParam(required = false) String status,
+                                                         @RequestParam(defaultValue = "1") int pageNo,
+                                                         @RequestParam(defaultValue = "20") int pageSize) {
+        return ResponseVO.success(service.page(BaseDataType.fromPath(type), tenantId, keyword, status, pageNo, pageSize));
+    }
+
+    @GetMapping("/{type:areas|units|equipments|monitor-points}/tree")
+    public ResponseVO<List<BaseDataRecordVO>> tree(@PathVariable String type,
+                                                   @RequestParam Long tenantId) {
+        return ResponseVO.success(service.tree(BaseDataType.fromPath(type), tenantId));
+    }
+
+    private String operator(String userId, String username, String fallback) {
+        return UserContextResolver.operator(userId, username, fallback);
+    }
+}
