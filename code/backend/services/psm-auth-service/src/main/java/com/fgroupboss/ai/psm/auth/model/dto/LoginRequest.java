@@ -1,9 +1,19 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.dto;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 public class LoginRequest {
 
+    @NotNull(message = "tenantId is required")
+    @Positive(message = "tenantId is required")
     private Long tenantId;
+
+    @NotBlank(message = "username is required")
     private String username;
+
+    @NotBlank(message = "password is required")
     private String password;
 
     public Long getTenantId() {

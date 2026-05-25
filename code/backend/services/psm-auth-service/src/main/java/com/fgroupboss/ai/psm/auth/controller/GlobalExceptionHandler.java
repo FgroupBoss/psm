@@ -1,21 +1,31 @@
-package com.fgroupboss.ai.psm.auth.interfaces;
+package com.fgroupboss.ai.psm.auth.controller;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Converts authentication API failures to the common response envelope.
+ */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BusinessException.class)
     public ResponseVO<Void> handleBusinessException(BusinessException e) {
         return ResponseVO.failure(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseVO<Void> handleValidationException(MethodArgumentNotValidException e) {
+        FieldError error = e.getBindingResult().getFieldError();
+        String message = error == null ? "request is invalid" : error.getDefaultMessage();
+        return ResponseVO.failure(400, message);
     }
 
     @ExceptionHandler(DataAccessException.class)

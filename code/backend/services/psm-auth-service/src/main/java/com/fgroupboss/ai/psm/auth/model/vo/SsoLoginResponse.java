@@ -1,4 +1,4 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.vo;
 
 public class SsoLoginResponse {
 

@@ -1,13 +1,26 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.vo;
 
-public class RegisterRequest {
+import java.time.LocalDateTime;
 
+public class AuthUserVO {
+
+    private Long id;
     private Long tenantId;
     private String username;
-    private String password;
     private String displayName;
     private String mobile;
     private String email;
+    private String accountType;
+    private String status;
+    private LocalDateTime lastLoginAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getTenantId() {
         return tenantId;
@@ -23,14 +36,6 @@ public class RegisterRequest {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getDisplayName() {
@@ -55,5 +60,29 @@ public class RegisterRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
 }

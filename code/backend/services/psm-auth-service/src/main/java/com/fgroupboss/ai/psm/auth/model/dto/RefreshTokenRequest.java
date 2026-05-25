@@ -1,7 +1,10 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.dto;
+
+import javax.validation.constraints.NotBlank;
 
 public class RefreshTokenRequest {
 
+    @NotBlank(message = "refreshToken is required")
     private String refreshToken;
 
     public String getRefreshToken() {

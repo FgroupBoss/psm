@@ -1,9 +1,15 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
 
-public class AuthUser {
+@TableName("auth_user")
+public class AuthUserEntity {
 
+    @TableId(type = IdType.AUTO)
     private Long id;
     private Long tenantId;
     private String username;

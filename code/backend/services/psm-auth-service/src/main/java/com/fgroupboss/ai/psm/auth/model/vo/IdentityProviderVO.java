@@ -1,8 +1,8 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.vo;
 
 import java.util.Map;
 
-public class IdentityProvider {
+public class IdentityProviderVO {
 
     private Long id;
     private Long tenantId;
@@ -10,7 +10,6 @@ public class IdentityProvider {
     private String providerType;
     private String providerName;
     private String clientId;
-    private String clientSecret;
     private String authorizeUrl;
     private String tokenUrl;
     private String userInfoUrl;
@@ -65,14 +64,6 @@ public class IdentityProvider {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
     }
 
     public String getAuthorizeUrl() {

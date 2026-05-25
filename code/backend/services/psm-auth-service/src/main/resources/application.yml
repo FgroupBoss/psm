@@ -10,6 +10,9 @@ spring:
     password: ${PSM_AUTH_DB_PASSWORD:psm}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+
 psm:
   auth:
     token-ttl-seconds: ${PSM_AUTH_TOKEN_TTL_SECONDS:7200}

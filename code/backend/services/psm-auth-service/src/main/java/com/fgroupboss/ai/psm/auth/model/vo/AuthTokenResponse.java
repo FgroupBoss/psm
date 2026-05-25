@@ -1,41 +1,15 @@
-package com.fgroupboss.ai.psm.auth.model;
+package com.fgroupboss.ai.psm.auth.model.vo;
 
 import java.time.LocalDateTime;
 
-public class AuthSession {
+public class AuthTokenResponse {
 
-    private Long id;
-    private Long tenantId;
-    private Long userId;
     private String accessToken;
+    private String tokenType;
     private String refreshToken;
     private LocalDateTime accessExpiresAt;
     private LocalDateTime refreshExpiresAt;
-    private boolean revoked;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    private AuthUserVO user;
 
     public String getAccessToken() {
         return accessToken;
@@ -43,6 +17,14 @@ public class AuthSession {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 
     public String getRefreshToken() {
@@ -69,11 +51,11 @@ public class AuthSession {
         this.refreshExpiresAt = refreshExpiresAt;
     }
 
-    public boolean isRevoked() {
-        return revoked;
+    public AuthUserVO getUser() {
+        return user;
     }
 
-    public void setRevoked(boolean revoked) {
-        this.revoked = revoked;
+    public void setUser(AuthUserVO user) {
+        this.user = user;
     }
 }
