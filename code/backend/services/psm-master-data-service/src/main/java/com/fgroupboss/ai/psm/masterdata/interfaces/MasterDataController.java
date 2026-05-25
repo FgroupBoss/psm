@@ -2,6 +2,8 @@ package com.fgroupboss.ai.psm.masterdata.interfaces;
 
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
+import com.fgroupboss.ai.psm.common.UserContextHeaders;
+import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.masterdata.config.MasterDataType;
 import com.fgroupboss.ai.psm.masterdata.model.MasterDataRecord;
 import com.fgroupboss.ai.psm.masterdata.model.MasterDataRequest;
@@ -32,24 +34,30 @@ public class MasterDataController {
     @PostMapping("/{type}")
     public ResponseVO<MasterDataRecord> create(@PathVariable String type,
                                                @RequestBody MasterDataRequest request,
+                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(MasterDataType.fromPath(type), request, operator));
+        return ResponseVO.success(service.create(MasterDataType.fromPath(type), request, UserContextResolver.operator(userId, username, operator)));
     }
 
     @PutMapping("/{type}/{id}")
     public ResponseVO<MasterDataRecord> update(@PathVariable String type,
                                                @PathVariable Long id,
                                                @RequestBody MasterDataRequest request,
+                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(MasterDataType.fromPath(type), id, request, operator));
+        return ResponseVO.success(service.update(MasterDataType.fromPath(type), id, request, UserContextResolver.operator(userId, username, operator)));
     }
 
     @PostMapping("/{type}/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable String type,
                                     @PathVariable Long id,
                                     @RequestParam Long tenantId,
+                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.disable(MasterDataType.fromPath(type), tenantId, id, operator);
+        service.disable(MasterDataType.fromPath(type), tenantId, id, UserContextResolver.operator(userId, username, operator));
         return ResponseVO.success();
     }
 
@@ -57,8 +65,10 @@ public class MasterDataController {
     public ResponseVO<Void> delete(@PathVariable String type,
                                    @PathVariable Long id,
                                    @RequestParam Long tenantId,
+                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.delete(MasterDataType.fromPath(type), tenantId, id, operator);
+        service.delete(MasterDataType.fromPath(type), tenantId, id, UserContextResolver.operator(userId, username, operator));
         return ResponseVO.success();
     }
 

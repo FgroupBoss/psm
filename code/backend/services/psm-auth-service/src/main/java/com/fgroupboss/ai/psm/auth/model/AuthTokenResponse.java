@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class AuthTokenResponse {
 
     private String accessToken;
+    private String tokenType;
     private String refreshToken;
     private LocalDateTime accessExpiresAt;
     private LocalDateTime refreshExpiresAt;
@@ -16,6 +17,14 @@ public class AuthTokenResponse {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 
     public String getRefreshToken() {

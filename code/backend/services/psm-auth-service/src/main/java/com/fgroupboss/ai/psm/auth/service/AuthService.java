@@ -166,6 +166,7 @@ public class AuthService {
 
         AuthTokenResponse response = new AuthTokenResponse();
         response.setAccessToken(session.getAccessToken());
+        response.setTokenType("Bearer");
         response.setRefreshToken(session.getRefreshToken());
         response.setAccessExpiresAt(session.getAccessExpiresAt());
         response.setRefreshExpiresAt(session.getRefreshExpiresAt());
