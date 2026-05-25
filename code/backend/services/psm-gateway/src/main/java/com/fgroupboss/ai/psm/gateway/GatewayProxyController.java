@@ -47,6 +47,23 @@ public class GatewayProxyController {
         return proxy(properties.getMasterDataServiceUrl(), request, body, principal);
     }
 
+    @RequestMapping({"/api/areas/**", "/api/areas", "/api/units/**", "/api/units",
+            "/api/equipments/**", "/api/equipments", "/api/monitor-points/**", "/api/monitor-points"})
+    public ResponseEntity<String> proxyBaseData(HttpServletRequest request,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                                @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getMasterDataServiceUrl(), request, body, principal);
+    }
+
+    @RequestMapping({"/api/audit/**", "/api/audit"})
+    public ResponseEntity<String> proxyAudit(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                             @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getAuditServiceUrl(), request, body, principal);
+    }
+
     private ResponseEntity<String> proxy(String serviceUrl, HttpServletRequest request, String body, AuthPrincipal principal) {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

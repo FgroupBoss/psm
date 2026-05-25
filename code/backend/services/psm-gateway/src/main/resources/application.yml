@@ -9,3 +9,4 @@ psm:
   gateway:
     auth-service-url: ${PSM_AUTH_SERVICE_URL:http://localhost:18081}
     master-data-service-url: ${PSM_MASTER_DATA_SERVICE_URL:http://localhost:18083}
+    audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}

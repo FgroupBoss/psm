@@ -1,8 +1,11 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
 import type {
   ApiResponse,
+  AuditLogRecord,
   AuthTokenResponse,
   AuthUser,
+  BaseDataRecord,
+  BaseDataRequest,
   DemoInfo,
   LoginRequest,
   MasterDataRecord,
@@ -38,6 +41,80 @@ export async function fetchMasterDataPage(
     pageSize: String(pageSize)
   });
   return request<PageResult<MasterDataRecord>>(`/api/master-data/${type}?${params.toString()}`);
+}
+
+export interface PageQuery {
+  tenantId: number;
+  keyword?: string;
+  status?: string;
+  pageNo?: number;
+  pageSize?: number;
+}
+
+export async function fetchBaseDataPage(type: string, query: PageQuery): Promise<PageResult<BaseDataRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.status) {
+    params.set('status', query.status);
+  }
+  return request<PageResult<BaseDataRecord>>(`/api/${type}?${params.toString()}`);
+}
+
+export async function fetchBaseDataTree(type: string, tenantId: number): Promise<BaseDataRecord[]> {
+  return request<BaseDataRecord[]>(`/api/${type}/tree?tenantId=${tenantId}`);
+}
+
+export async function createBaseData(type: string, payload: BaseDataRequest): Promise<BaseDataRecord> {
+  return request<BaseDataRecord>(`/api/${type}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateBaseData(type: string, id: number, payload: BaseDataRequest): Promise<BaseDataRecord> {
+  return request<BaseDataRecord>(`/api/${type}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function enableBaseData(type: string, id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/${type}/${id}/enable?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function disableBaseData(type: string, id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/${type}/${id}/disable?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function deleteBaseData(type: string, id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/${type}/${id}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchAuditLogs(query: PageQuery & { bizType?: string; action?: string }): Promise<PageResult<AuditLogRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.bizType) {
+    params.set('bizType', query.bizType);
+  }
+  if (query.action) {
+    params.set('action', query.action);
+  }
+  return request<PageResult<AuditLogRecord>>(`/api/audit/logs?${params.toString()}`);
 }
 
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {

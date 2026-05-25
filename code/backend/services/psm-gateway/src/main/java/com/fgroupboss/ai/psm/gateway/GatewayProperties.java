@@ -9,6 +9,7 @@ public class GatewayProperties {
 
     private String authServiceUrl = "http://localhost:18081";
     private String masterDataServiceUrl = "http://localhost:18083";
+    private String auditServiceUrl = "http://localhost:18094";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -24,6 +25,14 @@ public class GatewayProperties {
 
     public void setMasterDataServiceUrl(String masterDataServiceUrl) {
         this.masterDataServiceUrl = trimTrailingSlash(masterDataServiceUrl);
+    }
+
+    public String getAuditServiceUrl() {
+        return auditServiceUrl;
+    }
+
+    public void setAuditServiceUrl(String auditServiceUrl) {
+        this.auditServiceUrl = trimTrailingSlash(auditServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

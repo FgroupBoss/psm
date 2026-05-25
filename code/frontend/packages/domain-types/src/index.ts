@@ -55,3 +55,72 @@ export interface MasterDataRecord {
   status: string;
   attributes?: Record<string, unknown>;
 }
+
+export interface BaseDataRecord {
+  id: number;
+  tenantId: number;
+  code: string;
+  name: string;
+  parentId?: number;
+  areaId?: number;
+  unitId?: number;
+  equipmentId?: number;
+  type?: string;
+  siteId?: number;
+  riskLevel?: string;
+  majorHazardFlag?: boolean;
+  sortNo?: number;
+  runningStatus?: string;
+  sourceSystem?: string;
+  sourceTag?: string;
+  metricType?: string;
+  unit?: string;
+  highHigh?: number;
+  high?: number;
+  low?: number;
+  lowLow?: number;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BaseDataRequest {
+  tenantId: number;
+  code?: string;
+  name: string;
+  parentId?: number;
+  areaId?: number;
+  unitId?: number;
+  equipmentId?: number;
+  type?: string;
+  siteId?: number;
+  riskLevel?: string;
+  majorHazardFlag?: boolean;
+  sortNo?: number;
+  runningStatus?: string;
+  sourceSystem?: string;
+  sourceTag?: string;
+  metricType?: string;
+  unit?: string;
+  highHigh?: number;
+  high?: number;
+  low?: number;
+  lowLow?: number;
+  status?: string;
+}
+
+export interface AuditLogRecord {
+  id: number;
+  tenantId: number;
+  operatorId?: number;
+  operatorName?: string;
+  action: string;
+  bizType: string;
+  bizId?: number;
+  beforeValue?: string;
+  afterValue?: string;
+  result: string;
+  clientIp?: string;
+  userAgent?: string;
+  operatedAt: string;
+}
