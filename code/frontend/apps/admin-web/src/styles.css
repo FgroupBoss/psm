@@ -55,13 +55,22 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   height: 40px;
   border: 1px solid #cbd5df;
   border-radius: 6px;
   padding: 0 12px;
   font: inherit;
   background: #fff;
+}
+
+textarea {
+  height: auto;
+  padding: 12px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: Consolas, "Courier New", monospace;
 }
 
 button {
@@ -189,6 +198,11 @@ nav {
   overflow: hidden;
 }
 
+.stacked-panels {
+  display: grid;
+  gap: 20px;
+}
+
 .panel-header {
   display: flex;
   align-items: center;
@@ -209,6 +223,32 @@ nav {
   gap: 12px;
   padding: 16px 20px;
   border-bottom: 1px solid #edf1f5;
+}
+
+.config-toolbar {
+  grid-template-columns: minmax(180px, 280px) 150px minmax(160px, 220px) auto;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px 0;
+}
+
+.tab-button {
+  width: auto;
+  height: 34px;
+  padding: 0 12px;
+  border-color: #cbd5df;
+  background: #fff;
+  color: #1f2937;
+}
+
+.tab-button.active {
+  border-color: #1f6feb;
+  background: #eaf2ff;
+  color: #1f6feb;
 }
 
 table {
@@ -327,6 +367,55 @@ th {
   padding: 20px;
 }
 
+.wide-field,
+.inline-error {
+  grid-column: 1 / -1;
+}
+
+.config-modal {
+  width: min(860px, 100%);
+}
+
+.evaluation-form {
+  border-bottom: 1px solid #edf1f5;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 20px 20px;
+}
+
+.form-actions button {
+  width: auto;
+  padding: 0 14px;
+}
+
+.evaluation-results {
+  display: grid;
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+
+.result-row {
+  border: 1px solid #edf1f5;
+  border-radius: 6px;
+  padding: 14px;
+  background: #fafbfc;
+}
+
+.result-row div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.result-row p {
+  margin: 10px 0 0;
+  color: #52616f;
+}
+
 .checkbox-row {
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -355,6 +444,7 @@ th {
   }
 
   .toolbar,
+  .config-toolbar,
   .form-grid {
     grid-template-columns: 1fr;
   }

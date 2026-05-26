@@ -124,3 +124,61 @@ export interface AuditLogRecord {
   userAgent?: string;
   operatedAt: string;
 }
+
+export type ConfigItemPath =
+  | 'dictionaries'
+  | 'forms'
+  | 'workflows'
+  | 'rules'
+  | 'notifications/templates'
+  | 'attachments/policies';
+
+export interface ConfigItemRecord {
+  id: number;
+  tenantId: number;
+  configType: string;
+  configCode: string;
+  configName: string;
+  versionNo: number;
+  status: string;
+  bizScene?: string;
+  content?: Record<string, unknown>;
+  remark?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ConfigItemRequest {
+  tenantId: number;
+  configCode: string;
+  configName: string;
+  bizScene?: string;
+  content?: Record<string, unknown>;
+  remark?: string;
+  status?: string;
+}
+
+export interface ConfigItemQuery {
+  tenantId: number;
+  keyword?: string;
+  status?: string;
+  bizScene?: string;
+  pageNo?: number;
+  pageSize?: number;
+}
+
+export interface RuleEvaluationRequest {
+  tenantId: number;
+  scene: string;
+  ruleCode?: string;
+  facts?: Record<string, unknown>;
+}
+
+export interface RuleEvaluationResult {
+  passed: boolean;
+  level: string;
+  ruleCode?: string;
+  message?: string;
+  evidence?: string[];
+  suggestion?: string;
+}

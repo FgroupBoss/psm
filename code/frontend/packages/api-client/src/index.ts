@@ -6,10 +6,16 @@ import type {
   AuthUser,
   BaseDataRecord,
   BaseDataRequest,
+  ConfigItemPath,
+  ConfigItemQuery,
+  ConfigItemRecord,
+  ConfigItemRequest,
   DemoInfo,
   LoginRequest,
   MasterDataRecord,
-  PageResult
+  PageResult,
+  RuleEvaluationRequest,
+  RuleEvaluationResult
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -115,6 +121,73 @@ export async function fetchAuditLogs(query: PageQuery & { bizType?: string; acti
     params.set('action', query.action);
   }
   return request<PageResult<AuditLogRecord>>(`/api/audit/logs?${params.toString()}`);
+}
+
+export async function fetchConfigItems(
+  type: ConfigItemPath,
+  query: ConfigItemQuery
+): Promise<PageResult<ConfigItemRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.status) {
+    params.set('status', query.status);
+  }
+  if (query.bizScene) {
+    params.set('bizScene', query.bizScene);
+  }
+  return request<PageResult<ConfigItemRecord>>(`/api/config/${type}?${params.toString()}`);
+}
+
+export async function createConfigItem(
+  type: ConfigItemPath,
+  payload: ConfigItemRequest
+): Promise<ConfigItemRecord> {
+  return request<ConfigItemRecord>(`/api/config/${type}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateConfigItem(
+  type: ConfigItemPath,
+  id: number,
+  payload: ConfigItemRequest
+): Promise<ConfigItemRecord> {
+  return request<ConfigItemRecord>(`/api/config/${type}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function publishConfigItem(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/config/items/${id}/publish?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function disableConfigItem(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/config/items/${id}/disable?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function deleteConfigItem(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/config/items/${id}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function evaluateRules(payload: RuleEvaluationRequest): Promise<RuleEvaluationResult[]> {
+  return request<RuleEvaluationResult[]>('/api/config/rules/evaluate', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 }
 
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
