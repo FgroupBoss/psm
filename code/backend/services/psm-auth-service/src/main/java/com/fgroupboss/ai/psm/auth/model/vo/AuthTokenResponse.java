@@ -9,6 +9,7 @@ public class AuthTokenResponse {
     private String refreshToken;
     private LocalDateTime accessExpiresAt;
     private LocalDateTime refreshExpiresAt;
+    private Long permissionVersion;
     private AuthUserVO user;
 
     public String getAccessToken() {
@@ -49,6 +50,14 @@ public class AuthTokenResponse {
 
     public void setRefreshExpiresAt(LocalDateTime refreshExpiresAt) {
         this.refreshExpiresAt = refreshExpiresAt;
+    }
+
+    public Long getPermissionVersion() {
+        return permissionVersion;
+    }
+
+    public void setPermissionVersion(Long permissionVersion) {
+        this.permissionVersion = permissionVersion;
     }
 
     public AuthUserVO getUser() {

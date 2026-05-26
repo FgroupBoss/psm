@@ -11,6 +11,7 @@ public class UserContext implements Serializable {
     private String username;
     private String displayName;
     private String sessionId;
+    private Long permissionVersion;
 
     public Long getTenantId() {
         return tenantId;
@@ -50,5 +51,13 @@ public class UserContext implements Serializable {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public Long getPermissionVersion() {
+        return permissionVersion;
+    }
+
+    public void setPermissionVersion(Long permissionVersion) {
+        this.permissionVersion = permissionVersion;
     }
 }

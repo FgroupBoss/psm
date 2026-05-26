@@ -3,7 +3,7 @@
 <mapper namespace="com.fgroupboss.ai.psm.auth.mapper.AuthSessionMapper">
 
     <select id="findByAccessToken" resultType="com.fgroupboss.ai.psm.auth.model.entity.AuthSessionEntity">
-        select id, tenant_id, user_id, access_token, refresh_token, access_expires_at,
+        select id, tenant_id, user_id, access_token, refresh_token, permission_version, access_expires_at,
                refresh_expires_at, revoked
         from auth_session
         where access_token = #{accessToken}
@@ -11,7 +11,7 @@
     </select>
 
     <select id="findByRefreshToken" resultType="com.fgroupboss.ai.psm.auth.model.entity.AuthSessionEntity">
-        select id, tenant_id, user_id, access_token, refresh_token, access_expires_at,
+        select id, tenant_id, user_id, access_token, refresh_token, permission_version, access_expires_at,
                refresh_expires_at, revoked
         from auth_session
         where refresh_token = #{refreshToken}

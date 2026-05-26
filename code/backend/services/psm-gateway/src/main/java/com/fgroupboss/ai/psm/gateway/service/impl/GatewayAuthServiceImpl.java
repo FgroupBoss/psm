@@ -61,6 +61,7 @@ public class GatewayAuthServiceImpl implements GatewayAuthService {
             principal.setTenantId(data.path("tenantId").asLong());
             principal.setUsername(data.path("username").asText(null));
             principal.setDisplayName(data.path("displayName").asText(null));
+            principal.setPermissionVersion(data.path("permissionVersion").asLong(1L));
             return principal;
         } catch (BusinessException e) {
             throw e;

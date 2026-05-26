@@ -7,6 +7,7 @@ public final class UserContextHeaders {
     public static final String USERNAME = "X-PSM-Username";
     public static final String DISPLAY_NAME = "X-PSM-Display-Name";
     public static final String SESSION_ID = "X-PSM-Session-Id";
+    public static final String PERMISSION_VERSION = "X-PSM-Permission-Version";
 
     private UserContextHeaders() {
     }

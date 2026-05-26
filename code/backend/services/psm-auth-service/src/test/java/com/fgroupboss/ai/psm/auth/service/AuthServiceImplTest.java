@@ -1,6 +1,7 @@
 package com.fgroupboss.ai.psm.auth.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fgroupboss.ai.psm.auth.client.IamPermissionClient;
 import com.fgroupboss.ai.psm.auth.config.AuthProperties;
 import com.fgroupboss.ai.psm.auth.mapper.AuthSessionMapper;
 import com.fgroupboss.ai.psm.auth.mapper.AuthSsoStateMapper;
@@ -9,6 +10,8 @@ import com.fgroupboss.ai.psm.auth.mapper.AuthUserMapper;
 import com.fgroupboss.ai.psm.auth.mapper.IdentityProviderMapper;
 import com.fgroupboss.ai.psm.auth.mapper.LoginLogMapper;
 import com.fgroupboss.ai.psm.auth.model.dto.SsoCallbackRequest;
+import com.fgroupboss.ai.psm.auth.model.entity.AuthSessionEntity;
+import com.fgroupboss.ai.psm.auth.model.entity.AuthUserEntity;
 import com.fgroupboss.ai.psm.auth.model.entity.IdentityProviderEntity;
 import com.fgroupboss.ai.psm.auth.model.entity.LoginLogEntity;
 import com.fgroupboss.ai.psm.auth.model.vo.IdentityProviderVO;
@@ -32,25 +35,33 @@ import static org.mockito.Mockito.when;
 class AuthServiceImplTest {
 
     private AuthSsoStateMapper authSsoStateMapper;
+    private AuthSessionMapper authSessionMapper;
+    private AuthUserMapper authUserMapper;
     private IdentityProviderMapper identityProviderMapper;
     private LoginLogMapper loginLogMapper;
+    private IamPermissionClient iamPermissionClient;
     private AuthServiceImpl service;
 
     @BeforeEach
     void setUp() {
+        authUserMapper = mock(AuthUserMapper.class);
+        authSessionMapper = mock(AuthSessionMapper.class);
         authSsoStateMapper = mock(AuthSsoStateMapper.class);
         identityProviderMapper = mock(IdentityProviderMapper.class);
         loginLogMapper = mock(LoginLogMapper.class);
+        iamPermissionClient = mock(IamPermissionClient.class);
         service = new AuthServiceImpl(
-                mock(AuthUserMapper.class),
-                mock(AuthSessionMapper.class),
+                authUserMapper,
+                authSessionMapper,
                 identityProviderMapper,
                 mock(AuthUserIdentityMapper.class),
                 authSsoStateMapper,
                 loginLogMapper,
                 new PasswordHasher(),
                 new AuthProperties(),
-                new ObjectMapper());
+                new ObjectMapper(),
+                iamPermissionClient);
+        when(iamPermissionClient.currentPermissionVersion(1L, null)).thenReturn(1L);
     }
 
     @Test
@@ -83,6 +94,45 @@ class AuthServiceImplTest {
         assertEquals(401, exception.getCode());
         assertEquals("invalid sso state", exception.getMessage());
         verify(loginLogMapper).insert(any(LoginLogEntity.class));
+    }
+
+    @Test
+    void meRejectsTokenWhenPermissionVersionExpired() {
+        AuthSessionEntity session = new AuthSessionEntity();
+        session.setId(99L);
+        session.setTenantId(1L);
+        session.setUserId(7L);
+        session.setPermissionVersion(1L);
+        session.setAccessExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        when(authSessionMapper.findByAccessToken("token-value")).thenReturn(session);
+        when(iamPermissionClient.currentPermissionVersion(1L, 7L)).thenReturn(2L);
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> service.me("Bearer token-value"));
+
+        assertEquals(401, exception.getCode());
+        assertEquals("permission version expired", exception.getMessage());
+        verify(authSessionMapper).revoke(99L);
+    }
+
+    @Test
+    void meReturnsCurrentPermissionVersionWhenTokenIsFresh() {
+        AuthSessionEntity session = new AuthSessionEntity();
+        session.setTenantId(1L);
+        session.setUserId(7L);
+        session.setPermissionVersion(3L);
+        session.setAccessExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        when(authSessionMapper.findByAccessToken("token-value")).thenReturn(session);
+        when(iamPermissionClient.currentPermissionVersion(1L, 7L)).thenReturn(3L);
+        AuthUserEntity user = new AuthUserEntity();
+        user.setId(7L);
+        user.setTenantId(1L);
+        user.setUsername("admin");
+        user.setDisplayName("Admin");
+        user.setAccountType("LOCAL");
+        user.setStatus("ENABLED");
+        when(authUserMapper.findByIdAndTenant(1L, 7L)).thenReturn(user);
+
+        assertEquals(3L, service.me("Bearer token-value").getPermissionVersion());
     }
 
     private IdentityProviderEntity provider() {

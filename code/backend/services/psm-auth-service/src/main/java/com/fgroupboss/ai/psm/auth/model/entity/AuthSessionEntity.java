@@ -15,6 +15,7 @@ public class AuthSessionEntity {
     private Long userId;
     private String accessToken;
     private String refreshToken;
+    private Long permissionVersion;
     private LocalDateTime accessExpiresAt;
     private LocalDateTime refreshExpiresAt;
     private Boolean revoked;
@@ -57,6 +58,14 @@ public class AuthSessionEntity {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public Long getPermissionVersion() {
+        return permissionVersion;
+    }
+
+    public void setPermissionVersion(Long permissionVersion) {
+        this.permissionVersion = permissionVersion;
     }
 
     public LocalDateTime getAccessExpiresAt() {

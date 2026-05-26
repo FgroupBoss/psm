@@ -24,6 +24,7 @@ class GatewayAuthServiceTest {
         assertEquals(1L, principal.getTenantId());
         assertEquals("admin", principal.getUsername());
         assertEquals("System Admin", principal.getDisplayName());
+        assertEquals(1L, principal.getPermissionVersion());
     }
 
     @Test

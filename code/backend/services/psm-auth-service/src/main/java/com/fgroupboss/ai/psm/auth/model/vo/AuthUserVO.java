@@ -12,6 +12,7 @@ public class AuthUserVO {
     private String email;
     private String accountType;
     private String status;
+    private Long permissionVersion;
     private LocalDateTime lastLoginAt;
 
     public Long getId() {
@@ -76,6 +77,14 @@ public class AuthUserVO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Long getPermissionVersion() {
+        return permissionVersion;
+    }
+
+    public void setPermissionVersion(Long permissionVersion) {
+        this.permissionVersion = permissionVersion;
     }
 
     public LocalDateTime getLastLoginAt() {

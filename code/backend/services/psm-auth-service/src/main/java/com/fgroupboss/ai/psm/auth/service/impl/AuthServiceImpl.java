@@ -2,6 +2,7 @@ package com.fgroupboss.ai.psm.auth.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fgroupboss.ai.psm.auth.client.IamPermissionClient;
 import com.fgroupboss.ai.psm.auth.config.AuthProperties;
 import com.fgroupboss.ai.psm.auth.mapper.AuthSessionMapper;
 import com.fgroupboss.ai.psm.auth.mapper.AuthSsoStateMapper;
@@ -63,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordHasher passwordHasher;
     private final AuthProperties properties;
     private final ObjectMapper objectMapper;
+    private final IamPermissionClient iamPermissionClient;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
@@ -222,6 +224,7 @@ public class AuthServiceImpl implements AuthService {
         session.setUserId(user.getId());
         session.setAccessToken(randomToken());
         session.setRefreshToken(randomToken());
+        session.setPermissionVersion(iamPermissionClient.currentPermissionVersion(user.getTenantId(), user.getId()));
         session.setAccessExpiresAt(now.plusSeconds(properties.getTokenTtlSeconds()));
         session.setRefreshExpiresAt(now.plusSeconds(properties.getRefreshTokenTtlSeconds()));
         session.setRevoked(Boolean.FALSE);
@@ -236,6 +239,7 @@ public class AuthServiceImpl implements AuthService {
         response.setRefreshToken(session.getRefreshToken());
         response.setAccessExpiresAt(session.getAccessExpiresAt());
         response.setRefreshExpiresAt(session.getRefreshExpiresAt());
+        response.setPermissionVersion(session.getPermissionVersion());
         response.setUser(toUserVO(user));
         return response;
     }
@@ -249,7 +253,17 @@ public class AuthServiceImpl implements AuthService {
         if (session == null || session.getAccessExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BusinessException(401, "access token expired");
         }
+        ensurePermissionVersionFresh(session);
         return session;
+    }
+
+    private void ensurePermissionVersionFresh(AuthSessionEntity session) {
+        long currentVersion = iamPermissionClient.currentPermissionVersion(session.getTenantId(), session.getUserId());
+        long sessionVersion = session.getPermissionVersion() == null ? 1L : session.getPermissionVersion();
+        if (currentVersion != sessionVersion) {
+            authSessionMapper.revoke(session.getId());
+            throw new BusinessException(401, "permission version expired");
+        }
     }
 
     private AuthUserEntity requireUser(Long tenantId, Long userId) {
@@ -322,6 +336,7 @@ public class AuthServiceImpl implements AuthService {
         response.setEmail(user.getEmail());
         response.setAccountType(user.getAccountType());
         response.setStatus(user.getStatus());
+        response.setPermissionVersion(iamPermissionClient.currentPermissionVersion(user.getTenantId(), user.getId()));
         response.setLastLoginAt(user.getLastLoginAt());
         return response;
     }

@@ -24,6 +24,7 @@ create table if not exists auth_session (
   user_id bigint not null,
   access_token varchar(128) not null,
   refresh_token varchar(128) not null,
+  permission_version bigint not null default 1,
   access_expires_at datetime not null,
   refresh_expires_at datetime not null,
   revoked tinyint not null default 0,

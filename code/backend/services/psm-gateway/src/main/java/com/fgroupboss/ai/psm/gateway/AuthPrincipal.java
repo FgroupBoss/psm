@@ -6,6 +6,7 @@ public class AuthPrincipal {
     private Long tenantId;
     private String username;
     private String displayName;
+    private Long permissionVersion;
 
     public Long getId() {
         return id;
@@ -37,5 +38,13 @@ public class AuthPrincipal {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public Long getPermissionVersion() {
+        return permissionVersion;
+    }
+
+    public void setPermissionVersion(Long permissionVersion) {
+        this.permissionVersion = permissionVersion;
     }
 }

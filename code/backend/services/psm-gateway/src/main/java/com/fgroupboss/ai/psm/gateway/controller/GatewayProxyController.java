@@ -73,6 +73,9 @@ public class GatewayProxyController {
             if (StringUtils.hasText(principal.getDisplayName())) {
                 headers.set(UserContextHeaders.DISPLAY_NAME, principal.getDisplayName());
             }
+            if (principal.getPermissionVersion() != null) {
+                headers.set(UserContextHeaders.PERMISSION_VERSION, String.valueOf(principal.getPermissionVersion()));
+            }
         }
         HttpMethod method = HttpMethod.resolve(request.getMethod());
         if (method == null) {
@@ -121,6 +124,7 @@ public class GatewayProxyController {
                 || UserContextHeaders.USER_ID.equalsIgnoreCase(name)
                 || UserContextHeaders.USERNAME.equalsIgnoreCase(name)
                 || UserContextHeaders.DISPLAY_NAME.equalsIgnoreCase(name)
+                || UserContextHeaders.PERMISSION_VERSION.equalsIgnoreCase(name)
                 || UserContextHeaders.SESSION_ID.equalsIgnoreCase(name);
     }
 

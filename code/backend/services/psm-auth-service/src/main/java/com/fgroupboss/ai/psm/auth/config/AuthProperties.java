@@ -11,6 +11,7 @@ public class AuthProperties {
     private long refreshTokenTtlSeconds = 604800L;
     private long ssoStateTtlSeconds = 600L;
     private String publicBaseUrl = "http://localhost:18081";
+    private String iamServiceUrl = "http://localhost:18082";
 
     public long getTokenTtlSeconds() {
         return tokenTtlSeconds;
@@ -42,5 +43,20 @@ public class AuthProperties {
 
     public void setPublicBaseUrl(String publicBaseUrl) {
         this.publicBaseUrl = publicBaseUrl;
+    }
+
+    public String getIamServiceUrl() {
+        return iamServiceUrl;
+    }
+
+    public void setIamServiceUrl(String iamServiceUrl) {
+        this.iamServiceUrl = trimTrailingSlash(iamServiceUrl);
+    }
+
+    private String trimTrailingSlash(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
 }
