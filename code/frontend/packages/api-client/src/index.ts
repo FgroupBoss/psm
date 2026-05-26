@@ -1,4 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
+import { CONTRACTOR_API, MAJOR_HAZARD_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -17,7 +18,26 @@ import type {
   RuleEvaluationRequest,
   RuleEvaluationResult,
   AssignUserRoleRequest,
+  CompanyApproveRequest,
+  CompanyReasonRequest,
+  ContractorCompanyRecord,
+  ContractorCompanyRequest,
+  ContractorQualificationRecord,
+  ContractorQualificationRequest,
+  ContractorWorkerRecord,
+  ContractorWorkerRequest,
+  EligibilityCheckRequest,
+  EligibilityCheckResult,
+  WorkerCertificateRecord,
+  WorkerCertificateRequest,
+  WorkerTrainingRecord,
+  WorkerTrainingRequest,
+  WorkerViolationRecord,
+  WorkerViolationRequest,
   IamUserRecord,
+  MajorHazardRecord,
+  RiskContextRequest,
+  RiskContextResult,
   IamUserRequest,
   MenuResourceRequest,
   MenuTreeNode,
@@ -115,6 +135,290 @@ export async function disableBaseData(type: string, id: number, tenantId: number
 export async function deleteBaseData(type: string, id: number, tenantId: number): Promise<void> {
   return request<void>(`/api/${type}/${id}?tenantId=${tenantId}`, {
     method: 'DELETE'
+  });
+}
+
+export async function fetchContractorCompanies(query: PageQuery & { status?: string }): Promise<PageResult<ContractorCompanyRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.status) {
+    params.set('status', query.status);
+  }
+  return request<PageResult<ContractorCompanyRecord>>(`${CONTRACTOR_API.companies}?${params.toString()}`);
+}
+
+export async function fetchContractorCompany(id: number, tenantId: number): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}?tenantId=${tenantId}`);
+}
+
+export async function createContractorCompany(payload: ContractorCompanyRequest): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(CONTRACTOR_API.companies, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateContractorCompany(
+  id: number,
+  payload: ContractorCompanyRequest
+): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function submitContractorCompany(id: number, tenantId: number): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/submit?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function approveContractorCompany(
+  id: number,
+  tenantId: number,
+  payload: CompanyApproveRequest
+): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/approve?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function suspendContractorCompany(
+  id: number,
+  tenantId: number,
+  payload: CompanyReasonRequest
+): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/suspend?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function blacklistContractorCompany(
+  id: number,
+  tenantId: number,
+  payload: CompanyReasonRequest
+): Promise<ContractorCompanyRecord> {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/blacklist?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchCompanyQualifications(
+  companyId: number,
+  tenantId: number
+): Promise<ContractorQualificationRecord[]> {
+  return request<ContractorQualificationRecord[]>(
+    `${CONTRACTOR_API.companies}/${companyId}/qualifications?tenantId=${tenantId}`
+  );
+}
+
+export async function createCompanyQualification(
+  companyId: number,
+  payload: ContractorQualificationRequest
+): Promise<ContractorQualificationRecord> {
+  return request<ContractorQualificationRecord>(`${CONTRACTOR_API.companies}/${companyId}/qualifications`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateCompanyQualification(
+  companyId: number,
+  qualId: number,
+  payload: ContractorQualificationRequest
+): Promise<ContractorQualificationRecord> {
+  return request<ContractorQualificationRecord>(
+    `${CONTRACTOR_API.companies}/${companyId}/qualifications/${qualId}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+export async function deleteCompanyQualification(
+  companyId: number,
+  qualId: number,
+  tenantId: number
+): Promise<void> {
+  return request<void>(`${CONTRACTOR_API.companies}/${companyId}/qualifications/${qualId}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchContractorWorkers(
+  query: PageQuery & { companyId?: number; accessStatus?: string }
+): Promise<PageResult<ContractorWorkerRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.companyId != null) {
+    params.set('companyId', String(query.companyId));
+  }
+  if (query.accessStatus) {
+    params.set('accessStatus', query.accessStatus);
+  }
+  return request<PageResult<ContractorWorkerRecord>>(`${CONTRACTOR_API.workers}?${params.toString()}`);
+}
+
+export async function fetchContractorWorker(id: number, tenantId: number): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}?tenantId=${tenantId}`);
+}
+
+export async function createContractorWorker(payload: ContractorWorkerRequest): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(CONTRACTOR_API.workers, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateContractorWorker(
+  id: number,
+  payload: ContractorWorkerRequest
+): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function submitContractorWorker(id: number, tenantId: number): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/submit?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function approveContractorWorker(
+  id: number,
+  tenantId: number,
+  payload: CompanyApproveRequest
+): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/approve?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function suspendContractorWorker(
+  id: number,
+  tenantId: number,
+  payload: CompanyReasonRequest
+): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/suspend?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function blacklistContractorWorker(
+  id: number,
+  tenantId: number,
+  payload: CompanyReasonRequest
+): Promise<ContractorWorkerRecord> {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/blacklist?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchWorkerCertificates(workerId: number, tenantId: number): Promise<WorkerCertificateRecord[]> {
+  return request<WorkerCertificateRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/certificates?tenantId=${tenantId}`);
+}
+
+export async function createWorkerCertificate(
+  workerId: number,
+  payload: WorkerCertificateRequest
+): Promise<WorkerCertificateRecord> {
+  return request<WorkerCertificateRecord>(`${CONTRACTOR_API.workers}/${workerId}/certificates`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteWorkerCertificate(workerId: number, certId: number, tenantId: number): Promise<void> {
+  return request<void>(`${CONTRACTOR_API.workers}/${workerId}/certificates/${certId}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchWorkerTrainings(workerId: number, tenantId: number): Promise<WorkerTrainingRecord[]> {
+  return request<WorkerTrainingRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/trainings?tenantId=${tenantId}`);
+}
+
+export async function createWorkerTraining(
+  workerId: number,
+  payload: WorkerTrainingRequest
+): Promise<WorkerTrainingRecord> {
+  return request<WorkerTrainingRecord>(`${CONTRACTOR_API.workers}/${workerId}/trainings`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchWorkerViolations(workerId: number, tenantId: number): Promise<WorkerViolationRecord[]> {
+  return request<WorkerViolationRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/violations?tenantId=${tenantId}`);
+}
+
+export async function createWorkerViolation(
+  workerId: number,
+  payload: WorkerViolationRequest
+): Promise<WorkerViolationRecord> {
+  return request<WorkerViolationRecord>(`${CONTRACTOR_API.workers}/${workerId}/violations`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function checkWorkerEligibility(payload: EligibilityCheckRequest): Promise<EligibilityCheckResult> {
+  return request<EligibilityCheckResult>(CONTRACTOR_API.eligibilityCheck, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchMajorHazards(
+  query: PageQuery & { status?: string; level?: string }
+): Promise<PageResult<MajorHazardRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.status) {
+    params.set('status', query.status);
+  }
+  if (query.level) {
+    params.set('level', query.level);
+  }
+  return request<PageResult<MajorHazardRecord>>(`${MAJOR_HAZARD_API.base}?${params.toString()}`);
+}
+
+export async function fetchMajorHazard(id: number, tenantId: number): Promise<MajorHazardRecord> {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}?tenantId=${tenantId}`);
+}
+
+export async function fetchMajorHazardRiskContext(payload: RiskContextRequest): Promise<RiskContextResult> {
+  return request<RiskContextResult>(MAJOR_HAZARD_API.riskContext, {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 }
 

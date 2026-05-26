@@ -1,0 +1,21 @@
+package com.fgroupboss.ai.psm.common;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class AuditBizTypeTest {
+
+    @Test
+    void contractorTypesShouldUseContractorPrefix() {
+        assertEquals("CONTRACTOR_COMPANY", AuditBizType.CONTRACTOR_COMPANY.code());
+        assertTrue(AuditBizType.CONTRACTOR_WORKER.name().startsWith("CONTRACTOR_"));
+    }
+
+    @Test
+    void hazardTypesShouldUseMajorHazardPrefix() {
+        assertEquals("MAJOR_HAZARD", AuditBizType.MAJOR_HAZARD.code());
+        assertTrue(AuditBizType.MAJOR_HAZARD_POINT.name().startsWith("MAJOR_HAZARD_"));
+    }
+}

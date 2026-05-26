@@ -12,3 +12,5 @@ psm:
     master-data-service-url: ${PSM_MASTER_DATA_SERVICE_URL:http://localhost:18083}
     config-rule-service-url: ${PSM_CONFIG_RULE_SERVICE_URL:http://localhost:18084}
     audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}
+    contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
+    major-hazard-service-url: ${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}

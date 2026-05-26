@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.majorhazard.mapper.MajorHazardMapper">
+
+    <sql id="hazardWhere">
+        tenant_id = #{tenantId}
+        and deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (hazard_no like concat('%', #{keyword}, '%')
+            or name like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="level != null and level != ''">
+            and level = #{level}
+        </if>
+    </sql>
+
+    <select id="countByTenant" resultType="long">
+        select count(1) from major_hazard
+        <where>
+            <include refid="hazardWhere"/>
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardEntity">
+        select * from major_hazard
+        <where>
+            <include refid="hazardWhere"/>
+        </where>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+</mapper>

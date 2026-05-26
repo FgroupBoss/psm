@@ -83,3 +83,10 @@ npm run dev:admin
 
 访问 `http://localhost:5173`，管理端会通过 Vite 代理请求 `http://localhost:18081/api/demo`。
 
+## 开源与使用政策
+
+本仓库采用 **个人学习使用许可证**：个人开发者可学习、本地研究与非商用实验；**商用须事先获得书面授权**。
+
+- 完整条款：仓库根目录 [LICENSE](../LICENSE)
+- 政策摘要：[docs/open-source-policy.md](docs/open-source-policy.md)
+

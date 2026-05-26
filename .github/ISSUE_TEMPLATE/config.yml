@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 商用授权（邮件）
+    url: mailto:505822727@qq.com
+    about: 也可直接发送邮件至 505822727@qq.com，主题建议 [商用授权] 简要说明用途
+  - name: 开源与使用政策
+    url: https://github.com/FgroupBoss/psm/blob/main/code/docs/open-source-policy.md
+    about: 查看个人学习使用范围与商用授权说明

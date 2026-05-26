@@ -1,23 +1,50 @@
 import React from 'react';
 import {
+  approveContractorCompany,
+  approveContractorWorker,
   assignUserRoles,
+  blacklistContractorCompany,
+  blacklistContractorWorker,
+  checkWorkerEligibility,
   createBaseData,
+  createCompanyQualification,
+  createContractorCompany,
+  createContractorWorker,
   createIamUser,
   createMenu,
   createOrg,
   createRole,
+  createWorkerCertificate,
+  createWorkerTraining,
+  createWorkerViolation,
   deleteBaseData,
+  deleteCompanyQualification,
   deleteMenu,
   deleteOrg,
   deleteRole,
+  deleteWorkerCertificate,
   disableBaseData,
   enableBaseData,
   fetchBaseDataPage,
+  fetchCompanyQualifications,
+  fetchContractorCompanies,
+  fetchContractorCompany,
+  fetchContractorWorker,
+  fetchContractorWorkers,
   fetchIamUsers,
   fetchMenuTree,
   fetchOrgTree,
   fetchRoles,
+  fetchWorkerCertificates,
+  fetchWorkerTrainings,
+  fetchWorkerViolations,
+  submitContractorCompany,
+  submitContractorWorker,
+  suspendContractorCompany,
+  suspendContractorWorker,
   updateBaseData,
+  updateContractorCompany,
+  updateContractorWorker,
   updateIamUser,
   updateIamUserStatus,
   updateMenu,
@@ -27,6 +54,13 @@ import {
 import type {
   BaseDataRecord,
   BaseDataRequest,
+  ContractorCompanyRecord,
+  ContractorCompanyRequest,
+  ContractorQualificationRecord,
+  ContractorQualificationRequest,
+  ContractorWorkerRecord,
+  ContractorWorkerRequest,
+  EligibilityCheckResult,
   IamUserRecord,
   IamUserRequest,
   MenuResourceRequest,
@@ -34,7 +68,13 @@ import type {
   OrgRequest,
   OrgTreeNode,
   RoleRecord,
-  RoleRequest
+  RoleRequest,
+  WorkerCertificateRecord,
+  WorkerCertificateRequest,
+  WorkerTrainingRecord,
+  WorkerTrainingRequest,
+  WorkerViolationRecord,
+  WorkerViolationRequest
 } from '@psm/domain-types';
 import type { AppView } from './nav';
 import { confirmAction, errorMessage, StatusTag, useAsyncAction } from './ui-helpers';
@@ -1414,5 +1454,1384 @@ function MenuFormDialog({
         </footer>
       </form>
     </div>
+  );
+}
+
+const COMPANY_STATUS_OPTIONS = [
+  { value: '', label: '全部状态' },
+  { value: 'DRAFT', label: '待提交' },
+  { value: 'PENDING_REVIEW', label: '待审核' },
+  { value: 'APPROVED', label: '已准入' },
+  { value: 'REJECTED', label: '已退回' },
+  { value: 'SUSPENDED', label: '已停权' },
+  { value: 'BLACKLIST', label: '黑名单' }
+];
+
+function companyStatusLabel(status: string) {
+  const item = COMPANY_STATUS_OPTIONS.find((opt) => opt.value === status);
+  return item?.label || status;
+}
+
+export function ContractorCompaniesPanel({ tenantId }: { tenantId: number }) {
+  const [records, setRecords] = React.useState<ContractorCompanyRecord[]>([]);
+  const [keyword, setKeyword] = React.useState('');
+  const [status, setStatus] = React.useState('');
+  const [pageNo, setPageNo] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
+  const [detail, setDetail] = React.useState<ContractorCompanyRecord | null>(null);
+  const [editing, setEditing] = React.useState<ContractorCompanyRecord | null | 'new'>(null);
+  const { message, error, setError, run } = useAsyncAction();
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const page = await fetchContractorCompanies({ tenantId, keyword, status, pageNo, pageSize: 10 });
+      setRecords(page.records);
+      setTotal(page.total);
+    } catch (err: unknown) {
+      setError(errorMessage(err, '承包商单位加载失败'));
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantId, keyword, status, pageNo, setError]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const totalPages = Math.max(1, Math.ceil(total / 10));
+
+  const refreshDetail = async (id: number) => {
+    const company = await fetchContractorCompany(id, tenantId);
+    setDetail(company);
+    await load();
+  };
+
+  return (
+    <section className="content-panel">
+      <div className="panel-header">
+        <div>
+          <h2>承包商单位</h2>
+          <p>维护承包商单位档案，完成提交、审核、停权与黑名单管理。</p>
+        </div>
+        <button type="button" onClick={() => setEditing('new')}>
+          新增单位
+        </button>
+      </div>
+
+      <div className="toolbar">
+        <input
+          placeholder="搜索编码或名称"
+          value={keyword}
+          onChange={(event) => {
+            setKeyword(event.target.value);
+            setPageNo(1);
+          }}
+        />
+        <select
+          value={status}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPageNo(1);
+          }}
+        >
+          {COMPANY_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value || 'all'} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <button type="button" className="secondary" onClick={load}>
+          刷新
+        </button>
+      </div>
+
+      {message && <div className="success">{message}</div>}
+      {error && <div className="error">{error}</div>}
+      {loading && <div className="empty">正在加载...</div>}
+      {!loading && (
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>编码</th>
+                <th>名称</th>
+                <th>联系人</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((record) => (
+                <tr key={record.id}>
+                  <td>{record.companyCode}</td>
+                  <td>{record.companyName}</td>
+                  <td>{record.contactName || '-'}</td>
+                  <td>
+                    <StatusTag status={record.status} />
+                    <span className="muted"> {companyStatusLabel(record.status)}</span>
+                  </td>
+                  <td className="actions">
+                    <button type="button" className="secondary" onClick={() => setDetail(record)}>
+                      详情
+                    </button>
+                    {(record.status === 'DRAFT' || record.status === 'REJECTED') && (
+                      <button type="button" className="secondary" onClick={() => setEditing(record)}>
+                        编辑
+                      </button>
+                    )}
+                    {(record.status === 'DRAFT' || record.status === 'REJECTED' || record.status === 'APPROVED') && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          confirmAction('确认提交审核？', () =>
+                            run(() => submitContractorCompany(record.id, tenantId).then(() => undefined), '已提交', load)
+                          )
+                        }
+                      >
+                        提交
+                      </button>
+                    )}
+                    {record.status === 'APPROVED' && (
+                      <button
+                        type="button"
+                        className="warning"
+                        onClick={() => {
+                          const reason = window.prompt('停权原因');
+                          if (!reason) {
+                            return;
+                          }
+                          run(
+                            () => suspendContractorCompany(record.id, tenantId, { reason }).then(() => undefined),
+                            '已停权',
+                            load
+                          );
+                        }}
+                      >
+                        停权
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {records.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="empty">
+                    暂无数据
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="pager">
+            <span>
+              共 {total} 条，第 {pageNo} / {totalPages} 页
+            </span>
+            <button type="button" className="secondary" disabled={pageNo <= 1} onClick={() => setPageNo(pageNo - 1)}>
+              上一页
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={pageNo >= totalPages}
+              onClick={() => setPageNo(pageNo + 1)}
+            >
+              下一页
+            </button>
+          </div>
+        </>
+      )}
+
+      {editing && (
+        <ContractorCompanyFormModal
+          tenantId={tenantId}
+          record={editing === 'new' ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+
+      {detail && (
+        <ContractorCompanyDetailModal
+          tenantId={tenantId}
+          record={detail}
+          onClose={() => setDetail(null)}
+          onChanged={() => refreshDetail(detail.id)}
+          run={run}
+        />
+      )}
+    </section>
+  );
+}
+
+function ContractorCompanyFormModal({
+  tenantId,
+  record,
+  onClose,
+  onSaved
+}: {
+  tenantId: number;
+  record: ContractorCompanyRecord | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = React.useState<ContractorCompanyRequest>({
+    tenantId,
+    companyCode: record?.companyCode || '',
+    companyName: record?.companyName || '',
+    contactName: record?.contactName || '',
+    contactPhone: record?.contactPhone || '',
+    businessScope: record?.businessScope || '',
+    remark: record?.remark || ''
+  });
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      if (record) {
+        await updateContractorCompany(record.id, form);
+      } else {
+        await createContractorCompany(form);
+      }
+      onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存失败'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-backdrop">
+      <form className="modal" onSubmit={submit}>
+        <header>
+          <h3>{record ? '编辑承包商单位' : '新增承包商单位'}</h3>
+        </header>
+        <div className="form-grid">
+          <label>
+            <span>单位编码</span>
+            <input
+              value={form.companyCode}
+              onChange={(event) => setForm({ ...form, companyCode: event.target.value })}
+              required
+              disabled={!!record}
+            />
+          </label>
+          <label>
+            <span>单位名称</span>
+            <input
+              value={form.companyName}
+              onChange={(event) => setForm({ ...form, companyName: event.target.value })}
+              required
+            />
+          </label>
+          <label>
+            <span>联系人</span>
+            <input value={form.contactName || ''} onChange={(event) => setForm({ ...form, contactName: event.target.value })} />
+          </label>
+          <label>
+            <span>联系电话</span>
+            <input
+              value={form.contactPhone || ''}
+              onChange={(event) => setForm({ ...form, contactPhone: event.target.value })}
+            />
+          </label>
+          <label className="wide-field">
+            <span>业务范围</span>
+            <input
+              value={form.businessScope || ''}
+              onChange={(event) => setForm({ ...form, businessScope: event.target.value })}
+            />
+          </label>
+        </div>
+        {error && <div className="error inline-error">{error}</div>}
+        <footer>
+          <button type="button" className="secondary" onClick={onClose}>
+            取消
+          </button>
+          <button type="submit" disabled={saving}>
+            {saving ? '保存中...' : '保存'}
+          </button>
+        </footer>
+      </form>
+    </div>
+  );
+}
+
+function ContractorCompanyDetailModal({
+  tenantId,
+  record,
+  onClose,
+  onChanged,
+  run
+}: {
+  tenantId: number;
+  record: ContractorCompanyRecord;
+  onClose: () => void;
+  onChanged: () => Promise<void>;
+  run: (action: () => Promise<void>, success: string, reload?: () => Promise<void>) => Promise<void>;
+}) {
+  const [tab, setTab] = React.useState<'info' | 'qual' | 'workers'>('info');
+  const [company, setCompany] = React.useState(record);
+  const [quals, setQuals] = React.useState<ContractorQualificationRecord[]>([]);
+  const [qualForm, setQualForm] = React.useState<ContractorQualificationRequest | null>(null);
+
+  const reload = React.useCallback(async () => {
+    const latest = await fetchContractorCompany(record.id, tenantId);
+    setCompany(latest);
+    const list = await fetchCompanyQualifications(record.id, tenantId);
+    setQuals(list);
+    await onChanged();
+  }, [record.id, tenantId, onChanged]);
+
+  React.useEffect(() => {
+    reload().catch(() => undefined);
+  }, [reload]);
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal modal-wide">
+        <header>
+          <h3>
+            {company.companyName}（{company.companyCode}）
+          </h3>
+          <p>
+            状态：<StatusTag status={company.status} /> {companyStatusLabel(company.status)}
+          </p>
+        </header>
+        <div className="tab-bar">
+          <button type="button" className={tab === 'info' ? 'active' : 'secondary'} onClick={() => setTab('info')}>
+            基本信息
+          </button>
+          <button type="button" className={tab === 'qual' ? 'active' : 'secondary'} onClick={() => setTab('qual')}>
+            资质证书
+          </button>
+          <button type="button" className={tab === 'workers' ? 'active' : 'secondary'} onClick={() => setTab('workers')}>
+            人员
+          </button>
+        </div>
+        {tab === 'info' && (
+          <div className="detail-grid">
+            <p>联系人：{company.contactName || '-'}</p>
+            <p>电话：{company.contactPhone || '-'}</p>
+            <p>业务范围：{company.businessScope || '-'}</p>
+            <p>备注：{company.remark || '-'}</p>
+            <div className="form-actions">
+              {company.status === 'PENDING_REVIEW' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      run(
+                        () =>
+                          approveContractorCompany(company.id, tenantId, { passed: true, opinion: '审核通过' }).then(
+                            () => undefined
+                          ),
+                        '审核通过',
+                        reload
+                      )
+                    }
+                  >
+                    审核通过
+                  </button>
+                  <button
+                    type="button"
+                    className="warning"
+                    onClick={() => {
+                      const opinion = window.prompt('退回原因', '资料不全');
+                      if (opinion === null) {
+                        return;
+                      }
+                      run(
+                        () =>
+                          approveContractorCompany(company.id, tenantId, { passed: false, opinion: opinion || '退回' }).then(
+                            () => undefined
+                          ),
+                        '已退回',
+                        reload
+                      );
+                    }}
+                  >
+                    退回
+                  </button>
+                </>
+              )}
+              {(company.status === 'APPROVED' || company.status === 'SUSPENDED') && (
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => {
+                    const reason = window.prompt('拉黑原因');
+                    if (!reason) {
+                      return;
+                    }
+                    run(
+                      () => blacklistContractorCompany(company.id, tenantId, { reason }).then(() => undefined),
+                      '已加入黑名单',
+                      reload
+                    );
+                  }}
+                >
+                  加入黑名单
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        {tab === 'qual' && (
+          <div>
+            <div className="panel-header">
+              <p>核心资质过期将在后续资格校验中拦截作业票选人。</p>
+              <button
+                type="button"
+                onClick={() =>
+                  setQualForm({
+                    tenantId,
+                    qualType: 'BUSINESS_LICENSE',
+                    qualName: '',
+                    coreFlag: true
+                  })
+                }
+              >
+                新增资质
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>类型</th>
+                  <th>名称</th>
+                  <th>有效期至</th>
+                  <th>核心</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quals.map((q) => (
+                  <tr key={q.id}>
+                    <td>{q.qualType}</td>
+                    <td>{q.qualName}</td>
+                    <td>{q.validTo || '-'}</td>
+                    <td>{q.coreFlag ? '是' : '否'}</td>
+                    <td>
+                      {q.coreExpired ? <span className="error">核心已过期</span> : q.expired ? '已过期' : '有效'}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() =>
+                          confirmAction('确认删除该资质？', () =>
+                            run(() => deleteCompanyQualification(company.id, q.id, tenantId), '已删除', reload)
+                          )
+                        }
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {quals.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="empty">
+                      暂无资质
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            {qualForm && (
+              <ContractorQualificationForm
+                companyId={company.id}
+                form={qualForm}
+                onChange={setQualForm}
+                onCancel={() => setQualForm(null)}
+                onSaved={() => {
+                  setQualForm(null);
+                  reload();
+                }}
+              />
+            )}
+          </div>
+        )}
+        {tab === 'workers' && (
+          <ContractorCompanyWorkersTab tenantId={tenantId} companyId={company.id} />
+        )}
+        <footer>
+          <button type="button" className="secondary" onClick={onClose}>
+            关闭
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function ContractorQualificationForm({
+  companyId,
+  form,
+  onChange,
+  onCancel,
+  onSaved
+}: {
+  companyId: number;
+  form: ContractorQualificationRequest;
+  onChange: (value: ContractorQualificationRequest) => void;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await createCompanyQualification(companyId, form);
+      onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存资质失败'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form className="inline-form" onSubmit={submit}>
+      <label>
+        <span>类型</span>
+        <input value={form.qualType} onChange={(e) => onChange({ ...form, qualType: e.target.value })} required />
+      </label>
+      <label>
+        <span>名称</span>
+        <input value={form.qualName} onChange={(e) => onChange({ ...form, qualName: e.target.value })} required />
+      </label>
+      <label>
+        <span>有效期至</span>
+        <input type="date" value={form.validTo || ''} onChange={(e) => onChange({ ...form, validTo: e.target.value })} />
+      </label>
+      <label>
+        <span>核心资质</span>
+        <input
+          type="checkbox"
+          checked={!!form.coreFlag}
+          onChange={(e) => onChange({ ...form, coreFlag: e.target.checked })}
+        />
+      </label>
+      {error && <div className="error inline-error">{error}</div>}
+      <button type="button" className="secondary" onClick={onCancel}>
+        取消
+      </button>
+      <button type="submit" disabled={saving}>
+        保存
+      </button>
+    </form>
+  );
+}
+
+const WORKER_STATUS_OPTIONS = [
+  { value: '', label: '全部状态' },
+  { value: 'INCOMPLETE', label: '待完善' },
+  { value: 'PENDING_REVIEW', label: '待审核' },
+  { value: 'APPROVED', label: '已准入' },
+  { value: 'RESTRICTED', label: '受限准入' },
+  { value: 'REJECTED', label: '已退回' },
+  { value: 'SUSPENDED', label: '已停权' },
+  { value: 'BLACKLIST', label: '黑名单' }
+];
+
+function workerStatusLabel(status: string) {
+  const item = WORKER_STATUS_OPTIONS.find((opt) => opt.value === status);
+  return item?.label || status;
+}
+
+function complianceLabel(value?: string) {
+  if (value === 'VALID') return '有效';
+  if (value === 'EXPIRED') return '已过期';
+  if (value === 'EXPIRING') return '即将过期';
+  if (value === 'INVALID') return '无效';
+  if (value === 'MISSING') return '缺失';
+  return value || '-';
+}
+
+export function ContractorWorkersPanel({ tenantId }: { tenantId: number }) {
+  const [records, setRecords] = React.useState<ContractorWorkerRecord[]>([]);
+  const [companies, setCompanies] = React.useState<ContractorCompanyRecord[]>([]);
+  const [keyword, setKeyword] = React.useState('');
+  const [accessStatus, setAccessStatus] = React.useState('');
+  const [companyId, setCompanyId] = React.useState('');
+  const [pageNo, setPageNo] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
+  const [detail, setDetail] = React.useState<ContractorWorkerRecord | null>(null);
+  const [editing, setEditing] = React.useState<ContractorWorkerRecord | null | 'new'>(null);
+  const { message, error, setError, run } = useAsyncAction();
+
+  React.useEffect(() => {
+    fetchContractorCompanies({ tenantId, pageNo: 1, pageSize: 100 })
+      .then((page) => setCompanies(page.records))
+      .catch(() => undefined);
+  }, [tenantId]);
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const page = await fetchContractorWorkers({
+        tenantId,
+        keyword,
+        accessStatus,
+        companyId: companyId ? Number(companyId) : undefined,
+        pageNo,
+        pageSize: 10
+      });
+      setRecords(page.records);
+      setTotal(page.total);
+    } catch (err: unknown) {
+      setError(errorMessage(err, '承包商人员加载失败'));
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantId, keyword, accessStatus, companyId, pageNo, setError]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const totalPages = Math.max(1, Math.ceil(total / 10));
+
+  return (
+    <section className="content-panel">
+      <div className="panel-header">
+        <div>
+          <h2>承包商人员</h2>
+          <p>维护人员档案、证书、培训记录，并进行作业资格校验试算。</p>
+        </div>
+        <button type="button" onClick={() => setEditing('new')}>
+          新增人员
+        </button>
+      </div>
+
+      <div className="toolbar">
+        <input
+          placeholder="搜索编码或姓名"
+          value={keyword}
+          onChange={(event) => {
+            setKeyword(event.target.value);
+            setPageNo(1);
+          }}
+        />
+        <select
+          value={companyId}
+          onChange={(event) => {
+            setCompanyId(event.target.value);
+            setPageNo(1);
+          }}
+        >
+          <option value="">全部单位</option>
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.companyName}
+            </option>
+          ))}
+        </select>
+        <select
+          value={accessStatus}
+          onChange={(event) => {
+            setAccessStatus(event.target.value);
+            setPageNo(1);
+          }}
+        >
+          {WORKER_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value || 'all'} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <button type="button" className="secondary" onClick={load}>
+          刷新
+        </button>
+      </div>
+
+      {message && <div className="success">{message}</div>}
+      {error && <div className="error">{error}</div>}
+      {loading && <div className="empty">正在加载...</div>}
+      {!loading && (
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>编码</th>
+                <th>姓名</th>
+                <th>工种</th>
+                <th>准入状态</th>
+                <th>证书</th>
+                <th>培训</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((record) => (
+                <tr key={record.id}>
+                  <td>{record.workerCode}</td>
+                  <td>{record.name}</td>
+                  <td>{record.tradeType || '-'}</td>
+                  <td>
+                    <StatusTag status={record.accessStatus} />
+                    <span className="muted"> {workerStatusLabel(record.accessStatus)}</span>
+                  </td>
+                  <td>{complianceLabel(record.certificateStatus)}</td>
+                  <td>{complianceLabel(record.trainingStatus)}</td>
+                  <td className="actions">
+                    <button type="button" className="secondary" onClick={() => setDetail(record)}>
+                      详情
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {records.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="empty">
+                    暂无数据
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="pager">
+            <span>
+              共 {total} 条，第 {pageNo} / {totalPages} 页
+            </span>
+            <button type="button" className="secondary" disabled={pageNo <= 1} onClick={() => setPageNo(pageNo - 1)}>
+              上一页
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={pageNo >= totalPages}
+              onClick={() => setPageNo(pageNo + 1)}
+            >
+              下一页
+            </button>
+          </div>
+        </>
+      )}
+
+      {editing && (
+        <ContractorWorkerFormModal
+          tenantId={tenantId}
+          companies={companies}
+          record={editing === 'new' ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
+
+      {detail && (
+        <ContractorWorkerDetailModal
+          tenantId={tenantId}
+          record={detail}
+          onClose={() => setDetail(null)}
+          onChanged={load}
+          run={run}
+        />
+      )}
+    </section>
+  );
+}
+
+function ContractorCompanyWorkersTab({ tenantId, companyId }: { tenantId: number; companyId: number }) {
+  const [records, setRecords] = React.useState<ContractorWorkerRecord[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    setLoading(true);
+    fetchContractorWorkers({ tenantId, companyId, pageNo: 1, pageSize: 50 })
+      .then((page) => setRecords(page.records))
+      .catch(() => setRecords([]))
+      .finally(() => setLoading(false));
+  }, [tenantId, companyId]);
+
+  if (loading) {
+    return <div className="empty">正在加载人员...</div>;
+  }
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>编码</th>
+          <th>姓名</th>
+          <th>准入状态</th>
+          <th>证书</th>
+          <th>培训</th>
+        </tr>
+      </thead>
+      <tbody>
+        {records.map((record) => (
+          <tr key={record.id}>
+            <td>{record.workerCode}</td>
+            <td>{record.name}</td>
+            <td>{workerStatusLabel(record.accessStatus)}</td>
+            <td>{complianceLabel(record.certificateStatus)}</td>
+            <td>{complianceLabel(record.trainingStatus)}</td>
+          </tr>
+        ))}
+        {records.length === 0 && (
+          <tr>
+            <td colSpan={5} className="empty">
+              暂无人员
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+function ContractorWorkerFormModal({
+  tenantId,
+  companies,
+  record,
+  onClose,
+  onSaved
+}: {
+  tenantId: number;
+  companies: ContractorCompanyRecord[];
+  record: ContractorWorkerRecord | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = React.useState<ContractorWorkerRequest>({
+    tenantId,
+    companyId: record?.companyId || companies[0]?.id || 0,
+    workerCode: record?.workerCode || '',
+    name: record?.name || '',
+    phoneMasked: record?.phoneMasked,
+    tradeType: record?.tradeType,
+    gateCardNo: record?.gateCardNo,
+    locationTagNo: record?.locationTagNo
+  });
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      if (record) {
+        await updateContractorWorker(record.id, form);
+      } else {
+        await createContractorWorker(form);
+      }
+      onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存人员失败'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal">
+        <header>
+          <h3>{record ? '编辑人员' : '新增人员'}</h3>
+        </header>
+        <form onSubmit={submit}>
+          <label>
+            <span>所属单位</span>
+            <select
+              value={form.companyId}
+              onChange={(e) => setForm({ ...form, companyId: Number(e.target.value) })}
+              required
+            >
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.companyName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>人员编码</span>
+            <input value={form.workerCode} onChange={(e) => setForm({ ...form, workerCode: e.target.value })} required />
+          </label>
+          <label>
+            <span>姓名</span>
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </label>
+          <label>
+            <span>工种</span>
+            <input value={form.tradeType || ''} onChange={(e) => setForm({ ...form, tradeType: e.target.value })} />
+          </label>
+          <label>
+            <span>手机号（脱敏）</span>
+            <input
+              value={form.phoneMasked || ''}
+              onChange={(e) => setForm({ ...form, phoneMasked: e.target.value })}
+            />
+          </label>
+          {error && <div className="error">{error}</div>}
+          <footer>
+            <button type="button" className="secondary" onClick={onClose}>
+              取消
+            </button>
+            <button type="submit" disabled={saving}>
+              保存
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ContractorWorkerDetailModal({
+  tenantId,
+  record,
+  onClose,
+  onChanged,
+  run
+}: {
+  tenantId: number;
+  record: ContractorWorkerRecord;
+  onClose: () => void;
+  onChanged: () => Promise<void>;
+  run: (action: () => Promise<void>, success: string, reload?: () => Promise<void>) => Promise<void>;
+}) {
+  const [tab, setTab] = React.useState<'info' | 'cert' | 'training' | 'violation' | 'check'>('info');
+  const [worker, setWorker] = React.useState(record);
+  const [certs, setCerts] = React.useState<WorkerCertificateRecord[]>([]);
+  const [trainings, setTrainings] = React.useState<WorkerTrainingRecord[]>([]);
+  const [violations, setViolations] = React.useState<WorkerViolationRecord[]>([]);
+  const [checkResult, setCheckResult] = React.useState<EligibilityCheckResult | null>(null);
+  const [certForm, setCertForm] = React.useState<WorkerCertificateRequest | null>(null);
+  const [trainingForm, setTrainingForm] = React.useState<WorkerTrainingRequest | null>(null);
+
+  const reload = React.useCallback(async () => {
+    const latest = await fetchContractorWorker(record.id, tenantId);
+    setWorker(latest);
+    setCerts(await fetchWorkerCertificates(record.id, tenantId));
+    setTrainings(await fetchWorkerTrainings(record.id, tenantId));
+    setViolations(await fetchWorkerViolations(record.id, tenantId));
+    await onChanged();
+  }, [record.id, tenantId, onChanged]);
+
+  React.useEffect(() => {
+    reload().catch(() => undefined);
+  }, [reload]);
+
+  async function runEligibilityCheck() {
+    const result = await checkWorkerEligibility({
+      tenantId,
+      companyId: worker.companyId,
+      workerIds: [worker.id],
+      workType: 'HOT_WORK',
+      checkPoint: 'ADD_WORKER'
+    });
+    setCheckResult(result);
+  }
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal modal-wide">
+        <header>
+          <h3>
+            {worker.name}（{worker.workerCode}）
+          </h3>
+          <p>
+            准入：<StatusTag status={worker.accessStatus} /> {workerStatusLabel(worker.accessStatus)}
+          </p>
+        </header>
+        <div className="tab-bar">
+          {(['info', 'cert', 'training', 'violation', 'check'] as const).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={tab === key ? 'active' : 'secondary'}
+              onClick={() => setTab(key)}
+            >
+              {key === 'info' && '基本信息'}
+              {key === 'cert' && '证书'}
+              {key === 'training' && '培训'}
+              {key === 'violation' && '违章'}
+              {key === 'check' && '资格试算'}
+            </button>
+          ))}
+        </div>
+        {tab === 'info' && (
+          <div className="detail-grid">
+            <p>工种：{worker.tradeType || '-'}</p>
+            <p>证书状态：{complianceLabel(worker.certificateStatus)}</p>
+            <p>培训状态：{complianceLabel(worker.trainingStatus)}</p>
+            <div className="form-actions">
+              {(worker.accessStatus === 'INCOMPLETE' || worker.accessStatus === 'REJECTED') && (
+                <button
+                  type="button"
+                  onClick={() => run(() => submitContractorWorker(worker.id, tenantId).then(() => undefined), '已提交', reload)}
+                >
+                  提交审核
+                </button>
+              )}
+              {worker.accessStatus === 'PENDING_REVIEW' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      run(
+                        () =>
+                          approveContractorWorker(worker.id, tenantId, { passed: true, opinion: '审核通过' }).then(
+                            () => undefined
+                          ),
+                        '审核通过',
+                        reload
+                      )
+                    }
+                  >
+                    审核通过
+                  </button>
+                  <button
+                    type="button"
+                    className="warning"
+                    onClick={() =>
+                      run(
+                        () =>
+                          approveContractorWorker(worker.id, tenantId, { passed: false, opinion: '退回' }).then(
+                            () => undefined
+                          ),
+                        '已退回',
+                        reload
+                      )
+                    }
+                  >
+                    退回
+                  </button>
+                </>
+              )}
+              {(worker.accessStatus === 'APPROVED' || worker.accessStatus === 'RESTRICTED') && (
+                <button
+                  type="button"
+                  className="warning"
+                  onClick={() => {
+                    const reason = window.prompt('停权原因');
+                    if (!reason) return;
+                    run(() => suspendContractorWorker(worker.id, tenantId, { reason }).then(() => undefined), '已停权', reload);
+                  }}
+                >
+                  停权
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        {tab === 'cert' && (
+          <div>
+            <div className="panel-header">
+              <button
+                type="button"
+                onClick={() => setCertForm({ tenantId, certType: 'SPECIAL_WELDER' })}
+              >
+                新增证书
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>类型</th>
+                  <th>编号</th>
+                  <th>有效期至</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {certs.map((cert) => (
+                  <tr key={cert.id}>
+                    <td>{cert.certType}</td>
+                    <td>{cert.certNo || '-'}</td>
+                    <td>{cert.validTo || '-'}</td>
+                    <td>{cert.expired ? '已过期' : '有效'}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() =>
+                          confirmAction('确认删除该证书？', () =>
+                            run(() => deleteWorkerCertificate(worker.id, cert.id, tenantId), '已删除', reload)
+                          )
+                        }
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {certForm && (
+              <WorkerCertificateInlineForm
+                workerId={worker.id}
+                form={certForm}
+                onCancel={() => setCertForm(null)}
+                onSaved={() => {
+                  setCertForm(null);
+                  reload();
+                }}
+              />
+            )}
+          </div>
+        )}
+        {tab === 'training' && (
+          <div>
+            <div className="panel-header">
+              <button
+                type="button"
+                onClick={() =>
+                  setTrainingForm({ tenantId, trainingName: '入厂安全培训', trainingResult: 'PASSED' })
+                }
+              >
+                新增培训
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>结果</th>
+                  <th>有效期至</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trainings.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.trainingName}</td>
+                    <td>{item.trainingResult}</td>
+                    <td>{item.validTo || '-'}</td>
+                    <td>{item.valid ? '有效' : item.expired ? '已过期' : '无效'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {trainingForm && (
+              <WorkerTrainingInlineForm
+                workerId={worker.id}
+                form={trainingForm}
+                onCancel={() => setTrainingForm(null)}
+                onSaved={() => {
+                  setTrainingForm(null);
+                  reload();
+                }}
+              />
+            )}
+          </div>
+        )}
+        {tab === 'violation' && (
+          <div>
+            <div className="panel-header">
+              <button
+                type="button"
+                onClick={() =>
+                  run(
+                    () =>
+                      createWorkerViolation(worker.id, {
+                        tenantId,
+                        violationTime: new Date().toISOString().slice(0, 19),
+                        violationDesc: '现场违章（登记示例）',
+                        severity: 'MINOR'
+                      }).then(() => undefined),
+                    '已登记违章',
+                    reload
+                  )
+                }
+              >
+                登记违章
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>描述</th>
+                  <th>严重程度</th>
+                </tr>
+              </thead>
+              <tbody>
+                {violations.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.violationTime}</td>
+                    <td>{item.violationDesc}</td>
+                    <td>{item.severity || '-'}</td>
+                  </tr>
+                ))}
+                {violations.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="empty">
+                      暂无违章记录
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {tab === 'check' && (
+          <div>
+            <p>模拟作业票添加人员时的资格校验（调试）。</p>
+            <button type="button" onClick={runEligibilityCheck}>
+              执行校验
+            </button>
+            {checkResult && (
+              <div className={checkResult.passed ? 'success' : 'error'}>
+                {checkResult.passed ? '校验通过' : '校验未通过'}
+                {(checkResult.reasons || []).map((reason) => (
+                  <p key={`${reason.code}-${reason.workerId || 0}`}>{reason.message}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <footer>
+          <button type="button" className="secondary" onClick={onClose}>
+            关闭
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function WorkerCertificateInlineForm({
+  workerId,
+  form,
+  onCancel,
+  onSaved
+}: {
+  workerId: number;
+  form: WorkerCertificateRequest;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = React.useState(form);
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await createWorkerCertificate(workerId, value);
+      onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存证书失败'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form className="inline-form" onSubmit={submit}>
+      <label>
+        <span>类型</span>
+        <input value={value.certType} onChange={(e) => setValue({ ...value, certType: e.target.value })} required />
+      </label>
+      <label>
+        <span>编号</span>
+        <input value={value.certNo || ''} onChange={(e) => setValue({ ...value, certNo: e.target.value })} />
+      </label>
+      <label>
+        <span>有效期至</span>
+        <input type="date" value={value.validTo || ''} onChange={(e) => setValue({ ...value, validTo: e.target.value })} />
+      </label>
+      {error && <div className="error inline-error">{error}</div>}
+      <button type="button" className="secondary" onClick={onCancel}>
+        取消
+      </button>
+      <button type="submit" disabled={saving}>
+        保存
+      </button>
+    </form>
+  );
+}
+
+function WorkerTrainingInlineForm({
+  workerId,
+  form,
+  onCancel,
+  onSaved
+}: {
+  workerId: number;
+  form: WorkerTrainingRequest;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = React.useState(form);
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await createWorkerTraining(workerId, value);
+      onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存培训失败'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form className="inline-form" onSubmit={submit}>
+      <label>
+        <span>名称</span>
+        <input
+          value={value.trainingName}
+          onChange={(e) => setValue({ ...value, trainingName: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        <span>结果</span>
+        <select value={value.trainingResult} onChange={(e) => setValue({ ...value, trainingResult: e.target.value })}>
+          <option value="PASSED">合格</option>
+          <option value="FAILED">不合格</option>
+        </select>
+      </label>
+      <label>
+        <span>有效期至</span>
+        <input
+          type="date"
+          value={value.validTo || ''}
+          onChange={(e) => setValue({ ...value, validTo: e.target.value })}
+        />
+      </label>
+      {error && <div className="error inline-error">{error}</div>}
+      <button type="button" className="secondary" onClick={onCancel}>
+        取消
+      </button>
+      <button type="submit" disabled={saving}>
+        保存
+      </button>
+    </form>
   );
 }

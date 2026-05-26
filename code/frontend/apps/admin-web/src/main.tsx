@@ -24,7 +24,7 @@ import type {
   RuleEvaluationResult
 } from '@psm/domain-types';
 import { buildNavItems, DEFAULT_NAV, groupNavItems, viewTitle, type AppView } from './nav';
-import { BaseDataLedgerPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
+import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
 import {
   confirmAction,
   errorMessage,
@@ -185,6 +185,15 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     }
     if (view === 'audit') {
       return <AuditPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'contractor:companies') {
+      return <ContractorCompaniesPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'contractor:workers') {
+      return <ContractorWorkersPanel tenantId={user.tenantId} />;
+    }
+    if (view.startsWith('hazard:')) {
+      return <ModulePlaceholderPanel title="重大危险源" hint="第 2 迭代批次 4 起实现台账、发布与绑点" />;
     }
     return null;
   }
@@ -621,6 +630,20 @@ function RuleEvaluationPanel({ tenantId }: { tenantId: number }) {
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+function ModulePlaceholderPanel({ title, hint }: { title: string; hint: string }) {
+  return (
+    <section className="content-panel">
+      <div className="panel-header">
+        <div>
+          <h2>{title}</h2>
+          <p>{hint}</p>
+        </div>
+      </div>
+      <div className="empty">功能开发中，敬请期待。</div>
     </section>
   );
 }

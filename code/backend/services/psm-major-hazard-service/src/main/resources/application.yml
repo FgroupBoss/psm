@@ -4,4 +4,13 @@ server:
 spring:
   application:
     name: psm-major-hazard-service
+  datasource:
+    url: ${PSM_MAJOR_HAZARD_DB_URL:jdbc:mysql://localhost:3306/psm_major_hazard?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${PSM_MAJOR_HAZARD_DB_USERNAME:psm}
+    password: ${PSM_MAJOR_HAZARD_DB_PASSWORD:psm}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

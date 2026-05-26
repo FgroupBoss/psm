@@ -11,7 +11,10 @@ export type AppView =
   | 'iam:roles'
   | 'iam:menus'
   | 'config'
-  | 'audit';
+  | 'audit'
+  | 'contractor:companies'
+  | 'contractor:workers'
+  | 'hazard:ledger';
 
 export interface NavItem {
   view: AppView;
@@ -49,7 +52,16 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   'MENU_CONFIG': 'config',
   audit: 'audit',
   'system/audit': 'audit',
-  'MENU_AUDIT': 'audit'
+  'MENU_AUDIT': 'audit',
+  'contractor/companies': 'contractor:companies',
+  'contractor:companies': 'contractor:companies',
+  MENU_CTR_COMPANIES: 'contractor:companies',
+  'contractor/workers': 'contractor:workers',
+  'contractor:workers': 'contractor:workers',
+  MENU_CTR_WORKERS: 'contractor:workers',
+  'hazard/ledger': 'hazard:ledger',
+  'hazard:ledger': 'hazard:ledger',
+  MENU_HAZ_LEDGER: 'hazard:ledger'
 };
 
 /** 无 IAM 菜单数据时的默认可访问菜单（试点管理员）。 */
@@ -63,7 +75,10 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'iam:roles', label: '角色管理', group: '权限管理' },
   { view: 'iam:menus', label: '菜单资源', group: '权限管理' },
   { view: 'config', label: '系统配置与规则', group: '系统配置' },
-  { view: 'audit', label: '权限审计', group: '系统配置' }
+  { view: 'audit', label: '权限审计', group: '系统配置' },
+  { view: 'contractor:companies', label: '承包商单位', group: '承包商管理' },
+  { view: 'contractor:workers', label: '承包商人员', group: '承包商管理' },
+  { view: 'hazard:ledger', label: '危险源台账', group: '重大危险源' }
 ];
 
 const VIEW_TITLES: Record<AppView, string> = {
@@ -76,7 +91,10 @@ const VIEW_TITLES: Record<AppView, string> = {
   'iam:roles': '角色管理',
   'iam:menus': '菜单资源',
   config: '系统配置与规则',
-  audit: '权限审计'
+  audit: '权限审计',
+  'contractor:companies': '承包商单位',
+  'contractor:workers': '承包商人员',
+  'hazard:ledger': '危险源台账'
 };
 
 export function viewTitle(view: AppView): string {

@@ -79,6 +79,22 @@ public class GatewayProxyController {
         return proxy(properties.getAuditServiceUrl(), request, body, principal);
     }
 
+    @RequestMapping("/api/contractors/**")
+    public ResponseEntity<String> proxyContractor(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                                   @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getContractorServiceUrl(), request, body, principal);
+    }
+
+    @RequestMapping("/api/major-hazards/**")
+    public ResponseEntity<String> proxyMajorHazard(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                                   @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getMajorHazardServiceUrl(), request, body, principal);
+    }
+
     private ResponseEntity<String> proxy(String serviceUrl, HttpServletRequest request, String body, AuthPrincipal principal) {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

@@ -295,3 +295,224 @@ export interface UserPermissionSummary {
   permissionCodes: string[];
   menus: MenuTreeNode[];
 }
+
+/** 承包商 API 路径常量（与网关 /api/contractors/** 对齐）。 */
+export const CONTRACTOR_API = {
+  base: '/api/contractors',
+  health: '/api/contractors/health',
+  companies: '/api/contractors/companies',
+  workers: '/api/contractors/workers',
+  eligibilityCheck: '/api/contractors/workers/eligibility-check'
+} as const;
+
+/** 重大危险源 API 路径常量（与网关 /api/major-hazards/** 对齐）。 */
+export const MAJOR_HAZARD_API = {
+  base: '/api/major-hazards',
+  health: '/api/major-hazards/health',
+  riskContext: '/api/major-hazards/risk-context'
+} as const;
+
+export interface ContractorCompanyRecord {
+  id: number;
+  tenantId: number;
+  companyCode: string;
+  companyName: string;
+  contactName?: string;
+  contactPhone?: string;
+  businessScope?: string;
+  status: string;
+  blacklistFlag?: number;
+  remark?: string;
+}
+
+export interface ContractorCompanyRequest {
+  tenantId: number;
+  companyCode: string;
+  companyName: string;
+  contactName?: string;
+  contactPhone?: string;
+  businessScope?: string;
+  remark?: string;
+}
+
+export interface CompanyApproveRequest {
+  passed: boolean;
+  opinion?: string;
+}
+
+export interface CompanyReasonRequest {
+  reason: string;
+}
+
+export interface ContractorQualificationRecord {
+  id: number;
+  tenantId: number;
+  companyId: number;
+  qualType: string;
+  qualName: string;
+  qualNo?: string;
+  validFrom?: string;
+  validTo?: string;
+  coreFlag?: number;
+  fileId?: number;
+  status: string;
+  expired?: boolean;
+  coreExpired?: boolean;
+}
+
+export interface ContractorQualificationRequest {
+  tenantId: number;
+  qualType: string;
+  qualName: string;
+  qualNo?: string;
+  validFrom?: string;
+  validTo?: string;
+  coreFlag?: boolean;
+  fileId?: number;
+}
+
+export interface ContractorWorkerRecord {
+  id: number;
+  tenantId: number;
+  companyId: number;
+  workerCode: string;
+  name: string;
+  phoneMasked?: string;
+  tradeType?: string;
+  accessStatus: string;
+  trainingStatus?: string;
+  certificateStatus?: string;
+  gateCardNo?: string;
+  locationTagNo?: string;
+  status?: string;
+}
+
+export interface ContractorWorkerRequest {
+  tenantId: number;
+  companyId: number;
+  workerCode: string;
+  name: string;
+  phoneMasked?: string;
+  tradeType?: string;
+  gateCardNo?: string;
+  locationTagNo?: string;
+}
+
+export interface WorkerCertificateRecord {
+  id: number;
+  tenantId: number;
+  workerId: number;
+  certType: string;
+  certNo?: string;
+  validFrom?: string;
+  validTo?: string;
+  fileId?: number;
+  status: string;
+  expired?: boolean;
+}
+
+export interface WorkerCertificateRequest {
+  tenantId: number;
+  certType: string;
+  certNo?: string;
+  validFrom?: string;
+  validTo?: string;
+  fileId?: number;
+}
+
+export interface WorkerTrainingRecord {
+  id: number;
+  tenantId: number;
+  workerId: number;
+  trainingName: string;
+  trainingResult: string;
+  validFrom?: string;
+  validTo?: string;
+  fileId?: number;
+  expired?: boolean;
+  valid?: boolean;
+}
+
+export interface WorkerTrainingRequest {
+  tenantId: number;
+  trainingName: string;
+  trainingResult: string;
+  validFrom?: string;
+  validTo?: string;
+  fileId?: number;
+}
+
+export interface WorkerViolationRecord {
+  id: number;
+  tenantId: number;
+  companyId?: number;
+  workerId: number;
+  violationTime: string;
+  violationDesc: string;
+  severity?: string;
+  rectificationStatus?: string;
+}
+
+export interface WorkerViolationRequest {
+  tenantId: number;
+  companyId?: number;
+  violationTime: string;
+  violationDesc: string;
+  severity?: string;
+  rectificationStatus?: string;
+}
+
+export interface EligibilityCheckRequest {
+  tenantId: number;
+  companyId: number;
+  workerIds: number[];
+  workType?: string;
+  checkPoint?: string;
+}
+
+export interface EligibilityReason {
+  code: string;
+  message: string;
+  workerId?: number;
+}
+
+export interface EligibilityCheckResult {
+  passed: boolean;
+  reasons?: EligibilityReason[];
+}
+
+export interface MajorHazardRecord {
+  id: number;
+  tenantId: number;
+  hazardNo: string;
+  name: string;
+  hazardType?: string;
+  level: string;
+  areaId?: number;
+  unitId?: number;
+  material?: string;
+  status: string;
+  publishedAt?: string;
+}
+
+export interface RiskContextRequest {
+  tenantId: number;
+  areaId?: number;
+  unitId?: number;
+  pointIds?: number[];
+}
+
+export interface RiskContextHazardSummary {
+  id: number;
+  name: string;
+  level: string;
+  status: string;
+}
+
+export interface RiskContextResult {
+  areaId?: number;
+  hazards: RiskContextHazardSummary[];
+  maxLevel?: string;
+  blockingAlarm: boolean;
+  blockingReason?: string | null;
+}

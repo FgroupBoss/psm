@@ -1,7 +1,12 @@
 import React from 'react';
 
 export function StatusTag({ status }: { status: string }) {
-  const enabled = status === 'ENABLED' || status === 'SUCCESS' || status === 'PUBLISHED' || status === 'PASS';
+  const enabled =
+    status === 'ENABLED' ||
+    status === 'SUCCESS' ||
+    status === 'PUBLISHED' ||
+    status === 'PASS' ||
+    status === 'APPROVED';
   return <span className={`status-tag ${enabled ? 'enabled' : 'disabled'}`}>{status}</span>;
 }
 

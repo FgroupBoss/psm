@@ -14,3 +14,8 @@
 ## 进度记录
 
 - [工作进度记录台账](work-progress-ledger.md)
+
+## 开源与使用政策
+
+- [开源与使用政策（摘要）](open-source-policy.md)
+- 完整许可证：仓库根目录 [LICENSE](../../LICENSE)
