@@ -38,6 +38,22 @@ public class GatewayProxyController {
         return proxy(properties.getAuthServiceUrl(), request, body, null);
     }
 
+    @RequestMapping("/api/iam/**")
+    public ResponseEntity<String> proxyIam(HttpServletRequest request,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                           @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getIamServiceUrl(), request, body, principal);
+    }
+
+    @RequestMapping("/api/config/**")
+    public ResponseEntity<String> proxyConfigRule(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                                   @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getConfigRuleServiceUrl(), request, body, principal);
+    }
+
     @RequestMapping("/api/master-data/**")
     public ResponseEntity<String> proxyMasterData(HttpServletRequest request,
                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,

@@ -149,6 +149,35 @@ nav {
   margin-top: 20px;
 }
 
+.nav-group {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.nav-group-title {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #8fa3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nav-warning {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: #8a6d1d;
+  font-size: 14px;
+}
+
+.checkbox-list {
+  display: grid;
+  gap: 8px;
+  padding: 8px 0;
+}
+
 .nav-item {
   width: 100%;
   border: 0;

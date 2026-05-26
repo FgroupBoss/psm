@@ -15,6 +15,8 @@ public interface IamUserMapper extends BaseMapper<IamUserEntity> {
 
     IamUserEntity findByUsername(@Param("tenantId") Long tenantId, @Param("username") String username);
 
+    IamUserEntity findByAuthUserId(@Param("tenantId") Long tenantId, @Param("authUserId") Long authUserId);
+
     List<IamUserEntity> list(@Param("tenantId") Long tenantId,
                              @Param("keyword") String keyword,
                              @Param("limit") int limit,

@@ -23,6 +23,14 @@
           and deleted = 0
     </select>
 
+    <select id="findByAuthUserId" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
+        select <include refid="columns"/>
+        from sys_user
+        where tenant_id = #{tenantId}
+          and auth_user_id = #{authUserId}
+          and deleted = 0
+    </select>
+
     <select id="list" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
         select <include refid="columns"/>
         from sys_user

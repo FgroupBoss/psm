@@ -115,6 +115,26 @@ class IamAdminServiceImplTest {
     }
 
     @Test
+    void userPermissionsForPrincipalResolvesByAuthUserId() {
+        IamUserEntity iamUser = user();
+        iamUser.setAuthUserId(99L);
+        when(iamUserMapper.findByAuthUserId(10L, 99L)).thenReturn(iamUser);
+        when(iamUserMapper.findById(10L, 7L)).thenReturn(iamUser);
+        PermissionVersionEntity version = new PermissionVersionEntity();
+        version.setVersionNo(2L);
+        when(permissionVersionMapper.findByUser(10L, 7L)).thenReturn(version);
+        when(rolePermissionMapper.findPermissionCodesByUser(10L, 7L)).thenReturn(Collections.singletonList("audit:view"));
+        when(menuResourceMapper.findByUser(10L, 7L)).thenReturn(Collections.singletonList(menu()));
+        when(dataScopeMapper.findByUser(10L, 7L)).thenReturn(Collections.emptyList());
+
+        UserPermissionSummaryVO result = service.userPermissionsForPrincipal(10L, 99L, "admin");
+
+        assertEquals(7L, result.getUserId());
+        assertEquals("admin", result.getUsername());
+        assertEquals(1, result.getMenus().size());
+    }
+
+    @Test
     void assignUserRolesReplacesRelationsAndIncreasesPermissionVersion() {
         when(iamUserMapper.findById(10L, 7L)).thenReturn(user());
         when(roleMapper.findById(10L, 3L)).thenReturn(role(3L));

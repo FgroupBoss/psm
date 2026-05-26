@@ -81,4 +81,9 @@ public interface IamAdminService {
     List<MenuTreeVO> menuTree(Long tenantId);
 
     UserPermissionSummaryVO userPermissions(Long tenantId, Long userId);
+
+    /**
+     * 按认证用户身份解析 IAM 用户并返回权限摘要，供网关透传后的管理端拉取菜单。
+     */
+    UserPermissionSummaryVO userPermissionsForPrincipal(Long tenantId, Long authUserId, String username);
 }

@@ -461,6 +461,27 @@ public class IamAdminServiceImpl implements IamAdminService {
         return summary;
     }
 
+    @Override
+    public UserPermissionSummaryVO userPermissionsForPrincipal(Long tenantId, Long authUserId, String username) {
+        IamUserEntity iamUser = resolveIamUser(tenantId, authUserId, username);
+        return userPermissions(tenantId, iamUser.getId());
+    }
+
+    private IamUserEntity resolveIamUser(Long tenantId, Long authUserId, String username) {
+        validateTenant(tenantId);
+        IamUserEntity entity = null;
+        if (authUserId != null && authUserId > 0L) {
+            entity = iamUserMapper.findByAuthUserId(tenantId, authUserId);
+        }
+        if (entity == null && org.springframework.util.StringUtils.hasText(username)) {
+            entity = iamUserMapper.findByUsername(tenantId, username);
+        }
+        if (entity == null) {
+            throw new BusinessException(404, "iam user not found");
+        }
+        return entity;
+    }
+
     private TenantVO tenant(Long id) {
         TenantEntity entity = tenantMapper.findById(id);
         if (entity == null) {

@@ -15,7 +15,17 @@ import type {
   MasterDataRecord,
   PageResult,
   RuleEvaluationRequest,
-  RuleEvaluationResult
+  RuleEvaluationResult,
+  AssignUserRoleRequest,
+  IamUserRecord,
+  IamUserRequest,
+  MenuResourceRequest,
+  MenuTreeNode,
+  OrgRequest,
+  OrgTreeNode,
+  RoleRecord,
+  RoleRequest,
+  UserPermissionSummary
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -187,6 +197,134 @@ export async function evaluateRules(payload: RuleEvaluationRequest): Promise<Rul
   return request<RuleEvaluationResult[]>('/api/config/rules/evaluate', {
     method: 'POST',
     body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchMyPermissions(): Promise<UserPermissionSummary> {
+  return request<UserPermissionSummary>('/api/iam/users/me/permissions');
+}
+
+export async function fetchOrgTree(tenantId: number): Promise<OrgTreeNode[]> {
+  return request<OrgTreeNode[]>(`/api/iam/orgs/tree?tenantId=${tenantId}`);
+}
+
+export async function createOrg(payload: OrgRequest): Promise<OrgTreeNode> {
+  return request<OrgTreeNode>('/api/iam/orgs', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateOrg(id: number, payload: OrgRequest): Promise<OrgTreeNode> {
+  return request<OrgTreeNode>(`/api/iam/orgs/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteOrg(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/iam/orgs/${id}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchIamUsers(query: PageQuery): Promise<PageResult<IamUserRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  return request<PageResult<IamUserRecord>>(`/api/iam/users?${params.toString()}`);
+}
+
+export async function createIamUser(payload: IamUserRequest): Promise<IamUserRecord> {
+  return request<IamUserRecord>('/api/iam/users', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateIamUser(id: number, payload: IamUserRequest): Promise<IamUserRecord> {
+  return request<IamUserRecord>(`/api/iam/users/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateIamUserStatus(
+  id: number,
+  tenantId: number,
+  status: string
+): Promise<void> {
+  return request<void>(`/api/iam/users/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ tenantId, status })
+  });
+}
+
+export async function assignUserRoles(id: number, payload: AssignUserRoleRequest): Promise<void> {
+  return request<void>(`/api/iam/users/${id}/roles`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchRoles(query: PageQuery): Promise<PageResult<RoleRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  return request<PageResult<RoleRecord>>(`/api/iam/roles?${params.toString()}`);
+}
+
+export async function createRole(payload: RoleRequest): Promise<RoleRecord> {
+  return request<RoleRecord>('/api/iam/roles', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateRole(id: number, payload: RoleRequest): Promise<RoleRecord> {
+  return request<RoleRecord>(`/api/iam/roles/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteRole(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/iam/roles/${id}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchMenuTree(tenantId: number): Promise<MenuTreeNode[]> {
+  return request<MenuTreeNode[]>(`/api/iam/menus/tree?tenantId=${tenantId}`);
+}
+
+export async function createMenu(payload: MenuResourceRequest): Promise<MenuTreeNode> {
+  return request<MenuTreeNode>('/api/iam/menus', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateMenu(id: number, payload: MenuResourceRequest): Promise<MenuTreeNode> {
+  return request<MenuTreeNode>(`/api/iam/menus/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteMenu(id: number, tenantId: number): Promise<void> {
+  return request<void>(`/api/iam/menus/${id}?tenantId=${tenantId}`, {
+    method: 'DELETE'
   });
 }
 

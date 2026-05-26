@@ -1,5 +1,6 @@
 package com.fgroupboss.ai.psm.iam.controller;
 
+import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.common.UserContextHeaders;
@@ -196,6 +197,22 @@ public class IamAdminController {
     @GetMapping("/users/{id}/permissions")
     public ResponseVO<UserPermissionSummaryVO> userPermissions(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(service.userPermissions(tenantId, id));
+    }
+
+    /**
+     * 当前登录用户权限摘要；网关透传认证用户 ID 与用户名。
+     */
+    @GetMapping("/users/me/permissions")
+    public ResponseVO<UserPermissionSummaryVO> myPermissions(
+            @RequestHeader(value = UserContextHeaders.TENANT_ID, required = false) String tenantId,
+            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username) {
+        Long resolvedTenantId = tenantId == null ? null : Long.valueOf(tenantId);
+        Long resolvedAuthUserId = userId == null ? null : Long.valueOf(userId);
+        if (resolvedTenantId == null || resolvedTenantId <= 0L) {
+            throw new BusinessException(400, "tenantId is required");
+        }
+        return ResponseVO.success(service.userPermissionsForPrincipal(resolvedTenantId, resolvedAuthUserId, username));
     }
 
     @GetMapping("/roles")

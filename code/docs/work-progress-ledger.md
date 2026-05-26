@@ -16,10 +16,10 @@
 
 | 模块/范围 | 当前状态 | 进展说明 | 下一步 |
 | --- | --- | --- | --- |
-| 平台底座 | 进行中 | 已具备 auth、gateway、master-data、audit、iam 的部分实现基础 | 优先收口第 1 迭代闭环 |
-| auth / gateway / iam | 进行中 | 已出现登录、网关鉴权、IAM 权限模型相关实现 | 验证单模块测试与全量构建 |
-| master-data / audit | 进行中 | 已具备主数据与审计基础接口 | 继续补齐管理端可操作闭环 |
-| admin-web | 进行中 | 已有登录、区域台账、审计列表样板 | 复用到组织、用户、角色、菜单、装置、设备、点位 |
+| 平台底座 | 待验证 | 网关已打通 IAM/Config；管理端已覆盖主数据、IAM、配置、审计页面 | 本地全服务联调并签收第 1 迭代 |
+| auth / gateway / iam | 待验证 | 网关转发 IAM/Config；IAM 支持当前用户权限与菜单 | 与 auth 用户联动联调 |
+| master-data / audit | 待验证 | 管理端支持区域/装置/设备/点位与审计列表 | 联调写入审计链路 |
+| admin-web | 待验证 | 登录、动态菜单、主数据四类台账、IAM 四类管理、配置与规则 | 浏览器端到端验收 |
 | 承包商、重大危险源、报警、作业票、移动端、报表 | 未开始 | 多数仍是服务骨架或占位说明 | 平台底座验收后按一期路线进入第 2 迭代 |
 
 ## 工作记录
@@ -30,3 +30,4 @@
 | 2026-05-26 | 进度台账 | 已完成 | 新增本台账，定义记录规则、状态枚举、当前项目基线和追加记录格式 | 文档变更，未执行构建测试 | 后续每次工作完成后需要持续追加记录 | 后续任务完成时同步更新本台账 |
 | 2026-05-26 | config-rule 服务 | 已完成 | 补齐系统配置与规则引擎一期最小后端闭环：统一配置项模型、字典/表单/流程/规则/通知/附件策略接口、发布停用删除审计、规则评估接口和 Service 单测 | `mvn -pl services/psm-config-rule-service -am -DskipTests=false test` 通过；`mvn -DskipTests=false test` 全量通过 | 管理端页面和复杂规则 DSL 尚未展开 | 下一步接入 admin-web 配置管理页面，或进入承包商/重大危险源第 2 迭代 |
 | 2026-05-26 | config-rule 管理端接入 | 已完成 | 在 `domain-types` 和 `api-client` 补充配置项、发布停用删除、规则评估类型与接口；在 `admin-web` 新增系统配置与规则页面，支持六类配置分页查询、新增编辑、发布停用删除和规则评估验证 | `npm.cmd run typecheck` 通过；`npm.cmd run build` 通过；`mvn -pl services/psm-config-rule-service -am -DskipTests=false test` 通过 | 未启动真实后端与浏览器做手工联调；复杂规则 DSL 仍未展开 | 下一步做管理端与本地后端联调，并进入承包商/重大危险源第 2 迭代 |
+| 2026-05-26 | 第1迭代管理端闭环 | 已完成 | 网关补齐 `/api/iam/**`、`/api/config/**` 转发；IAM 增加 `users/me/permissions` 与 `findByAuthUserId`；`api-client`/`domain-types` 补充 IAM 类型与接口；`admin-web` 增加装置/设备/点位台账、组织/用户/角色/菜单管理，侧栏按 IAM 菜单动态渲染（无菜单时回退默认导航）；IAM 增加 `data.sql` 菜单种子 | `mvn -pl services/psm-gateway,services/psm-iam-service -am -DskipTests=false test` 通过；`npm.cmd run typecheck` 与 `npm.cmd run build` 通过 | 未在本地启动全链路服务做浏览器手工联调；角色权限分配 UI 仅支持用户绑角色 | 下一步启动 gateway/auth/iam/master-data/config/audit 做端到端联调验收，通过后进入第 2 迭代 |
