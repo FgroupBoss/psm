@@ -14,7 +14,8 @@ export type AppView =
   | 'audit'
   | 'contractor:companies'
   | 'contractor:workers'
-  | 'hazard:ledger';
+  | 'hazard:ledger'
+  | 'alarm:list';
 
 export interface NavItem {
   view: AppView;
@@ -61,7 +62,10 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   MENU_CTR_WORKERS: 'contractor:workers',
   'hazard/ledger': 'hazard:ledger',
   'hazard:ledger': 'hazard:ledger',
-  MENU_HAZ_LEDGER: 'hazard:ledger'
+  MENU_HAZ_LEDGER: 'hazard:ledger',
+  'alarm/list': 'alarm:list',
+  'alarm:list': 'alarm:list',
+  MENU_ALM_LIST: 'alarm:list'
 };
 
 /** 无 IAM 菜单数据时的默认可访问菜单（试点管理员）。 */
@@ -78,7 +82,8 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'audit', label: '权限审计', group: '系统配置' },
   { view: 'contractor:companies', label: '承包商单位', group: '承包商管理' },
   { view: 'contractor:workers', label: '承包商人员', group: '承包商管理' },
-  { view: 'hazard:ledger', label: '危险源台账', group: '重大危险源' }
+  { view: 'hazard:ledger', label: '危险源台账', group: '重大危险源' },
+  { view: 'alarm:list', label: '实时报警', group: '报警中心' }
 ];
 
 const VIEW_TITLES: Record<AppView, string> = {
@@ -94,7 +99,8 @@ const VIEW_TITLES: Record<AppView, string> = {
   audit: '权限审计',
   'contractor:companies': '承包商单位',
   'contractor:workers': '承包商人员',
-  'hazard:ledger': '危险源台账'
+  'hazard:ledger': '危险源台账',
+  'alarm:list': '实时报警'
 };
 
 export function viewTitle(view: AppView): string {

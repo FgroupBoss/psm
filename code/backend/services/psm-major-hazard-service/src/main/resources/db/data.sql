@@ -16,3 +16,8 @@ insert into major_hazard_point_rel (id, tenant_id, hazard_id, monitor_point_id, 
 values
   (1, 1, 1, 1, 'MP-001', 'V101可燃气体')
 on duplicate key update point_name = values(point_name);
+
+insert into major_hazard_attachment (id, tenant_id, hazard_id, attachment_type, file_id, file_name)
+values
+  (1, 1, 1, 'EVAL_REPORT', 10001, '安全评估报告.pdf')
+on duplicate key update file_name = values(file_name), updated_at = now();

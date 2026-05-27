@@ -80,3 +80,20 @@ create table if not exists major_hazard_status_log (
   primary key (id),
   key idx_major_hazard_status_log (tenant_id, hazard_id, operated_at)
 ) engine=InnoDB default charset=utf8mb4 comment='重大危险源状态变更记录';
+
+create table if not exists major_hazard_audit_record (
+  id bigint not null auto_increment comment '主键',
+  tenant_id bigint not null comment '租户ID',
+  target_type varchar(32) not null comment '对象类型',
+  target_id bigint not null comment '对象ID',
+  action varchar(64) not null comment '动作',
+  before_status varchar(32) null comment '变更前状态',
+  after_status varchar(32) null comment '变更后状态',
+  opinion varchar(512) null comment '备注/原因',
+  operator_id bigint null comment '操作人ID',
+  operator_name varchar(128) null comment '操作人姓名',
+  operated_at datetime not null default current_timestamp comment '操作时间',
+  primary key (id),
+  key idx_major_hazard_audit_target (tenant_id, target_type, target_id),
+  key idx_major_hazard_audit_time (tenant_id, operated_at)
+) engine=InnoDB default charset=utf8mb4 comment='重大危险源操作审计流水';

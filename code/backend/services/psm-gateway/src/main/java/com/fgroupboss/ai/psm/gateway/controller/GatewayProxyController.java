@@ -95,6 +95,14 @@ public class GatewayProxyController {
         return proxy(properties.getMajorHazardServiceUrl(), request, body, principal);
     }
 
+    @RequestMapping("/api/alarms/**")
+    public ResponseEntity<String> proxyAlarm(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                             @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getAlarmServiceUrl(), request, body, principal);
+    }
+
     private ResponseEntity<String> proxy(String serviceUrl, HttpServletRequest request, String body, AuthPrincipal principal) {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

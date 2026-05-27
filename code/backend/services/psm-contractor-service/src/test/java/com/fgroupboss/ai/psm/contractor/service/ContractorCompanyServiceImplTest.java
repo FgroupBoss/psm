@@ -2,6 +2,7 @@ package com.fgroupboss.ai.psm.contractor.service;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.audit.CentralAuditClient;
 import com.fgroupboss.ai.psm.contractor.mapper.ContractorAuditRecordMapper;
 import com.fgroupboss.ai.psm.contractor.mapper.ContractorBlacklistMapper;
 import com.fgroupboss.ai.psm.contractor.mapper.ContractorCompanyMapper;
@@ -29,6 +30,7 @@ class ContractorCompanyServiceImplTest {
     private ContractorCompanyMapper companyMapper;
     private ContractorAuditRecordMapper auditRecordMapper;
     private ContractorBlacklistMapper blacklistMapper;
+    private CentralAuditClient centralAuditClient;
     private ContractorCompanyService service;
 
     @BeforeEach
@@ -36,7 +38,8 @@ class ContractorCompanyServiceImplTest {
         companyMapper = mock(ContractorCompanyMapper.class);
         auditRecordMapper = mock(ContractorAuditRecordMapper.class);
         blacklistMapper = mock(ContractorBlacklistMapper.class);
-        service = new ContractorCompanyServiceImpl(companyMapper, auditRecordMapper, blacklistMapper);
+        centralAuditClient = mock(CentralAuditClient.class);
+        service = new ContractorCompanyServiceImpl(companyMapper, auditRecordMapper, blacklistMapper, centralAuditClient);
     }
 
     @Test

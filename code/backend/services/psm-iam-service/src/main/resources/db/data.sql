@@ -33,7 +33,9 @@ values
   (31, 0, 30, 'MENU', 'MENU_CTR_COMPANIES', '承包商单位', 'contractor:companies', 51, 1, 'ENABLED'),
   (32, 0, 30, 'MENU', 'MENU_CTR_WORKERS', '承包商人员', 'contractor:workers', 52, 1, 'ENABLED'),
   (40, 0, null, 'MENU', 'MENU_ROOT_HAZARD', '重大危险源', null, 60, 1, 'ENABLED'),
-  (41, 0, 40, 'MENU', 'MENU_HAZ_LEDGER', '危险源台账', 'hazard:ledger', 61, 1, 'ENABLED')
+  (41, 0, 40, 'MENU', 'MENU_HAZ_LEDGER', '危险源台账', 'hazard:ledger', 61, 1, 'ENABLED'),
+  (50, 0, null, 'MENU', 'MENU_ROOT_ALARM', '报警中心', null, 70, 1, 'ENABLED'),
+  (51, 0, 50, 'MENU', 'MENU_ALM_LIST', '实时报警', 'alarm:list', 71, 1, 'ENABLED')
 on duplicate key update resource_name = values(resource_name), route_path = values(route_path), updated_at = now();
 
 insert into sys_role_permission (tenant_id, role_id, resource_id, permission_code)

@@ -13,6 +13,9 @@
         <if test="bizType != null and bizType != ''">
           and biz_type = #{bizType}
         </if>
+        <if test="bizTypePrefix != null and bizTypePrefix != ''">
+          and biz_type like concat(#{bizTypePrefix}, '%')
+        </if>
         <if test="bizId != null">
           and biz_id = #{bizId}
         </if>

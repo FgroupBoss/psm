@@ -14,6 +14,7 @@ public class GatewayProperties {
     private String auditServiceUrl = "http://localhost:18094";
     private String contractorServiceUrl = "http://localhost:18085";
     private String majorHazardServiceUrl = "http://localhost:18086";
+    private String alarmServiceUrl = "http://localhost:18087";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -69,6 +70,14 @@ public class GatewayProperties {
 
     public void setMajorHazardServiceUrl(String majorHazardServiceUrl) {
         this.majorHazardServiceUrl = trimTrailingSlash(majorHazardServiceUrl);
+    }
+
+    public String getAlarmServiceUrl() {
+        return alarmServiceUrl;
+    }
+
+    public void setAlarmServiceUrl(String alarmServiceUrl) {
+        this.alarmServiceUrl = trimTrailingSlash(alarmServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

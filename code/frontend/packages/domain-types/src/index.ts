@@ -312,6 +312,118 @@ export const MAJOR_HAZARD_API = {
   riskContext: '/api/major-hazards/risk-context'
 } as const;
 
+/** 报警中心 API 路径常量（与网关 /api/alarms/** 对齐）。 */
+export const ALARM_API = {
+  base: '/api/alarms',
+  health: '/api/alarms/health',
+  ingest: '/api/alarms/ingest',
+  areaActiveCheck: '/api/alarms/area-active-check'
+} as const;
+
+export interface AlarmHealthInfo {
+  service: string;
+  module: string;
+  version: string;
+  seedEventCount: number;
+}
+
+export interface AlarmEventRecord {
+  id: number;
+  tenantId: number;
+  alarmNo: string;
+  sourceType: string;
+  sourceCode?: string;
+  title: string;
+  content?: string;
+  alarmLevel: string;
+  status: AlarmStatus;
+  areaId?: number;
+  unitId?: number;
+  equipmentId?: number;
+  monitorPointId?: number;
+  hazardId?: number;
+  occurrenceCount?: number;
+  firstOccurredAt?: string;
+  lastOccurredAt?: string;
+}
+
+export interface AlarmOccurrenceRecord {
+  id: number;
+  occurredAt?: string;
+  rawValue?: string;
+}
+
+export interface AlarmActionSummaryRecord {
+  id: number;
+  actionType: string;
+  actionContent?: string;
+  operatorName?: string;
+  operatedAt?: string;
+}
+
+export interface AlarmDetailRecord {
+  event: AlarmEventRecord;
+  occurrences: AlarmOccurrenceRecord[];
+  actions: AlarmActionSummaryRecord[];
+}
+
+export interface AlarmIngestRequest {
+  tenantId: number;
+  sourceType: string;
+  sourceCode?: string;
+  title: string;
+  content?: string;
+  alarmLevel: string;
+  areaId?: number;
+  unitId?: number;
+  equipmentId?: number;
+  monitorPointId?: number;
+  hazardId?: number;
+  rawValue?: string;
+  occurredAt?: string;
+}
+
+export interface AlarmActionRequest {
+  content?: string;
+  assignee?: string;
+}
+
+export interface AlarmFalseCloseRequest {
+  reason: string;
+}
+
+export interface AlarmAreaActiveCheckRequest {
+  tenantId: number;
+  areaId: number;
+  minLevel?: string;
+}
+
+export interface AlarmAreaActiveCheckResult {
+  hasBlocking: boolean;
+  count: number;
+  alarms: AlarmEventRecord[];
+}
+
+export interface HazardAlarmSummaryRecord {
+  id: number;
+  alarmNo: string;
+  title: string;
+  alarmLevel: string;
+  status: AlarmStatus;
+  occurrenceCount?: number;
+  lastOccurredAt?: string;
+}
+
+/** 报警状态（批次 2 起用于列表/详情）。 */
+export type AlarmStatus =
+  | 'NEW'
+  | 'CONFIRMED'
+  | 'IN_PROGRESS'
+  | 'PENDING_REVIEW'
+  | 'CLOSED'
+  | 'ESCALATED'
+  | 'FALSE_CLOSED';
+
 export interface ContractorCompanyRecord {
   id: number;
   tenantId: number;
@@ -491,8 +603,85 @@ export interface MajorHazardRecord {
   areaId?: number;
   unitId?: number;
   material?: string;
+  designCapacity?: string;
+  actualCapacity?: string;
+  criticalQuantity?: string;
+  emergencyPlanId?: number;
   status: string;
   publishedAt?: string;
+}
+
+export interface MajorHazardRequest {
+  tenantId: number;
+  hazardNo: string;
+  name: string;
+  hazardType?: string;
+  level: string;
+  areaId?: number;
+  unitId?: number;
+  material?: string;
+  designCapacity?: string;
+  actualCapacity?: string;
+  criticalQuantity?: string;
+  emergencyPlanId?: number;
+}
+
+export interface HazardStatusRequest {
+  targetStatus: string;
+  reason?: string;
+}
+
+export interface MajorHazardResponsibilityRecord {
+  id: number;
+  tenantId: number;
+  hazardId: number;
+  responsibilityType: string;
+  personName: string;
+  personPhone?: string;
+  personId?: number;
+  sortNo?: number;
+}
+
+export interface ResponsibilityRequest {
+  responsibilityType: string;
+  personName: string;
+  personPhone?: string;
+  personId?: number;
+  sortNo?: number;
+}
+
+export interface ResponsibilityReplaceRequest {
+  responsibilities: ResponsibilityRequest[];
+}
+
+export interface HazardPointRecord {
+  id: number;
+  tenantId: number;
+  hazardId: number;
+  monitorPointId: number;
+  pointCode?: string;
+  pointName?: string;
+}
+
+export interface HazardPointRequest {
+  monitorPointId: number;
+  pointCode?: string;
+  pointName?: string;
+}
+
+export interface HazardAttachmentRecord {
+  id: number;
+  tenantId: number;
+  hazardId: number;
+  attachmentType: string;
+  fileId: number;
+  fileName?: string;
+}
+
+export interface HazardAttachmentRequest {
+  attachmentType: string;
+  fileId: number;
+  fileName?: string;
 }
 
 export interface RiskContextRequest {
@@ -511,6 +700,7 @@ export interface RiskContextHazardSummary {
 
 export interface RiskContextResult {
   areaId?: number;
+  unitId?: number;
   hazards: RiskContextHazardSummary[];
   maxLevel?: string;
   blockingAlarm: boolean;

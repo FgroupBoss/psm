@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.majorhazard.mapper.MajorHazardResponsibilityMapper">
+
+    <select id="listByHazardId"
+            resultType="com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardResponsibilityEntity">
+        select * from major_hazard_responsibility
+        where tenant_id = #{tenantId}
+          and hazard_id = #{hazardId}
+        order by sort_no asc, id asc
+    </select>
+
+    <select id="findByType"
+            resultType="com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardResponsibilityEntity">
+        select * from major_hazard_responsibility
+        where tenant_id = #{tenantId}
+          and hazard_id = #{hazardId}
+          and responsibility_type = #{responsibilityType}
+        limit 1
+    </select>
+</mapper>

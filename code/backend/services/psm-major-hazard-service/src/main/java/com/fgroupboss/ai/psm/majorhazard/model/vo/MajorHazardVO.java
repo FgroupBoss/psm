@@ -16,6 +16,10 @@ public class MajorHazardVO {
     private Long areaId;
     private Long unitId;
     private String material;
+    private String designCapacity;
+    private String actualCapacity;
+    private String criticalQuantity;
+    private Long emergencyPlanId;
     private String status;
     private LocalDateTime publishedAt;
 }

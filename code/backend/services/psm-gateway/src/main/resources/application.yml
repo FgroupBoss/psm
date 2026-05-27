@@ -14,3 +14,4 @@ psm:
     audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}
     contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
     major-hazard-service-url: ${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}
+    alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}

@@ -18,4 +18,10 @@ class AuditBizTypeTest {
         assertEquals("MAJOR_HAZARD", AuditBizType.MAJOR_HAZARD.code());
         assertTrue(AuditBizType.MAJOR_HAZARD_POINT.name().startsWith("MAJOR_HAZARD_"));
     }
+
+    @Test
+    void alarmTypesShouldUseAlarmPrefix() {
+        assertEquals("ALARM", AuditBizType.ALARM.code());
+        assertTrue(AuditBizType.ALARM_ACTION.name().startsWith("ALARM_"));
+    }
 }

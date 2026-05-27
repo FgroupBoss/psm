@@ -1,8 +1,17 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
+  AlarmHealthInfo,
+  AlarmEventRecord,
+  AlarmDetailRecord,
+  AlarmIngestRequest,
+  AlarmActionRequest,
+  AlarmFalseCloseRequest,
+  AlarmAreaActiveCheckRequest,
+  AlarmAreaActiveCheckResult,
+  HazardAlarmSummaryRecord,
   AuthTokenResponse,
   AuthUser,
   BaseDataRecord,
@@ -28,6 +37,11 @@ import type {
   ContractorWorkerRequest,
   EligibilityCheckRequest,
   EligibilityCheckResult,
+  HazardStatusRequest,
+  HazardPointRecord,
+  HazardPointRequest,
+  HazardAttachmentRecord,
+  HazardAttachmentRequest,
   WorkerCertificateRecord,
   WorkerCertificateRequest,
   WorkerTrainingRecord,
@@ -36,6 +50,9 @@ import type {
   WorkerViolationRequest,
   IamUserRecord,
   MajorHazardRecord,
+  MajorHazardRequest,
+  MajorHazardResponsibilityRecord,
+  ResponsibilityReplaceRequest,
   RiskContextRequest,
   RiskContextResult,
   IamUserRequest,
@@ -415,6 +432,102 @@ export async function fetchMajorHazard(id: number, tenantId: number): Promise<Ma
   return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}?tenantId=${tenantId}`);
 }
 
+export async function createMajorHazard(payload: MajorHazardRequest): Promise<MajorHazardRecord> {
+  return request<MajorHazardRecord>(MAJOR_HAZARD_API.base, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateMajorHazard(id: number, payload: MajorHazardRequest): Promise<MajorHazardRecord> {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function publishMajorHazard(id: number, tenantId: number): Promise<MajorHazardRecord> {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/publish?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function changeMajorHazardStatus(
+  id: number,
+  tenantId: number,
+  payload: HazardStatusRequest
+): Promise<MajorHazardRecord> {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/status?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchMajorHazardResponsibilities(
+  id: number,
+  tenantId: number
+): Promise<MajorHazardResponsibilityRecord[]> {
+  return request<MajorHazardResponsibilityRecord[]>(
+    `${MAJOR_HAZARD_API.base}/${id}/responsibilities?tenantId=${tenantId}`
+  );
+}
+
+export async function replaceMajorHazardResponsibilities(
+  id: number,
+  tenantId: number,
+  payload: ResponsibilityReplaceRequest
+): Promise<MajorHazardResponsibilityRecord[]> {
+  return request<MajorHazardResponsibilityRecord[]>(
+    `${MAJOR_HAZARD_API.base}/${id}/responsibilities?tenantId=${tenantId}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+export async function fetchMajorHazardPoints(id: number, tenantId: number): Promise<HazardPointRecord[]> {
+  return request<HazardPointRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/points?tenantId=${tenantId}`);
+}
+
+export async function bindMajorHazardPoint(
+  id: number,
+  tenantId: number,
+  payload: HazardPointRequest
+): Promise<HazardPointRecord> {
+  return request<HazardPointRecord>(`${MAJOR_HAZARD_API.base}/${id}/points?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function unbindMajorHazardPoint(id: number, tenantId: number, relId: number): Promise<void> {
+  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/points/${relId}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchMajorHazardAttachments(id: number, tenantId: number): Promise<HazardAttachmentRecord[]> {
+  return request<HazardAttachmentRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/attachments?tenantId=${tenantId}`);
+}
+
+export async function createMajorHazardAttachment(
+  id: number,
+  tenantId: number,
+  payload: HazardAttachmentRequest
+): Promise<HazardAttachmentRecord> {
+  return request<HazardAttachmentRecord>(`${MAJOR_HAZARD_API.base}/${id}/attachments?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteMajorHazardAttachment(id: number, tenantId: number, attachmentId: number): Promise<void> {
+  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/attachments/${attachmentId}?tenantId=${tenantId}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function fetchMajorHazardRiskContext(payload: RiskContextRequest): Promise<RiskContextResult> {
   return request<RiskContextResult>(MAJOR_HAZARD_API.riskContext, {
     method: 'POST',
@@ -422,7 +535,141 @@ export async function fetchMajorHazardRiskContext(payload: RiskContextRequest): 
   });
 }
 
-export async function fetchAuditLogs(query: PageQuery & { bizType?: string; action?: string }): Promise<PageResult<AuditLogRecord>> {
+export async function fetchAlarmHealth(): Promise<AlarmHealthInfo> {
+  return request<AlarmHealthInfo>(ALARM_API.health);
+}
+
+export async function fetchAlarms(
+  query: PageQuery & {
+    keyword?: string;
+    status?: string;
+    alarmLevel?: string;
+    areaId?: number;
+    hazardId?: number;
+    sourceType?: string;
+    occurredFrom?: string;
+    occurredTo?: string;
+  }
+): Promise<PageResult<AlarmEventRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) {
+    params.set('keyword', query.keyword);
+  }
+  if (query.status) {
+    params.set('status', query.status);
+  }
+  if (query.alarmLevel) {
+    params.set('alarmLevel', query.alarmLevel);
+  }
+  if (query.areaId != null) {
+    params.set('areaId', String(query.areaId));
+  }
+  if (query.hazardId != null) {
+    params.set('hazardId', String(query.hazardId));
+  }
+  if (query.sourceType) {
+    params.set('sourceType', query.sourceType);
+  }
+  if (query.occurredFrom) {
+    params.set('occurredFrom', query.occurredFrom);
+  }
+  if (query.occurredTo) {
+    params.set('occurredTo', query.occurredTo);
+  }
+  return request<PageResult<AlarmEventRecord>>(`${ALARM_API.base}?${params.toString()}`);
+}
+
+export async function fetchAlarmDetail(id: number, tenantId: number): Promise<AlarmDetailRecord> {
+  return request<AlarmDetailRecord>(`${ALARM_API.base}/${id}?tenantId=${tenantId}`);
+}
+
+export async function ingestAlarm(payload: AlarmIngestRequest): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(ALARM_API.ingest, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function confirmAlarm(
+  id: number,
+  tenantId: number,
+  payload?: AlarmActionRequest
+): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/confirm?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload || {})
+  });
+}
+
+export async function dispatchAlarm(
+  id: number,
+  tenantId: number,
+  payload?: AlarmActionRequest
+): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/dispatch?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload || {})
+  });
+}
+
+export async function feedbackAlarm(
+  id: number,
+  tenantId: number,
+  payload?: AlarmActionRequest
+): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/feedback?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload || {})
+  });
+}
+
+export async function closeAlarm(
+  id: number,
+  tenantId: number,
+  payload?: AlarmActionRequest
+): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/close?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload || {})
+  });
+}
+
+export async function falseCloseAlarm(
+  id: number,
+  tenantId: number,
+  payload: AlarmFalseCloseRequest
+): Promise<AlarmEventRecord> {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/false-close?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function checkAreaActiveAlarms(
+  payload: AlarmAreaActiveCheckRequest
+): Promise<AlarmAreaActiveCheckResult> {
+  return request<AlarmAreaActiveCheckResult>(ALARM_API.areaActiveCheck, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchMajorHazardAlarms(
+  hazardId: number,
+  tenantId: number
+): Promise<HazardAlarmSummaryRecord[]> {
+  return request<HazardAlarmSummaryRecord[]>(
+    `${MAJOR_HAZARD_API.base}/${hazardId}/alarms?tenantId=${tenantId}`
+  );
+}
+
+export async function fetchAuditLogs(
+  query: PageQuery & { bizType?: string; bizTypePrefix?: string; action?: string }
+): Promise<PageResult<AuditLogRecord>> {
   const params = new URLSearchParams({
     tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
@@ -430,6 +677,9 @@ export async function fetchAuditLogs(query: PageQuery & { bizType?: string; acti
   });
   if (query.bizType) {
     params.set('bizType', query.bizType);
+  }
+  if (query.bizTypePrefix) {
+    params.set('bizTypePrefix', query.bizTypePrefix);
   }
   if (query.action) {
     params.set('action', query.action);

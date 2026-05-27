@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper">
+
+    <sql id="alarmWhere">
+        tenant_id = #{tenantId}
+        and deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (alarm_no like concat('%', #{keyword}, '%')
+            or title like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="alarmLevel != null and alarmLevel != ''">
+            and alarm_level = #{alarmLevel}
+        </if>
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+        <if test="hazardId != null">
+            and hazard_id = #{hazardId}
+        </if>
+        <if test="sourceType != null and sourceType != ''">
+            and source_type = #{sourceType}
+        </if>
+        <if test="occurredFrom != null">
+            and last_occurred_at &gt;= #{occurredFrom}
+        </if>
+        <if test="occurredTo != null">
+            and last_occurred_at &lt;= #{occurredTo}
+        </if>
+    </sql>
+
+    <select id="countByTenant" resultType="long">
+        select count(1) from alarm_event
+        <where>
+            <include refid="alarmWhere"/>
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity">
+        select * from alarm_event
+        <where>
+            <include refid="alarmWhere"/>
+        </where>
+        order by last_occurred_at desc, id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="findMergeCandidate" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity">
+        select * from alarm_event
+        where tenant_id = #{tenantId}
+          and dedup_key = #{dedupKey}
+          and deleted = 0
+          and status not in ('CLOSED', 'FALSE_CLOSED')
+          and last_occurred_at &gt;= #{windowStart}
+        order by last_occurred_at desc, id desc
+        limit 1
+    </select>
+
+    <select id="listActiveByArea" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity">
+        select * from alarm_event
+        where tenant_id = #{tenantId}
+          and area_id = #{areaId}
+          and deleted = 0
+          and status not in ('CLOSED', 'FALSE_CLOSED')
+        order by alarm_level asc, last_occurred_at desc
+    </select>
+
+    <select id="listTimeoutCandidates" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity">
+        select * from alarm_event
+        where tenant_id = #{tenantId}
+          and deleted = 0
+          and status = #{status}
+          and alarm_level = #{alarmLevel}
+          and first_occurred_at &lt;= #{deadline}
+        order by first_occurred_at asc
+    </select>
+
+    <select id="listDisposeTimeoutCandidates" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity">
+        select * from alarm_event
+        where tenant_id = #{tenantId}
+          and deleted = 0
+          and status in ('CONFIRMED', 'IN_PROGRESS')
+          and alarm_level = #{alarmLevel}
+          and updated_at &lt;= #{deadline}
+        order by updated_at asc
+    </select>
+</mapper>

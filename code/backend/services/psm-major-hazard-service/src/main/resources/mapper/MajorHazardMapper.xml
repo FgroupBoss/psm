@@ -33,4 +33,38 @@
         order by id desc
         limit #{offset}, #{limit}
     </select>
+
+    <select id="findByHazardNo" resultType="com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardEntity">
+        select * from major_hazard
+        where tenant_id = #{tenantId}
+          and hazard_no = #{hazardNo}
+          and deleted = 0
+        limit 1
+    </select>
+
+    <select id="listForRiskContext" resultType="com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardEntity">
+        select distinct h.* from major_hazard h
+        left join major_hazard_point_rel p
+          on p.tenant_id = h.tenant_id and p.hazard_id = h.id and p.deleted = 0
+        where h.tenant_id = #{tenantId}
+          and h.deleted = 0
+          and h.status != 'DRAFT'
+          and (
+            <trim prefixOverrides="or">
+              <if test="areaId != null">
+                or h.area_id = #{areaId}
+              </if>
+              <if test="unitId != null">
+                or h.unit_id = #{unitId}
+              </if>
+              <if test="pointIds != null and pointIds.size() > 0">
+                or p.monitor_point_id in
+                <foreach collection="pointIds" item="pointId" open="(" separator="," close=")">
+                  #{pointId}
+                </foreach>
+              </if>
+            </trim>
+          )
+        order by h.id asc
+    </select>
 </mapper>

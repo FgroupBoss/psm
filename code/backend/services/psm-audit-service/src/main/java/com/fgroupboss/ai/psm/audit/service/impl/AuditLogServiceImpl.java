@@ -1,6 +1,7 @@
 package com.fgroupboss.ai.psm.audit.service.impl;
 
 import com.fgroupboss.ai.psm.audit.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.audit.model.dto.AuditLogIngestRequest;
 import com.fgroupboss.ai.psm.audit.model.entity.AuditChangeLogEntity;
 import com.fgroupboss.ai.psm.audit.model.vo.AuditLogRecordVO;
 import com.fgroupboss.ai.psm.audit.service.AuditLogService;
@@ -14,11 +15,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 审计日志查询服务实现。
- *
- * <p>分页条件由 Service 层完成归一化，动态 SQL 统一放在 Mapper XML 中，避免业务代码拼接 SQL。</p>
- */
 @Service
 @RequiredArgsConstructor
 public class AuditLogServiceImpl implements AuditLogService {
@@ -26,21 +22,39 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final AuditChangeLogMapper auditChangeLogMapper;
 
     @Override
-    public PageResult<AuditLogRecordVO> page(Long tenantId, String bizType, Long bizId, String action,
-                                             String operatorName, LocalDateTime startTime, LocalDateTime endTime,
-                                             int pageNo, int pageSize) {
+    public PageResult<AuditLogRecordVO> page(Long tenantId, String bizType, String bizTypePrefix, Long bizId,
+                                             String action, String operatorName, LocalDateTime startTime,
+                                             LocalDateTime endTime, int pageNo, int pageSize) {
         validateTenant(tenantId);
         int normalizedPageNo = Math.max(pageNo, 1);
         int normalizedPageSize = Math.min(Math.max(pageSize, 1), 200);
         int offset = (normalizedPageNo - 1) * normalizedPageSize;
         String normalizedBizType = normalizeText(bizType);
+        String normalizedBizTypePrefix = normalizeText(bizTypePrefix);
         String normalizedAction = normalizeText(action);
         String normalizedOperatorName = normalizeText(operatorName);
-        long total = auditChangeLogMapper.count(tenantId, normalizedBizType, bizId, normalizedAction,
-                normalizedOperatorName, startTime, endTime);
-        List<AuditChangeLogEntity> entities = auditChangeLogMapper.list(tenantId, normalizedBizType, bizId,
-                normalizedAction, normalizedOperatorName, startTime, endTime, normalizedPageSize, offset);
+        long total = auditChangeLogMapper.count(tenantId, normalizedBizType, normalizedBizTypePrefix, bizId,
+                normalizedAction, normalizedOperatorName, startTime, endTime);
+        List<AuditChangeLogEntity> entities = auditChangeLogMapper.list(tenantId, normalizedBizType,
+                normalizedBizTypePrefix, bizId, normalizedAction, normalizedOperatorName, startTime, endTime,
+                normalizedPageSize, offset);
         return new PageResult<AuditLogRecordVO>(total, normalizedPageNo, normalizedPageSize, toVOList(entities));
+    }
+
+    @Override
+    public void append(AuditLogIngestRequest request) {
+        validateTenant(request.getTenantId());
+        AuditChangeLogEntity entity = new AuditChangeLogEntity();
+        entity.setTenantId(request.getTenantId());
+        entity.setOperatorName(StringUtils.hasText(request.getOperatorName()) ? request.getOperatorName().trim() : "system");
+        entity.setAction(request.getAction().trim());
+        entity.setBizType(request.getBizType().trim());
+        entity.setBizId(request.getBizId());
+        entity.setBeforeValue(request.getBeforeValue());
+        entity.setAfterValue(request.getAfterValue());
+        entity.setResult(StringUtils.hasText(request.getResult()) ? request.getResult().trim() : "SUCCESS");
+        entity.setOperatedAt(LocalDateTime.now());
+        auditChangeLogMapper.insert(entity);
     }
 
     private void validateTenant(Long tenantId) {

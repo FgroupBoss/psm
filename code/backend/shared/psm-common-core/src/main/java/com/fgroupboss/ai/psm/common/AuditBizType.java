@@ -18,7 +18,11 @@ public enum AuditBizType {
     MAJOR_HAZARD,
     MAJOR_HAZARD_RESPONSIBILITY,
     MAJOR_HAZARD_POINT,
-    MAJOR_HAZARD_ATTACHMENT;
+    MAJOR_HAZARD_ATTACHMENT,
+
+    ALARM,
+    ALARM_ACTION,
+    ALARM_RULE;
 
     public String code() {
         return name();

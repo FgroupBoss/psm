@@ -21,4 +21,11 @@ public interface MajorHazardMapper extends BaseMapper<MajorHazardEntity> {
                                          @Param("level") String level,
                                          @Param("offset") int offset,
                                          @Param("limit") int limit);
+
+    MajorHazardEntity findByHazardNo(@Param("tenantId") Long tenantId, @Param("hazardNo") String hazardNo);
+
+    List<MajorHazardEntity> listForRiskContext(@Param("tenantId") Long tenantId,
+                                               @Param("areaId") Long areaId,
+                                               @Param("unitId") Long unitId,
+                                               @Param("pointIds") List<Long> pointIds);
 }

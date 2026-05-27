@@ -3,6 +3,7 @@ package com.fgroupboss.ai.psm.contractor.service.impl;
 import com.fgroupboss.ai.psm.common.AuditBizType;
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.audit.CentralAuditClient;
 import com.fgroupboss.ai.psm.contractor.config.WorkerStatus;
 import com.fgroupboss.ai.psm.contractor.mapper.ContractorAuditRecordMapper;
 import com.fgroupboss.ai.psm.contractor.mapper.ContractorBlacklistMapper;
@@ -43,6 +44,7 @@ public class ContractorWorkerServiceImpl implements ContractorWorkerService {
     private final WorkerTrainingMapper trainingMapper;
     private final ContractorAuditRecordMapper auditRecordMapper;
     private final ContractorBlacklistMapper blacklistMapper;
+    private final CentralAuditClient centralAuditClient;
 
     @Override
     public PageResult<ContractorWorkerVO> page(Long tenantId, Long companyId, String keyword, String accessStatus,
@@ -264,6 +266,8 @@ public class ContractorWorkerServiceImpl implements ContractorWorkerService {
         record.setOperatorName(defaultOperator(operator));
         record.setOperatedAt(LocalDateTime.now());
         auditRecordMapper.insert(record);
+        centralAuditClient.append(CentralAuditClient.build(tenantId, record.getOperatorName(), action,
+                AuditBizType.CONTRACTOR_WORKER.name(), workerId, beforeStatus, afterStatus));
     }
 
     private String defaultOperator(String operator) {

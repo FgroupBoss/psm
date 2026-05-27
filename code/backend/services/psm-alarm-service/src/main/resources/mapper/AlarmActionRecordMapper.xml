@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.alarm.mapper.AlarmActionRecordMapper">
+
+    <select id="listByAlarmEventId" resultType="com.fgroupboss.ai.psm.alarm.model.entity.AlarmActionRecordEntity">
+        select * from alarm_action_record
+        where tenant_id = #{tenantId}
+          and alarm_event_id = #{alarmEventId}
+        order by operated_at desc, id desc
+    </select>
+</mapper>

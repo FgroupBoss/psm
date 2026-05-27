@@ -3,6 +3,7 @@ import {
   approveContractorCompany,
   approveContractorWorker,
   assignUserRoles,
+  bindMajorHazardPoint,
   blacklistContractorCompany,
   blacklistContractorWorker,
   checkWorkerEligibility,
@@ -10,6 +11,8 @@ import {
   createCompanyQualification,
   createContractorCompany,
   createContractorWorker,
+  createMajorHazard,
+  createMajorHazardAttachment,
   createIamUser,
   createMenu,
   createOrg,
@@ -22,15 +25,23 @@ import {
   deleteMenu,
   deleteOrg,
   deleteRole,
+  deleteMajorHazardAttachment,
   deleteWorkerCertificate,
   disableBaseData,
   enableBaseData,
+  changeMajorHazardStatus,
   fetchBaseDataPage,
   fetchCompanyQualifications,
   fetchContractorCompanies,
   fetchContractorCompany,
   fetchContractorWorker,
   fetchContractorWorkers,
+  fetchMajorHazard,
+  fetchMajorHazardAttachments,
+  fetchMajorHazardAlarms,
+  fetchMajorHazardPoints,
+  fetchMajorHazardResponsibilities,
+  fetchMajorHazards,
   fetchIamUsers,
   fetchMenuTree,
   fetchOrgTree,
@@ -38,13 +49,17 @@ import {
   fetchWorkerCertificates,
   fetchWorkerTrainings,
   fetchWorkerViolations,
+  publishMajorHazard,
+  replaceMajorHazardResponsibilities,
   submitContractorCompany,
   submitContractorWorker,
   suspendContractorCompany,
   suspendContractorWorker,
+  unbindMajorHazardPoint,
   updateBaseData,
   updateContractorCompany,
   updateContractorWorker,
+  updateMajorHazard,
   updateIamUser,
   updateIamUserStatus,
   updateMenu,
@@ -61,6 +76,15 @@ import type {
   ContractorWorkerRecord,
   ContractorWorkerRequest,
   EligibilityCheckResult,
+  HazardAttachmentRecord,
+  HazardAttachmentRequest,
+  HazardAlarmSummaryRecord,
+  HazardPointRecord,
+  HazardPointRequest,
+  MajorHazardRecord,
+  MajorHazardRequest,
+  MajorHazardResponsibilityRecord,
+  ResponsibilityRequest,
   IamUserRecord,
   IamUserRequest,
   MenuResourceRequest,
@@ -2833,5 +2857,863 @@ function WorkerTrainingInlineForm({
         保存
       </button>
     </form>
+  );
+}
+
+const ATTACHMENT_TYPE_OPTIONS = [
+  { value: 'EVAL_REPORT', label: '评估报告' },
+  { value: 'FILING', label: '备案材料' },
+  { value: 'SDS', label: 'SDS' },
+  { value: 'PLAN', label: '应急预案' }
+];
+
+function attachmentTypeLabel(type: string) {
+  const item = ATTACHMENT_TYPE_OPTIONS.find((opt) => opt.value === type);
+  return item?.label || type;
+}
+
+const HAZARD_STATUS_OPTIONS = [
+  { value: '', label: '全部状态' },
+  { value: 'DRAFT', label: '草稿' },
+  { value: 'PUBLISHED', label: '已发布' },
+  { value: 'SUSPENDED', label: '停用' },
+  { value: 'MAINTENANCE', label: '检修' },
+  { value: 'ABNORMAL', label: '异常' }
+];
+
+const HAZARD_LEVEL_OPTIONS = [
+  { value: '', label: '全部分级' },
+  { value: 'LEVEL_1', label: '一级' },
+  { value: 'LEVEL_2', label: '二级' },
+  { value: 'LEVEL_3', label: '三级' },
+  { value: 'LEVEL_4', label: '四级' }
+];
+
+const RESPONSIBILITY_TYPE_OPTIONS = [
+  { value: 'PRIMARY', label: '主要负责人' },
+  { value: 'TECHNICAL', label: '技术负责人' },
+  { value: 'OPERATION', label: '操作负责人' }
+];
+
+function hazardStatusLabel(status: string) {
+  const item = HAZARD_STATUS_OPTIONS.find((opt) => opt.value === status);
+  return item?.label || status;
+}
+
+function hazardLevelLabel(level: string) {
+  const item = HAZARD_LEVEL_OPTIONS.find((opt) => opt.value === level);
+  return item?.label || level;
+}
+
+function responsibilityTypeLabel(type: string) {
+  const item = RESPONSIBILITY_TYPE_OPTIONS.find((opt) => opt.value === type);
+  return item?.label || type;
+}
+
+function defaultResponsibilityForms(): ResponsibilityRequest[] {
+  return RESPONSIBILITY_TYPE_OPTIONS.map((item, index) => ({
+    responsibilityType: item.value,
+    personName: '',
+    personPhone: '',
+    sortNo: index + 1
+  }));
+}
+
+function mergeResponsibilityForms(existing: MajorHazardResponsibilityRecord[]): ResponsibilityRequest[] {
+  const defaults = defaultResponsibilityForms();
+  return defaults.map((item) => {
+    const found = existing.find((row) => row.responsibilityType === item.responsibilityType);
+    if (!found) {
+      return item;
+    }
+    return {
+      responsibilityType: found.responsibilityType,
+      personName: found.personName,
+      personPhone: found.personPhone || '',
+      personId: found.personId,
+      sortNo: found.sortNo
+    };
+  });
+}
+
+export function MajorHazardsPanel({ tenantId }: { tenantId: number }) {
+  const [records, setRecords] = React.useState<MajorHazardRecord[]>([]);
+  const [keyword, setKeyword] = React.useState('');
+  const [status, setStatus] = React.useState('');
+  const [level, setLevel] = React.useState('');
+  const [pageNo, setPageNo] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
+  const [detail, setDetail] = React.useState<MajorHazardRecord | null>(null);
+  const [editing, setEditing] = React.useState<MajorHazardRecord | null | 'new'>(null);
+  const { message, error, setError, run } = useAsyncAction();
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const page = await fetchMajorHazards({ tenantId, keyword, status, level, pageNo, pageSize: 10 });
+      setRecords(page.records);
+      setTotal(page.total);
+    } catch (err: unknown) {
+      setError(errorMessage(err, '危险源台账加载失败'));
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantId, keyword, status, level, pageNo, setError]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const totalPages = Math.max(1, Math.ceil(total / 10));
+
+  const refreshDetail = async (id: number) => {
+    const hazard = await fetchMajorHazard(id, tenantId);
+    setDetail(hazard);
+    await load();
+  };
+
+  return (
+    <section className="content-panel">
+      <div className="panel-header">
+        <div>
+          <h2>危险源台账</h2>
+          <p>维护重大危险源一源一档，完成区域绑定、包保责任人与发布。</p>
+        </div>
+        <button type="button" onClick={() => setEditing('new')}>
+          新增危险源
+        </button>
+      </div>
+
+      <div className="toolbar">
+        <input
+          placeholder="搜索编码或名称"
+          value={keyword}
+          onChange={(event) => {
+            setKeyword(event.target.value);
+            setPageNo(1);
+          }}
+        />
+        <select
+          value={status}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPageNo(1);
+          }}
+        >
+          {HAZARD_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value || 'all-status'} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={level}
+          onChange={(event) => {
+            setLevel(event.target.value);
+            setPageNo(1);
+          }}
+        >
+          {HAZARD_LEVEL_OPTIONS.map((opt) => (
+            <option key={opt.value || 'all-level'} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <button type="button" className="secondary" onClick={load}>
+          刷新
+        </button>
+      </div>
+
+      {message && <p className="success">{message}</p>}
+      {error && <p className="error">{error}</p>}
+
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>编码</th>
+              <th>名称</th>
+              <th>分级</th>
+              <th>区域ID</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={6}>加载中...</td>
+              </tr>
+            ) : records.length === 0 ? (
+              <tr>
+                <td colSpan={6}>暂无数据</td>
+              </tr>
+            ) : (
+              records.map((record) => (
+                <tr key={record.id}>
+                  <td>{record.hazardNo}</td>
+                  <td>{record.name}</td>
+                  <td>{hazardLevelLabel(record.level)}</td>
+                  <td>{record.areaId || '-'}</td>
+                  <td>
+                    <StatusTag status={record.status} /> {hazardStatusLabel(record.status)}
+                  </td>
+                  <td>
+                    <button type="button" className="link" onClick={() => setDetail(record)}>
+                      详情
+                    </button>
+                    {record.status === 'DRAFT' && (
+                      <button type="button" className="link" onClick={() => setEditing(record)}>
+                        编辑
+                      </button>
+                    )}
+                    {record.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        className="link"
+                        onClick={() =>
+                          run(
+                            () => publishMajorHazard(record.id, tenantId).then(() => undefined),
+                            '发布成功',
+                            load
+                          )
+                        }
+                      >
+                        发布
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="pager">
+        <button type="button" className="secondary" disabled={pageNo <= 1} onClick={() => setPageNo(pageNo - 1)}>
+          上一页
+        </button>
+        <span>
+          第 {pageNo} / {totalPages} 页，共 {total} 条
+        </span>
+        <button
+          type="button"
+          className="secondary"
+          disabled={pageNo >= totalPages}
+          onClick={() => setPageNo(pageNo + 1)}
+        >
+          下一页
+        </button>
+      </div>
+
+      {editing && (
+        <MajorHazardFormModal
+          tenantId={tenantId}
+          record={editing === 'new' ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={async () => {
+            setEditing(null);
+            await load();
+          }}
+        />
+      )}
+
+      {detail && (
+        <MajorHazardDetailModal
+          tenantId={tenantId}
+          record={detail}
+          onClose={() => setDetail(null)}
+          onChanged={() => refreshDetail(detail.id)}
+          run={run}
+        />
+      )}
+    </section>
+  );
+}
+
+function MajorHazardFormModal({
+  tenantId,
+  record,
+  onClose,
+  onSaved
+}: {
+  tenantId: number;
+  record: MajorHazardRecord | null;
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}) {
+  const [areas, setAreas] = React.useState<BaseDataRecord[]>([]);
+  const [units, setUnits] = React.useState<BaseDataRecord[]>([]);
+  const [form, setForm] = React.useState<MajorHazardRequest>({
+    tenantId,
+    hazardNo: record?.hazardNo || '',
+    name: record?.name || '',
+    hazardType: record?.hazardType || '',
+    level: record?.level || 'LEVEL_1',
+    areaId: record?.areaId,
+    unitId: record?.unitId,
+    material: record?.material || '',
+    designCapacity: record?.designCapacity || '',
+    actualCapacity: record?.actualCapacity || '',
+    criticalQuantity: record?.criticalQuantity || ''
+  });
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  React.useEffect(() => {
+    Promise.all([
+      fetchBaseDataPage('areas', { tenantId, pageNo: 1, pageSize: 100, status: 'ENABLED' }),
+      fetchBaseDataPage('units', { tenantId, pageNo: 1, pageSize: 100, status: 'ENABLED' })
+    ])
+      .then(([areaPage, unitPage]) => {
+        setAreas(areaPage.records);
+        setUnits(unitPage.records);
+      })
+      .catch(() => undefined);
+  }, [tenantId]);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      if (record) {
+        await updateMajorHazard(record.id, form);
+      } else {
+        await createMajorHazard(form);
+      }
+      await onSaved();
+    } catch (err: unknown) {
+      setError(errorMessage(err, '保存失败'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal modal-wide">
+        <header>
+          <h3>{record ? '编辑危险源' : '新增危险源'}</h3>
+        </header>
+        <form className="form-grid" onSubmit={submit}>
+          <label>
+            危险源编码
+            <input
+              required
+              value={form.hazardNo}
+              onChange={(event) => setForm({ ...form, hazardNo: event.target.value })}
+            />
+          </label>
+          <label>
+            名称
+            <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+          </label>
+          <label>
+            分级
+            <select value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })}>
+              {HAZARD_LEVEL_OPTIONS.filter((opt) => opt.value).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            类型
+            <input value={form.hazardType || ''} onChange={(event) => setForm({ ...form, hazardType: event.target.value })} />
+          </label>
+          <label>
+            关联区域
+            <select
+              value={form.areaId ?? ''}
+              onChange={(event) => setForm({ ...form, areaId: Number(event.target.value) || undefined })}
+            >
+              <option value="">请选择区域</option>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>
+                  {area.code} - {area.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            关联装置
+            <select
+              value={form.unitId ?? ''}
+              onChange={(event) => setForm({ ...form, unitId: Number(event.target.value) || undefined })}
+            >
+              <option value="">请选择装置</option>
+              {units.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.code} - {unit.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            主要介质
+            <input value={form.material || ''} onChange={(event) => setForm({ ...form, material: event.target.value })} />
+          </label>
+          <label>
+            设计容量
+            <input
+              value={form.designCapacity || ''}
+              onChange={(event) => setForm({ ...form, designCapacity: event.target.value })}
+            />
+          </label>
+          {error && <p className="error">{error}</p>}
+          <div className="form-actions">
+            <button type="button" className="secondary" onClick={onClose}>
+              取消
+            </button>
+            <button type="submit" disabled={saving}>
+              保存
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function MajorHazardDetailModal({
+  tenantId,
+  record,
+  onClose,
+  onChanged,
+  run
+}: {
+  tenantId: number;
+  record: MajorHazardRecord;
+  onClose: () => void;
+  onChanged: () => Promise<void>;
+  run: (action: () => Promise<void>, success: string, reload?: () => Promise<void>) => Promise<void>;
+}) {
+  const [tab, setTab] = React.useState<'info' | 'resp' | 'points' | 'attachments' | 'alarms' | 'permits'>('info');
+  const [hazard, setHazard] = React.useState(record);
+  const [responsibilities, setResponsibilities] = React.useState<ResponsibilityRequest[]>(defaultResponsibilityForms());
+  const [points, setPoints] = React.useState<HazardPointRecord[]>([]);
+  const [attachments, setAttachments] = React.useState<HazardAttachmentRecord[]>([]);
+  const [alarms, setAlarms] = React.useState<HazardAlarmSummaryRecord[]>([]);
+  const [monitorPoints, setMonitorPoints] = React.useState<BaseDataRecord[]>([]);
+  const [selectedPointId, setSelectedPointId] = React.useState<number | ''>('');
+  const [attachmentForm, setAttachmentForm] = React.useState<HazardAttachmentRequest>({
+    attachmentType: 'EVAL_REPORT',
+    fileId: 0,
+    fileName: ''
+  });
+  const [savingResp, setSavingResp] = React.useState(false);
+
+  const reload = React.useCallback(async () => {
+    const latest = await fetchMajorHazard(record.id, tenantId);
+    setHazard(latest);
+    const resp = await fetchMajorHazardResponsibilities(record.id, tenantId);
+    setResponsibilities(mergeResponsibilityForms(resp));
+    const pointList = await fetchMajorHazardPoints(record.id, tenantId);
+    setPoints(pointList);
+    const attachmentList = await fetchMajorHazardAttachments(record.id, tenantId);
+    setAttachments(attachmentList);
+    const alarmList = await fetchMajorHazardAlarms(record.id, tenantId);
+    setAlarms(alarmList);
+    await onChanged();
+  }, [record.id, tenantId, onChanged]);
+
+  React.useEffect(() => {
+    fetchBaseDataPage('monitor-points', { tenantId, pageNo: 1, pageSize: 200, status: 'ENABLED' })
+      .then((page) => setMonitorPoints(page.records))
+      .catch(() => undefined);
+  }, [tenantId]);
+
+  React.useEffect(() => {
+    reload().catch(() => undefined);
+  }, [reload]);
+
+  const saveResponsibilities = async () => {
+    setSavingResp(true);
+    try {
+      await replaceMajorHazardResponsibilities(hazard.id, tenantId, { responsibilities });
+      await reload();
+    } finally {
+      setSavingResp(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal modal-wide">
+        <header>
+          <h3>
+            {hazard.name}（{hazard.hazardNo}）
+          </h3>
+          <p>
+            状态：<StatusTag status={hazard.status} /> {hazardStatusLabel(hazard.status)}
+            {hazard.publishedAt ? ` · 发布时间 ${hazard.publishedAt}` : ''}
+          </p>
+        </header>
+        <div className="tab-bar">
+          <button type="button" className={tab === 'info' ? 'active' : 'secondary'} onClick={() => setTab('info')}>
+            档案
+          </button>
+          <button type="button" className={tab === 'resp' ? 'active' : 'secondary'} onClick={() => setTab('resp')}>
+            包保责任人
+          </button>
+          <button type="button" className={tab === 'points' ? 'active' : 'secondary'} onClick={() => setTab('points')}>
+            监测点位
+          </button>
+          <button type="button" className={tab === 'attachments' ? 'active' : 'secondary'} onClick={() => setTab('attachments')}>
+            附件资料
+          </button>
+          <button type="button" className={tab === 'alarms' ? 'active' : 'secondary'} onClick={() => setTab('alarms')}>
+            关联报警
+          </button>
+          <button type="button" className={tab === 'permits' ? 'active' : 'secondary'} onClick={() => setTab('permits')}>
+            关联作业
+          </button>
+        </div>
+
+        {tab === 'info' && (
+          <div className="detail-grid">
+            <p>分级：{hazardLevelLabel(hazard.level)}</p>
+            <p>类型：{hazard.hazardType || '-'}</p>
+            <p>区域ID：{hazard.areaId || '-'}</p>
+            <p>装置ID：{hazard.unitId || '-'}</p>
+            <p>主要介质：{hazard.material || '-'}</p>
+            <p>设计容量：{hazard.designCapacity || '-'}</p>
+            <p>实际容量：{hazard.actualCapacity || '-'}</p>
+            <div className="form-actions">
+              {hazard.status === 'DRAFT' && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    run(() => publishMajorHazard(hazard.id, tenantId).then(() => undefined), '发布成功', reload)
+                  }
+                >
+                  发布
+                </button>
+              )}
+              {hazard.status === 'PUBLISHED' && (
+                <>
+                  <button
+                    type="button"
+                    className="warning"
+                    onClick={() => {
+                      const reason = window.prompt('停用原因', '计划停用');
+                      if (reason === null) {
+                        return;
+                      }
+                      run(
+                        () =>
+                          changeMajorHazardStatus(hazard.id, tenantId, {
+                            targetStatus: 'SUSPENDED',
+                            reason: reason || '停用'
+                          }).then(() => undefined),
+                        '已停用',
+                        reload
+                      );
+                    }}
+                  >
+                    停用
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() =>
+                      run(
+                        () =>
+                          changeMajorHazardStatus(hazard.id, tenantId, { targetStatus: 'MAINTENANCE', reason: '检修' }).then(
+                            () => undefined
+                          ),
+                        '已标记检修',
+                        reload
+                      )
+                    }
+                  >
+                    检修
+                  </button>
+                </>
+              )}
+              {(hazard.status === 'SUSPENDED' || hazard.status === 'MAINTENANCE' || hazard.status === 'ABNORMAL') && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    run(
+                      () =>
+                        changeMajorHazardStatus(hazard.id, tenantId, { targetStatus: 'PUBLISHED', reason: '恢复运行' }).then(
+                          () => undefined
+                        ),
+                      '已恢复发布',
+                      reload
+                    )
+                  }
+                >
+                  恢复发布
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'resp' && (
+          <div className="detail-grid">
+            {responsibilities.map((item, index) => (
+              <div key={item.responsibilityType} className="form-grid">
+                <h4>{responsibilityTypeLabel(item.responsibilityType)}</h4>
+                <label>
+                  姓名
+                  <input
+                    required
+                    value={item.personName}
+                    onChange={(event) => {
+                      const next = [...responsibilities];
+                      next[index] = { ...item, personName: event.target.value };
+                      setResponsibilities(next);
+                    }}
+                  />
+                </label>
+                <label>
+                  联系电话
+                  <input
+                    value={item.personPhone || ''}
+                    onChange={(event) => {
+                      const next = [...responsibilities];
+                      next[index] = { ...item, personPhone: event.target.value };
+                      setResponsibilities(next);
+                    }}
+                  />
+                </label>
+              </div>
+            ))}
+            <div className="form-actions">
+              <button type="button" disabled={savingResp} onClick={saveResponsibilities}>
+                保存责任人
+              </button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'points' && (
+          <div className="detail-grid">
+            <div className="toolbar">
+              <select
+                value={selectedPointId}
+                onChange={(event) => setSelectedPointId(Number(event.target.value) || '')}
+              >
+                <option value="">选择启用监测点位</option>
+                {monitorPoints.map((point) => (
+                  <option key={point.id} value={point.id}>
+                    {point.code} - {point.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                disabled={!selectedPointId}
+                onClick={() => {
+                  const point = monitorPoints.find((item) => item.id === selectedPointId);
+                  if (!point) {
+                    return;
+                  }
+                  const payload: HazardPointRequest = {
+                    monitorPointId: point.id,
+                    pointCode: point.code,
+                    pointName: point.name
+                  };
+                  run(() => bindMajorHazardPoint(hazard.id, tenantId, payload).then(() => undefined), '绑定点位成功', reload);
+                }}
+              >
+                绑定点位
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>点位ID</th>
+                  <th>编码</th>
+                  <th>名称</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {points.length === 0 ? (
+                  <tr>
+                    <td colSpan={4}>暂无绑定点位</td>
+                  </tr>
+                ) : (
+                  points.map((point) => (
+                    <tr key={point.id}>
+                      <td>{point.monitorPointId}</td>
+                      <td>{point.pointCode || '-'}</td>
+                      <td>{point.pointName || '-'}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="link danger"
+                          onClick={() =>
+                            run(
+                              () => unbindMajorHazardPoint(hazard.id, tenantId, point.id).then(() => undefined),
+                              '已解绑',
+                              reload
+                            )
+                          }
+                        >
+                          解绑
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {tab === 'attachments' && (
+          <div className="detail-grid">
+            <div className="form-grid">
+              <label>
+                附件分类
+                <select
+                  value={attachmentForm.attachmentType}
+                  onChange={(event) => setAttachmentForm({ ...attachmentForm, attachmentType: event.target.value })}
+                >
+                  {ATTACHMENT_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                文件ID（file-service 未就绪时可填 mock ID）
+                <input
+                  type="number"
+                  min={1}
+                  value={attachmentForm.fileId || ''}
+                  onChange={(event) =>
+                    setAttachmentForm({ ...attachmentForm, fileId: Number(event.target.value) || 0 })
+                  }
+                />
+              </label>
+              <label>
+                文件名
+                <input
+                  value={attachmentForm.fileName || ''}
+                  onChange={(event) => setAttachmentForm({ ...attachmentForm, fileName: event.target.value })}
+                />
+              </label>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  disabled={!attachmentForm.fileId}
+                  onClick={() =>
+                    run(
+                      () => createMajorHazardAttachment(hazard.id, tenantId, attachmentForm).then(() => undefined),
+                      '附件已保存',
+                      reload
+                    )
+                  }
+                >
+                  保存附件元数据
+                </button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>分类</th>
+                  <th>文件ID</th>
+                  <th>文件名</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attachments.length === 0 ? (
+                  <tr>
+                    <td colSpan={4}>暂无附件</td>
+                  </tr>
+                ) : (
+                  attachments.map((item) => (
+                    <tr key={item.id}>
+                      <td>{attachmentTypeLabel(item.attachmentType)}</td>
+                      <td>{item.fileId}</td>
+                      <td>{item.fileName || '-'}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="link danger"
+                          onClick={() =>
+                            run(
+                              () => deleteMajorHazardAttachment(hazard.id, tenantId, item.id).then(() => undefined),
+                              '已删除',
+                              reload
+                            )
+                          }
+                        >
+                          删除
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {tab === 'alarms' && (
+          <div className="table-wrap">
+            {alarms.length === 0 ? (
+              <div className="empty-state">
+                <p>暂无关联报警。</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>编号</th>
+                    <th>等级</th>
+                    <th>状态</th>
+                    <th>标题</th>
+                    <th>次数</th>
+                    <th>最近发生</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alarms.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.alarmNo}</td>
+                      <td>{item.alarmLevel}</td>
+                      <td>
+                        <StatusTag status={item.status} />
+                      </td>
+                      <td>{item.title}</td>
+                      <td>{item.occurrenceCount ?? 1}</td>
+                      <td>{item.lastOccurredAt || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <p className="hint">完整处置请前往左侧「实时报警」菜单。</p>
+          </div>
+        )}
+
+        {tab === 'permits' && (
+          <div className="empty-state">
+            <p>关联作业票将在第 4 迭代接入危险工作票后展示。</p>
+          </div>
+        )}
+
+        <footer className="form-actions">
+          <button type="button" className="secondary" onClick={onClose}>
+            关闭
+          </button>
+        </footer>
+      </div>
+    </div>
   );
 }

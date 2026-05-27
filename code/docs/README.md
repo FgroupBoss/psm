@@ -1,21 +1,13 @@
-# 工程约定
+# 工程文档
 
-本目录用于沉淀代码侧工程规范。
+> **项目进展** → [项目进展总览](../design/10_一期落地设计/00_开发总览/项目进展总览.md)
 
-建议后续补充：
+| 文档 | 说明 |
+| --- | --- |
+| [local-dev-startup.md](./engineering/local-dev-startup.md) | 本地联调 |
+| [audit-object-types.md](./engineering/audit-object-types.md) | 审计类型约定 |
+| [open-source-policy.md](./engineering/open-source-policy.md) | 开源政策 |
+| [backend-agents-mybatis-plus-remediation.md](./engineering/backend-agents-mybatis-plus-remediation.md) | MyBatis-Plus 备忘 |
+| [工作日志.md](./progress/工作日志.md) | 按日过程记录 |
 
-- 后端编码规范。
-- 前端编码规范。
-- API 契约规范。
-- 数据库变更规范。
-- 分支和发布规范。
-- 本地开发环境说明。
-
-## 进度记录
-
-- [工作进度记录台账](work-progress-ledger.md)
-
-## 开源与使用政策
-
-- [开源与使用政策（摘要）](open-source-policy.md)
-- 完整许可证：仓库根目录 [LICENSE](../../LICENSE)
+**维护**：状态只更新 design 侧看板；本目录只放工程约定与日志。

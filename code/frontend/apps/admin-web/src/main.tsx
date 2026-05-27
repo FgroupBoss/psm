@@ -6,6 +6,14 @@ import {
   disableConfigItem,
   evaluateRules,
   fetchAuditLogs,
+  fetchAlarmDetail,
+  fetchAlarmHealth,
+  fetchAlarms,
+  closeAlarm,
+  confirmAlarm,
+  dispatchAlarm,
+  falseCloseAlarm,
+  feedbackAlarm,
   fetchConfigItems,
   fetchCurrentUser,
   fetchMyPermissions,
@@ -17,6 +25,9 @@ import { clearTokens, hasAccessToken } from '@psm/auth';
 import type {
   AuditLogRecord,
   AuthUser,
+  AlarmDetailRecord,
+  AlarmEventRecord,
+  AlarmStatus,
   ConfigItemPath,
   ConfigItemRecord,
   ConfigItemRequest,
@@ -24,7 +35,7 @@ import type {
   RuleEvaluationResult
 } from '@psm/domain-types';
 import { buildNavItems, DEFAULT_NAV, groupNavItems, viewTitle, type AppView } from './nav';
-import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
+import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MajorHazardsPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
 import {
   confirmAction,
   errorMessage,
@@ -192,8 +203,14 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     if (view === 'contractor:workers') {
       return <ContractorWorkersPanel tenantId={user.tenantId} />;
     }
+    if (view === 'hazard:ledger') {
+      return <MajorHazardsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'alarm:list') {
+      return <AlarmsPanel tenantId={user.tenantId} />;
+    }
     if (view.startsWith('hazard:')) {
-      return <ModulePlaceholderPanel title="重大危险源" hint="第 2 迭代批次 4 起实现台账、发布与绑点" />;
+      return <ModulePlaceholderPanel title="重大危险源" hint="该视图尚未实现" />;
     }
     return null;
   }
@@ -634,6 +651,288 @@ function RuleEvaluationPanel({ tenantId }: { tenantId: number }) {
   );
 }
 
+function AlarmsPanel({ tenantId }: { tenantId: number }) {
+  const [health, setHealth] = React.useState<string>('');
+  const [page, setPage] = React.useState<PageResult<AlarmEventRecord> | null>(null);
+  const [keyword, setKeyword] = React.useState('');
+  const [status, setStatus] = React.useState('');
+  const [alarmLevel, setAlarmLevel] = React.useState('');
+  const [selectedId, setSelectedId] = React.useState<number | null>(null);
+  const [detail, setDetail] = React.useState<AlarmDetailRecord | null>(null);
+  const [actionNote, setActionNote] = React.useState('');
+  const [falseCloseReason, setFalseCloseReason] = React.useState('');
+  const [error, setError] = React.useState<string>('');
+  const [message, setMessage] = React.useState<string>('');
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [acting, setActing] = React.useState<boolean>(false);
+
+  const loadList = React.useCallback(() => {
+    setLoading(true);
+    setError('');
+    return Promise.all([
+      fetchAlarmHealth(),
+      fetchAlarms({
+        tenantId,
+        pageNo: 1,
+        pageSize: 20,
+        keyword: keyword || undefined,
+        status: status || undefined,
+        alarmLevel: alarmLevel || undefined
+      })
+    ])
+      .then(([healthInfo, alarmPage]) => {
+        setHealth(`${healthInfo.service} ${healthInfo.version}`);
+        setPage(alarmPage);
+      })
+      .catch((err: unknown) => setError(errorMessage(err, '报警服务不可用')))
+      .finally(() => setLoading(false));
+  }, [tenantId, keyword, status, alarmLevel]);
+
+  const loadDetail = React.useCallback(
+    (id: number) => {
+      setSelectedId(id);
+      setDetail(null);
+      setActionNote('');
+      setFalseCloseReason('');
+      fetchAlarmDetail(id, tenantId)
+        .then(setDetail)
+        .catch((err: unknown) => setError(errorMessage(err, '加载报警详情失败')));
+    },
+    [tenantId]
+  );
+
+  React.useEffect(() => {
+    loadList();
+  }, [loadList]);
+
+  async function runAction(action: () => Promise<AlarmEventRecord>, success: string) {
+    if (selectedId == null) {
+      return;
+    }
+    setActing(true);
+    setError('');
+    try {
+      await action();
+      setMessage(success);
+      await loadList();
+      await loadDetail(selectedId);
+    } catch (err: unknown) {
+      setError(errorMessage(err, '操作失败'));
+    } finally {
+      setActing(false);
+    }
+  }
+
+  function availableActions(current: AlarmStatus): string[] {
+    switch (current) {
+      case 'NEW':
+      case 'ESCALATED':
+        return ['confirm', 'false-close'];
+      case 'CONFIRMED':
+        return ['dispatch', 'false-close'];
+      case 'IN_PROGRESS':
+        return ['feedback', 'false-close'];
+      case 'PENDING_REVIEW':
+        return ['close'];
+      default:
+        return [];
+    }
+  }
+
+  return (
+    <section className="content-panel">
+      <div className="panel-header">
+        <div>
+          <h2>实时报警</h2>
+          <p>接入、去重合并、确认派发与关闭闭环（第 3 迭代批次 6）。</p>
+        </div>
+        <button type="button" className="secondary" onClick={() => loadList()}>
+          刷新
+        </button>
+      </div>
+      {health && <p className="hint">{health}</p>}
+      {message && <div className="success-banner">{message}</div>}
+      {error && <div className="error-banner">{error}</div>}
+      <div className="toolbar">
+        <input
+          placeholder="编号/标题"
+          value={keyword}
+          onChange={(event) => setKeyword(event.target.value)}
+        />
+        <select value={status} onChange={(event) => setStatus(event.target.value)}>
+          <option value="">全部状态</option>
+          <option value="NEW">NEW</option>
+          <option value="CONFIRMED">CONFIRMED</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="PENDING_REVIEW">PENDING_REVIEW</option>
+          <option value="ESCALATED">ESCALATED</option>
+          <option value="CLOSED">CLOSED</option>
+          <option value="FALSE_CLOSED">FALSE_CLOSED</option>
+        </select>
+        <select value={alarmLevel} onChange={(event) => setAlarmLevel(event.target.value)}>
+          <option value="">全部等级</option>
+          <option value="LEVEL_1">LEVEL_1</option>
+          <option value="LEVEL_2">LEVEL_2</option>
+          <option value="LEVEL_3">LEVEL_3</option>
+          <option value="LEVEL_4">LEVEL_4</option>
+        </select>
+        <button type="button" className="secondary" onClick={() => loadList()}>
+          查询
+        </button>
+      </div>
+      {loading && <div className="empty">加载中…</div>}
+      {!loading && page && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>编号</th>
+                <th>等级</th>
+                <th>状态</th>
+                <th>标题</th>
+                <th>来源</th>
+                <th>次数</th>
+                <th>危险源</th>
+                <th>最近发生</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.records.map((item) => (
+                <tr key={item.id} className={selectedId === item.id ? 'selected-row' : ''}>
+                  <td>{item.alarmNo}</td>
+                  <td>{item.alarmLevel}</td>
+                  <td>
+                    <StatusTag status={item.status} />
+                  </td>
+                  <td>{item.title}</td>
+                  <td>{item.sourceType}</td>
+                  <td>{item.occurrenceCount ?? 1}</td>
+                  <td>{item.hazardId ?? '-'}</td>
+                  <td>{formatTime(item.lastOccurredAt)}</td>
+                  <td>
+                    <button type="button" className="linkish" onClick={() => loadDetail(item.id)}>
+                      详情
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {page.records.length === 0 && <div className="empty">暂无报警数据</div>}
+        </div>
+      )}
+
+      {detail && (
+        <div className="detail-panel">
+          <h3>
+            {detail.event.alarmNo} · {detail.event.title}
+          </h3>
+          <p>
+            等级 {detail.event.alarmLevel} · 状态 <StatusTag status={detail.event.status} /> · 危险源 ID{' '}
+            {detail.event.hazardId ?? '-'}
+          </p>
+          <div className="detail-grid">
+            <div>
+              <h4>发生明细（{detail.occurrences.length}）</h4>
+              <ul>
+                {detail.occurrences.map((item) => (
+                  <li key={item.id}>
+                    {formatTime(item.occurredAt)} {item.rawValue ? `· ${item.rawValue}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4>处置记录（{detail.actions.length}）</h4>
+              <ul>
+                {detail.actions.map((item) => (
+                  <li key={item.id}>
+                    {item.actionType} · {item.operatorName || '-'} · {formatTime(item.operatedAt)}
+                    {item.actionContent ? ` · ${item.actionContent}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          {availableActions(detail.event.status).length > 0 && (
+            <div className="form-actions">
+              <input
+                placeholder="处置说明（可选）"
+                value={actionNote}
+                onChange={(event) => setActionNote(event.target.value)}
+              />
+              {availableActions(detail.event.status).includes('confirm') && (
+                <button
+                  type="button"
+                  disabled={acting}
+                  onClick={() => runAction(() => confirmAlarm(detail.event.id, tenantId, { content: actionNote }), '已确认')}
+                >
+                  确认
+                </button>
+              )}
+              {availableActions(detail.event.status).includes('dispatch') && (
+                <button
+                  type="button"
+                  disabled={acting}
+                  onClick={() =>
+                    runAction(
+                      () => dispatchAlarm(detail.event.id, tenantId, { content: actionNote, assignee: '值班员' }),
+                      '已派发'
+                    )
+                  }
+                >
+                  派发
+                </button>
+              )}
+              {availableActions(detail.event.status).includes('feedback') && (
+                <button
+                  type="button"
+                  disabled={acting}
+                  onClick={() => runAction(() => feedbackAlarm(detail.event.id, tenantId, { content: actionNote }), '已反馈')}
+                >
+                  处置反馈
+                </button>
+              )}
+              {availableActions(detail.event.status).includes('close') && (
+                <button
+                  type="button"
+                  disabled={acting}
+                  onClick={() => runAction(() => closeAlarm(detail.event.id, tenantId, { content: actionNote }), '已关闭')}
+                >
+                  复核关闭
+                </button>
+              )}
+              {availableActions(detail.event.status).includes('false-close') && (
+                <>
+                  <input
+                    placeholder="误报原因（必填）"
+                    value={falseCloseReason}
+                    onChange={(event) => setFalseCloseReason(event.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={acting || !falseCloseReason.trim()}
+                    onClick={() =>
+                      runAction(
+                        () => falseCloseAlarm(detail.event.id, tenantId, { reason: falseCloseReason.trim() }),
+                        '已误报关闭'
+                      )
+                    }
+                  >
+                    误报关闭
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function ModulePlaceholderPanel({ title, hint }: { title: string; hint: string }) {
   return (
     <section className="content-panel">
@@ -652,22 +951,46 @@ function AuditPanel({ tenantId }: { tenantId: number }) {
   const [page, setPage] = React.useState<PageResult<AuditLogRecord> | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string>('');
+  const [bizTypePrefix, setBizTypePrefix] = React.useState('');
 
-  React.useEffect(() => {
+  const load = React.useCallback(() => {
     setLoading(true);
-    fetchAuditLogs({ tenantId, pageNo: 1, pageSize: 20 })
+    setError('');
+    fetchAuditLogs({
+      tenantId,
+      pageNo: 1,
+      pageSize: 20,
+      bizTypePrefix: bizTypePrefix || undefined
+    })
       .then(setPage)
       .catch((err: unknown) => setError(errorMessage(err, '审计日志加载失败')))
       .finally(() => setLoading(false));
-  }, [tenantId]);
+  }, [tenantId, bizTypePrefix]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <section className="content-panel">
       <div className="panel-header">
         <div>
           <h2>审计日志</h2>
-          <p>按统一审计表查询主数据和权限类变更。</p>
+          <p>查询主数据、承包商与重大危险源的关键变更（中央审计库）。</p>
         </div>
+      </div>
+      <div className="toolbar">
+        <select value={bizTypePrefix} onChange={(event) => setBizTypePrefix(event.target.value)}>
+          <option value="">全部类型</option>
+          <option value="CONTRACTOR_">承包商（CONTRACTOR_*）</option>
+          <option value="MAJOR_HAZARD">重大危险源（MAJOR_HAZARD*）</option>
+          <option value="ALARM">报警（ALARM*）</option>
+          <option value="AREA">区域（AREA）</option>
+          <option value="UNIT">装置（UNIT）</option>
+        </select>
+        <button type="button" className="secondary" onClick={load}>
+          刷新
+        </button>
       </div>
       {loading && <div className="empty">正在加载...</div>}
       {error && <div className="error">{error}</div>}
