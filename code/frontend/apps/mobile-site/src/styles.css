@@ -1,0 +1,102 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.mobile-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.mobile-shell header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.task-list li {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.task-list li span {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.detail-card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.detail-card h3 {
+  margin-top: 0;
+}
+
+.action-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.action-grid button {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+}
+
+.action-grid button.secondary {
+  background: #334155;
+}
+
+.error {
+  color: #f87171;
+}
+
+.message {
+  color: #4ade80;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0 10px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: #93c5fd;
+  padding: 0;
+  margin-bottom: 12px;
+}

@@ -15,6 +15,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@psm/api-client': fileURLToPath(new URL('../../packages/api-client/src', import.meta.url)),
+      '@psm/auth': fileURLToPath(new URL('../../packages/auth/src', import.meta.url)),
       '@psm/domain-types': fileURLToPath(new URL('../../packages/domain-types/src', import.meta.url))
     }
   }

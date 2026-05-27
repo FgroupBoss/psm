@@ -4,4 +4,19 @@ server:
 spring:
   application:
     name: psm-file-service
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+  datasource:
+    url: ${PSM_FILE_DB_URL:jdbc:mysql://localhost:3306/psm_file?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${PSM_FILE_DB_USER:root}
+    password: ${PSM_FILE_DB_PASSWORD:root}
 
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+psm:
+  file:
+    storage-root: ${PSM_FILE_STORAGE_ROOT:./data/psm-files}

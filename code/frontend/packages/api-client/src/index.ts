@@ -1,5 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -69,11 +69,25 @@ import type {
   WorkPermitRequest,
   WorkPermitWorkerRequest,
   WorkPermitWorkerRecord,
+  RiskAnalysisRecord,
+  SafetyMeasureRecord,
+  GasTestRecord,
   PreCheckResult,
   DashboardOverviewRecord,
   WorkPermitReportSummary,
   AcceptanceTestCaseRecord,
-  AcceptanceTestRunRecord
+  AcceptanceTestRunRecord,
+  AcceptanceTestRunRequest,
+  FileObjectRecord,
+  AlarmReportSummary,
+  AlarmReportDetail,
+  MajorHazardReportSummary,
+  ContractorReportSummary,
+  AuditReportSummary,
+  WorkPermitReportDetail,
+  ReportExportTaskRecord,
+  TrendSeriesRecord,
+  MobileTaskRecord
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -946,8 +960,228 @@ export async function preCheckWorkPermit(id: number, tenantId: number, checkPoin
 export async function addWorkPermitWorker(id: number, tenantId: number, payload: WorkPermitWorkerRequest): Promise<WorkPermitWorkerRecord> {
   return request<WorkPermitWorkerRecord>(`${WORK_PERMIT_API.base}/${id}/workers?tenantId=${tenantId}`, {
     method: 'POST',
+    body: JSON.stringify({ ...payload, tenantId })
+  });
+}
+
+export async function saveWorkPermitRiskAnalysis(
+  id: number,
+  tenantId: number,
+  payload: { hazardDesc: string; controlMeasure: string; riskLevel?: string }
+): Promise<RiskAnalysisRecord> {
+  return request<RiskAnalysisRecord>(`${WORK_PERMIT_API.base}/${id}/risk-analysis`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload })
+  });
+}
+
+export async function confirmWorkPermitMeasure(
+  id: number,
+  measureId: number,
+  tenantId: number,
+  remark?: string
+): Promise<SafetyMeasureRecord> {
+  return request<SafetyMeasureRecord>(`${WORK_PERMIT_API.base}/${id}/safety-measures/${measureId}`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, confirmStatus: 'CONFIRMED', remark })
+  });
+}
+
+export async function addWorkPermitGasTest(
+  id: number,
+  tenantId: number,
+  payload: { gasName: string; qualified: boolean; measuredValue?: string }
+): Promise<GasTestRecord> {
+  return request<GasTestRecord>(`${WORK_PERMIT_API.base}/${id}/gas-tests`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload, testedAt: new Date().toISOString().slice(0, 19).replace('T', ' ') })
+  });
+}
+
+export async function checkInWorkPermit(
+  id: number,
+  tenantId: number,
+  payload?: { locationText?: string; scanCode?: string }
+): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/check-in`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload })
+  });
+}
+
+export async function sitePermitWorkPermit(
+  id: number,
+  tenantId: number,
+  payload?: { signatureText?: string; locationText?: string; remark?: string }
+): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/site-permit`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload })
+  });
+}
+
+export async function addWorkPermitMonitorRecord(
+  id: number,
+  tenantId: number,
+  payload: { recordType: string; content: string; abnormalFlag?: boolean }
+): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/monitor-records`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload })
+  });
+}
+
+export async function suspendWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/suspend?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function resumeWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/resume?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function acceptWorkPermit(
+  id: number,
+  tenantId: number,
+  payload: { acceptanceResult: string; opinion?: string; signatureText?: string }
+): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/acceptance`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, ...payload })
+  });
+}
+
+export async function uploadFile(
+  tenantId: number,
+  file: File,
+  bizType?: string,
+  bizId?: number
+): Promise<FileObjectRecord> {
+  const form = new FormData();
+  form.append('tenantId', String(tenantId));
+  form.append('file', file);
+  if (bizType) form.append('bizType', bizType);
+  if (bizId != null) form.append('bizId', String(bizId));
+  return uploadRequest<FileObjectRecord>(FILE_API.upload, form);
+}
+
+export async function fetchMobileTasks(tenantId: number, userId: number, role = 'ALL'): Promise<MobileTaskRecord[]> {
+  return request<MobileTaskRecord[]>(`${MOBILE_API.tasks}?tenantId=${tenantId}&userId=${userId}&role=${role}`);
+}
+
+export async function fetchMobileWorkPermitDetail(id: number, tenantId: number): Promise<WorkPermitDetailRecord> {
+  return request<WorkPermitDetailRecord>(`${MOBILE_API.workPermit}/${id}?tenantId=${tenantId}`);
+}
+
+export async function mobileCheckIn(
+  id: number,
+  payload: { tenantId: number; locationText?: string; scanCode?: string }
+): Promise<unknown> {
+  return request(`${MOBILE_API.workPermit}/${id}/check-in`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function mobileGasTest(
+  id: number,
+  payload: { tenantId: number; gasName: string; qualified: boolean; measuredValue?: string }
+): Promise<GasTestRecord> {
+  return request<GasTestRecord>(`${MOBILE_API.workPermit}/${id}/gas-tests`, {
+    method: 'POST',
+    body: JSON.stringify({ ...payload, testedAt: new Date().toISOString().slice(0, 19).replace('T', ' ') })
+  });
+}
+
+export async function mobileConfirmMeasure(
+  id: number,
+  payload: { tenantId: number; measureId: number; remark?: string }
+): Promise<SafetyMeasureRecord> {
+  return request<SafetyMeasureRecord>(`${MOBILE_API.workPermit}/${id}/measures/confirm`, {
+    method: 'POST',
     body: JSON.stringify(payload)
   });
+}
+
+export async function mobileSitePermit(
+  id: number,
+  payload: { tenantId: number; signatureText?: string; locationText?: string }
+): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/site-permit`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function mobileMonitorRecord(
+  id: number,
+  payload: { tenantId: number; recordType: string; content: string; abnormalFlag?: boolean }
+): Promise<unknown> {
+  return request(`${MOBILE_API.workPermit}/${id}/monitor-records`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function mobileSuspend(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/suspend?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function mobileResume(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/resume?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function mobileAcceptance(
+  id: number,
+  payload: { tenantId: number; acceptanceResult: string; signatureText?: string; opinion?: string }
+): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/acceptance`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function mobileAlarmFeedback(id: number, tenantId: number, remark?: string): Promise<unknown> {
+  return request(`${MOBILE_API.alarmFeedback}/${id}/feedback?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ remark })
+  });
+}
+
+export async function mobileUploadFile(tenantId: number, file: File, bizType?: string, bizId?: number): Promise<FileObjectRecord> {
+  const form = new FormData();
+  form.append('tenantId', String(tenantId));
+  form.append('file', file);
+  if (bizType) form.append('bizType', bizType);
+  if (bizId != null) form.append('bizId', String(bizId));
+  const uploaded = await uploadRequest<{ fileId: string; fileName: string; url?: string; sizeBytes?: number }>(
+    MOBILE_API.fileUpload,
+    form
+  );
+  return {
+    id: Number(uploaded.fileId),
+    tenantId,
+    fileName: uploaded.fileName,
+    sizeBytes: uploaded.sizeBytes,
+    downloadUrl: uploaded.url
+  };
+}
+
+export async function syncMobileDraft(payload: {
+  tenantId: number;
+  userId: number;
+  draftType: string;
+  payloadJson: string;
+}): Promise<unknown> {
+  return request(MOBILE_API.draftsSync, { method: 'POST', body: JSON.stringify(payload) });
 }
 
 export async function fetchDashboardOverview(tenantId: number): Promise<DashboardOverviewRecord> {
@@ -958,12 +1192,66 @@ export async function fetchWorkPermitReportSummary(tenantId: number): Promise<Wo
   return request<WorkPermitReportSummary>(`${REPORT_API.workPermitSummary}?tenantId=${tenantId}`);
 }
 
+export async function fetchAlarmReportSummary(tenantId: number): Promise<AlarmReportSummary> {
+  return request<AlarmReportSummary>(`${REPORT_API.alarmSummary}?tenantId=${tenantId}`);
+}
+
+export async function fetchAlarmReportDetails(tenantId: number): Promise<AlarmReportDetail[]> {
+  return request<AlarmReportDetail[]>(`${REPORT_API.alarmDetails}?tenantId=${tenantId}`);
+}
+
+export async function fetchMajorHazardReportSummary(tenantId: number): Promise<MajorHazardReportSummary> {
+  return request<MajorHazardReportSummary>(`${REPORT_API.majorHazardSummary}?tenantId=${tenantId}`);
+}
+
+export async function fetchContractorReportSummary(tenantId: number): Promise<ContractorReportSummary> {
+  return request<ContractorReportSummary>(`${REPORT_API.contractorSummary}?tenantId=${tenantId}`);
+}
+
+export async function fetchAuditReportSummary(tenantId: number): Promise<AuditReportSummary> {
+  return request<AuditReportSummary>(`${REPORT_API.auditSummary}?tenantId=${tenantId}`);
+}
+
+export async function fetchWorkPermitReportDetails(tenantId: number): Promise<WorkPermitReportDetail[]> {
+  return request<WorkPermitReportDetail[]>(`${REPORT_API.workPermitDetails}?tenantId=${tenantId}`);
+}
+
+export async function fetchWorkPermitTrend(tenantId: number, days = 7): Promise<TrendSeriesRecord> {
+  return request<TrendSeriesRecord>(`${REPORT_API.workPermitTrend}?tenantId=${tenantId}&days=${days}`);
+}
+
+export async function fetchAlarmTrend(tenantId: number, days = 7): Promise<TrendSeriesRecord> {
+  return request<TrendSeriesRecord>(`${REPORT_API.alarmTrend}?tenantId=${tenantId}&days=${days}`);
+}
+
+export async function createReportExport(
+  payload: { tenantId: number; reportType: string; exportFormat?: string; requestedBy?: string }
+): Promise<ReportExportTaskRecord> {
+  return request<ReportExportTaskRecord>(REPORT_API.export, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
 export async function fetchAcceptanceTestCases(tenantId: number): Promise<AcceptanceTestCaseRecord[]> {
-  return request<AcceptanceTestCaseRecord[]>(`${REPORT_API.acceptanceCases}?tenantId=${tenantId}`);
+  const page = await request<PageResult<AcceptanceTestCaseRecord>>(
+    `${REPORT_API.acceptanceCases}?tenantId=${tenantId}&pageNo=1&pageSize=200`
+  );
+  return page.records;
 }
 
 export async function fetchAcceptanceTestRuns(tenantId: number): Promise<AcceptanceTestRunRecord[]> {
-  return request<AcceptanceTestRunRecord[]>(`${REPORT_API.acceptanceRuns}?tenantId=${tenantId}`);
+  const page = await request<PageResult<AcceptanceTestRunRecord>>(
+    `${REPORT_API.acceptanceRuns}?tenantId=${tenantId}&pageNo=1&pageSize=200`
+  );
+  return page.records;
+}
+
+export async function createAcceptanceTestRun(payload: AcceptanceTestRunRequest): Promise<AcceptanceTestRunRecord> {
+  return request<AcceptanceTestRunRecord>(REPORT_API.acceptanceRuns, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 }
 
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -979,6 +1267,29 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
     ...init,
     headers
   });
+  if (!response.ok) {
+    if (response.status === 401) {
+      clearTokens();
+    }
+    throw new Error(await resolveErrorMessage(response));
+  }
+  const body = (await response.json()) as ApiResponse<T>;
+  if (body.code !== 0) {
+    if (body.code === 401) {
+      clearTokens();
+    }
+    throw new Error(body.message);
+  }
+  return body.data as T;
+}
+
+async function uploadRequest<T>(path: string, form: FormData): Promise<T> {
+  const headers = new Headers();
+  const token = getAccessToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const response = await fetch(path, { method: 'POST', headers, body: form });
   if (!response.ok) {
     if (response.status === 401) {
       clearTokens();

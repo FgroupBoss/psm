@@ -40,6 +40,7 @@ import {
   fetchMajorHazardAttachments,
   fetchMajorHazardAlarms,
   fetchWorkPermitsByHazard,
+  uploadFile,
   fetchMajorHazardPoints,
   fetchMajorHazardResponsibilities,
   fetchMajorHazards,
@@ -3593,15 +3594,30 @@ function MajorHazardDetailModal({
                 </select>
               </label>
               <label>
-                文件ID（file-service 未就绪时可填 mock ID）
+                上传附件
                 <input
-                  type="number"
-                  min={1}
-                  value={attachmentForm.fileId || ''}
-                  onChange={(event) =>
-                    setAttachmentForm({ ...attachmentForm, fileId: Number(event.target.value) || 0 })
-                  }
+                  type="file"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    run(
+                      () =>
+                        uploadFile(tenantId, file, 'MAJOR_HAZARD', hazard.id).then((uploaded) => {
+                          setAttachmentForm({
+                            ...attachmentForm,
+                            fileId: uploaded.id,
+                            fileName: uploaded.fileName
+                          });
+                        }),
+                      '文件已上传',
+                      reload
+                    );
+                  }}
                 />
+              </label>
+              <label>
+                文件ID
+                <input type="number" min={1} value={attachmentForm.fileId || ''} readOnly />
               </label>
               <label>
                 文件名

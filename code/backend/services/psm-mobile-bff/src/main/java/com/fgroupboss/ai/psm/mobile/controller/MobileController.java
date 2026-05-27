@@ -5,6 +5,7 @@ import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.mobile.client.AlarmClient;
+import com.fgroupboss.ai.psm.mobile.client.FileClient;
 import com.fgroupboss.ai.psm.mobile.client.WorkPermitClient;
 import com.fgroupboss.ai.psm.mobile.client.dto.AcceptanceRequest;
 import com.fgroupboss.ai.psm.mobile.client.dto.AlarmActionRequest;
@@ -40,11 +41,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 移动端现场作业 BFF 接口（M07）。
@@ -58,6 +58,7 @@ public class MobileController {
     private final MobileWorkPermitService mobileWorkPermitService;
     private final MobileDraftService mobileDraftService;
     private final AlarmClient alarmClient;
+    private final FileClient fileClient;
 
     @GetMapping("/tasks")
     public ResponseVO<List<MobileTaskVO>> tasks(@RequestParam Long tenantId,
@@ -161,19 +162,15 @@ public class MobileController {
     }
 
     @PostMapping("/files/upload")
-    public ResponseVO<FileUploadVO> uploadFile(@RequestParam(required = false) String fileName,
-                                               @RequestParam(required = false) String contentType,
-                                               @RequestParam(required = false) Long sizeBytes,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId) {
-        FileUploadVO vo = new FileUploadVO();
-        vo.setFileId(UUID.randomUUID().toString().replace("-", ""));
-        vo.setFileName(StringUtils.hasText(fileName) ? fileName : "mobile-upload.bin");
-        vo.setContentType(StringUtils.hasText(contentType) ? contentType : "application/octet-stream");
-        vo.setSizeBytes(sizeBytes == null ? 0L : sizeBytes);
-        vo.setSha256("mock-" + vo.getFileId());
-        vo.setUrl("/mock/files/" + vo.getFileId());
-        vo.setUploadedAt(new Date());
-        return ResponseVO.success(vo);
+    public ResponseVO<FileUploadVO> uploadFile(@RequestParam Long tenantId,
+                                               @RequestParam("file") MultipartFile file,
+                                               @RequestParam(required = false) String bizType,
+                                               @RequestParam(required = false) Long bizId,
+                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                               @RequestHeader(value = UserContextHeaders.TENANT_ID, required = false) String tenantIdHeader) {
+        return ResponseVO.success(fileClient.upload(tenantId, file, bizType, bizId,
+                contextHeaders(userId, username, tenantIdHeader)));
     }
 
     @PostMapping("/drafts/sync")

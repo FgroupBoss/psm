@@ -18,6 +18,7 @@ public class GatewayProperties {
     private String workPermitServiceUrl = "http://localhost:18088";
     private String mobileBffUrl = "http://localhost:18089";
     private String reportServiceUrl = "http://localhost:18090";
+    private String fileServiceUrl = "http://localhost:18092";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -105,6 +106,14 @@ public class GatewayProperties {
 
     public void setReportServiceUrl(String reportServiceUrl) {
         this.reportServiceUrl = trimTrailingSlash(reportServiceUrl);
+    }
+
+    public String getFileServiceUrl() {
+        return fileServiceUrl;
+    }
+
+    public void setFileServiceUrl(String fileServiceUrl) {
+        this.fileServiceUrl = trimTrailingSlash(fileServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

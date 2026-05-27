@@ -18,3 +18,4 @@ psm:
     work-permit-service-url: ${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}
     mobile-bff-url: ${PSM_MOBILE_BFF_URL:http://localhost:18089}
     report-service-url: ${PSM_REPORT_SERVICE_URL:http://localhost:18090}
+    file-service-url: ${PSM_FILE_SERVICE_URL:http://localhost:18092}

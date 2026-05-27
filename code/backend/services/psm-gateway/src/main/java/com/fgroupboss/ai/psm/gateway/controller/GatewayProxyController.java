@@ -12,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
 
@@ -33,101 +33,96 @@ public class GatewayProxyController {
     private final RestTemplate restTemplate;
 
     @RequestMapping("/auth/**")
-    public ResponseEntity<String> proxyAuth(HttpServletRequest request,
-                                            @RequestBody(required = false) String body) {
-        return proxy(properties.getAuthServiceUrl(), request, body, null);
+    public ResponseEntity<byte[]> proxyAuth(HttpServletRequest request) throws IOException {
+        return proxy(properties.getAuthServiceUrl(), request, null);
     }
 
     @RequestMapping("/api/iam/**")
-    public ResponseEntity<String> proxyIam(HttpServletRequest request,
-                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                           @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyIam(HttpServletRequest request,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getIamServiceUrl(), request, body, principal);
+        return proxy(properties.getIamServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/config/**")
-    public ResponseEntity<String> proxyConfigRule(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                   @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyConfigRule(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getConfigRuleServiceUrl(), request, body, principal);
+        return proxy(properties.getConfigRuleServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/master-data/**")
-    public ResponseEntity<String> proxyMasterData(HttpServletRequest request,
-                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                  @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyMasterData(HttpServletRequest request,
+                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMasterDataServiceUrl(), request, body, principal);
+        return proxy(properties.getMasterDataServiceUrl(), request, principal);
     }
 
     @RequestMapping({"/api/areas/**", "/api/areas", "/api/units/**", "/api/units",
             "/api/equipments/**", "/api/equipments", "/api/monitor-points/**", "/api/monitor-points"})
-    public ResponseEntity<String> proxyBaseData(HttpServletRequest request,
-                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyBaseData(HttpServletRequest request,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMasterDataServiceUrl(), request, body, principal);
+        return proxy(properties.getMasterDataServiceUrl(), request, principal);
     }
 
     @RequestMapping({"/api/audit/**", "/api/audit"})
-    public ResponseEntity<String> proxyAudit(HttpServletRequest request,
-                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                             @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyAudit(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getAuditServiceUrl(), request, body, principal);
+        return proxy(properties.getAuditServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/contractors/**")
-    public ResponseEntity<String> proxyContractor(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                   @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyContractor(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getContractorServiceUrl(), request, body, principal);
+        return proxy(properties.getContractorServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/major-hazards/**")
-    public ResponseEntity<String> proxyMajorHazard(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                   @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyMajorHazard(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMajorHazardServiceUrl(), request, body, principal);
+        return proxy(properties.getMajorHazardServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/alarms/**")
-    public ResponseEntity<String> proxyAlarm(HttpServletRequest request,
-                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                             @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyAlarm(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getAlarmServiceUrl(), request, body, principal);
+        return proxy(properties.getAlarmServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/work-permits/**")
-    public ResponseEntity<String> proxyWorkPermit(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                                   @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyWorkPermit(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getWorkPermitServiceUrl(), request, body, principal);
+        return proxy(properties.getWorkPermitServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/mobile/**")
-    public ResponseEntity<String> proxyMobile(HttpServletRequest request,
-                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                              @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyMobile(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMobileBffUrl(), request, body, principal);
+        return proxy(properties.getMobileBffUrl(), request, principal);
     }
 
     @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
-    public ResponseEntity<String> proxyReport(HttpServletRequest request,
-                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-                                              @RequestBody(required = false) String body) {
+    public ResponseEntity<byte[]> proxyReport(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getReportServiceUrl(), request, body, principal);
+        return proxy(properties.getReportServiceUrl(), request, principal);
     }
 
-    private ResponseEntity<String> proxy(String serviceUrl, HttpServletRequest request, String body, AuthPrincipal principal) {
+    @RequestMapping("/api/files/**")
+    public ResponseEntity<byte[]> proxyFile(HttpServletRequest request,
+                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getFileServiceUrl(), request, principal);
+    }
+
+    private ResponseEntity<byte[]> proxy(String serviceUrl, HttpServletRequest request, AuthPrincipal principal) throws IOException {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);
         if (principal != null) {
@@ -145,15 +140,40 @@ public class GatewayProxyController {
         if (method == null) {
             throw new BusinessException(405, "unsupported http method");
         }
+        byte[] body = readBody(request, method);
         try {
-            return restTemplate.exchange(target, method, new HttpEntity<String>(body, headers), String.class);
+            ResponseEntity<byte[]> upstream = restTemplate.exchange(target, method, new HttpEntity<byte[]>(body, headers), byte[].class);
+            return ResponseEntity.status(upstream.getStatusCode())
+                    .headers(filterResponseHeaders(upstream.getHeaders()))
+                    .body(upstream.getBody());
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode())
                     .headers(responseHeaders(e))
-                    .body(e.getResponseBodyAsString());
+                    .body(e.getResponseBodyAsByteArray());
         } catch (RestClientException e) {
             throw new BusinessException(502, "upstream service unavailable");
         }
+    }
+
+    private byte[] readBody(HttpServletRequest request, HttpMethod method) throws IOException {
+        if (method == HttpMethod.GET || method == HttpMethod.HEAD || method == HttpMethod.DELETE) {
+            return null;
+        }
+        return org.springframework.util.StreamUtils.copyToByteArray(request.getInputStream());
+    }
+
+    private HttpHeaders filterResponseHeaders(HttpHeaders upstreamHeaders) {
+        HttpHeaders headers = new HttpHeaders();
+        if (upstreamHeaders == null) {
+            return headers;
+        }
+        if (upstreamHeaders.getContentType() != null) {
+            headers.setContentType(upstreamHeaders.getContentType());
+        }
+        if (upstreamHeaders.getContentDisposition() != null) {
+            headers.setContentDisposition(upstreamHeaders.getContentDisposition());
+        }
+        return headers;
     }
 
     private URI targetUri(String serviceUrl, HttpServletRequest request) {

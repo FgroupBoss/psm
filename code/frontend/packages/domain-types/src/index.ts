@@ -714,12 +714,26 @@ export const WORK_PERMIT_API = {
   byHazard: '/api/work-permits/by-hazard'
 } as const;
 
+/** 文件中心 API 路径常量。 */
+export const FILE_API = {
+  health: '/api/files/health',
+  upload: '/api/files/upload',
+  base: '/api/files'
+} as const;
+
 /** 报表与大屏 API 路径常量。 */
 export const REPORT_API = {
   health: '/api/reports/health',
   workPermitSummary: '/api/reports/work-permits/summary',
+  workPermitDetails: '/api/reports/work-permits/details',
   alarmSummary: '/api/reports/alarms/summary',
+  alarmDetails: '/api/reports/alarms/details',
+  majorHazardSummary: '/api/reports/major-hazards/summary',
+  contractorSummary: '/api/reports/contractors/summary',
+  auditSummary: '/api/reports/audit/summary',
   dashboardOverview: '/api/dashboard/overview',
+  workPermitTrend: '/api/dashboard/work-permits/trend',
+  alarmTrend: '/api/dashboard/alarms/trend',
   export: '/api/reports/export',
   acceptanceCases: '/api/acceptance/test-cases',
   acceptanceRuns: '/api/acceptance/test-runs'
@@ -727,7 +741,10 @@ export const REPORT_API = {
 
 export const MOBILE_API = {
   tasks: '/api/mobile/tasks',
-  draftsSync: '/api/mobile/drafts/sync'
+  workPermit: '/api/mobile/work-permits',
+  draftsSync: '/api/mobile/drafts/sync',
+  fileUpload: '/api/mobile/files/upload',
+  alarmFeedback: '/api/mobile/alarms'
 } as const;
 
 export type WorkPermitStatus =
@@ -872,7 +889,124 @@ export interface AcceptanceTestCaseRecord {
 export interface AcceptanceTestRunRecord {
   id: number;
   caseId: number;
+  runNo?: string;
   runResult: string;
+  runStatus?: string;
+  executorName?: string;
   evidenceRef?: string;
+  remark?: string;
   executedAt?: string;
+}
+
+export interface FileObjectRecord {
+  id: number;
+  tenantId: number;
+  fileName: string;
+  contentType?: string;
+  sizeBytes?: number;
+  sha256?: string;
+  downloadUrl?: string;
+  createdAt?: string;
+}
+
+export interface MobileTaskRecord {
+  taskType: string;
+  title: string;
+  bizId: number;
+  status?: string;
+  occurredAt?: string;
+}
+
+export interface TrendPointRecord {
+  label: string;
+  value: number;
+}
+
+export interface TrendSeriesRecord {
+  metric: string;
+  days: number;
+  points: TrendPointRecord[];
+  dataRefreshedAt?: string;
+  dataSource?: string;
+}
+
+export interface AlarmReportSummary {
+  totalCount: number;
+  actionableCount?: number;
+  closedCount?: number;
+  closureRate?: number;
+  avgConfirmMinutes?: number;
+  avgDisposeMinutes?: number;
+  levelCounts?: Record<string, number>;
+  statusCounts?: Record<string, number>;
+  dataRefreshedAt?: string;
+  dataSource?: string;
+}
+
+export interface AlarmReportDetail {
+  id: number;
+  alarmNo: string;
+  alarmLevel: string;
+  status: string;
+  title?: string;
+  confirmMinutes?: number;
+  disposeMinutes?: number;
+}
+
+export interface MajorHazardReportSummary {
+  totalCount: number;
+  publishedCount?: number;
+  archiveCompletenessRate?: number;
+  levelCounts?: Record<string, number>;
+  dataRefreshedAt?: string;
+  dataSource?: string;
+}
+
+export interface ContractorReportSummary {
+  companyCount?: number;
+  workerCount?: number;
+  approvedCompanyCount?: number;
+  approvedWorkerCount?: number;
+  certificateExpiringCount?: number;
+  violationCount?: number;
+  dataRefreshedAt?: string;
+  dataSource?: string;
+}
+
+export interface AuditReportSummary {
+  totalCount?: number;
+  keyActionCount?: number;
+  coverageRate?: number;
+  dataRefreshedAt?: string;
+  dataSource?: string;
+}
+
+export interface WorkPermitReportDetail {
+  id: number;
+  permitNo: string;
+  workType: string;
+  status: string;
+  title?: string;
+  sitePermitTraced?: boolean;
+  contractorChecked?: boolean;
+}
+
+export interface ReportExportTaskRecord {
+  id: number;
+  tenantId: number;
+  reportType: string;
+  exportFormat?: string;
+  status: string;
+  fileRef?: string;
+  createdAt?: string;
+}
+
+export interface AcceptanceTestRunRequest {
+  tenantId: number;
+  caseId: number;
+  runNo: string;
+  executorName?: string;
+  runStatus: string;
+  evidenceRef?: string;
+  remark?: string;
 }
