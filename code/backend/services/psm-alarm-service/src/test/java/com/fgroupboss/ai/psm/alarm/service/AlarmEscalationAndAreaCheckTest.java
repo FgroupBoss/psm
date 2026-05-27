@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.alarm.config.AlarmStatus;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEscalationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
+import com.fgroupboss.ai.psm.alarm.mapper.AlarmNotificationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmRuleMapper;
+import com.fgroupboss.ai.psm.common.notification.CentralNotificationClient;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEscalationRecordEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
@@ -46,7 +48,12 @@ class AlarmEscalationAndAreaCheckTest {
         alarmRuleMapper = mock(AlarmRuleMapper.class);
         escalationRecordMapper = mock(AlarmEscalationRecordMapper.class);
         escalationService = new AlarmEscalationServiceImpl(
-                alarmRuleMapper, alarmEventMapper, escalationRecordMapper, new ObjectMapper());
+                alarmRuleMapper,
+                alarmEventMapper,
+                escalationRecordMapper,
+                mock(AlarmNotificationRecordMapper.class),
+                mock(CentralNotificationClient.class),
+                new ObjectMapper());
         alarmService = new AlarmServiceImpl(
                 alarmEventMapper,
                 mock(com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper.class),

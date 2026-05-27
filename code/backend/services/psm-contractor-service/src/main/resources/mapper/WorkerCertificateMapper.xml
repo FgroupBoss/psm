@@ -10,4 +10,11 @@
           and deleted = 0
         order by id desc
     </select>
+
+    <select id="listExpiringOn" resultType="com.fgroupboss.ai.psm.contractor.model.entity.WorkerCertificateEntity">
+        select * from worker_certificate
+        where deleted = 0
+          and valid_to = #{validTo}
+        order by id asc
+    </select>
 </mapper>

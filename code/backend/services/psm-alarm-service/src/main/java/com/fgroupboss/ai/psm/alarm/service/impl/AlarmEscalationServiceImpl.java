@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.alarm.config.AlarmStatus;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEscalationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
+import com.fgroupboss.ai.psm.alarm.mapper.AlarmNotificationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmRuleMapper;
+import com.fgroupboss.ai.psm.alarm.model.entity.AlarmNotificationRecordEntity;
+import com.fgroupboss.ai.psm.common.notification.CentralNotificationClient;
+import com.fgroupboss.ai.psm.common.notification.NotificationSendRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEscalationRecordEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmRuleEntity;
@@ -16,9 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 /**
@@ -35,6 +42,8 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
     private final AlarmRuleMapper alarmRuleMapper;
     private final AlarmEventMapper alarmEventMapper;
     private final AlarmEscalationRecordMapper escalationRecordMapper;
+    private final AlarmNotificationRecordMapper notificationRecordMapper;
+    private final CentralNotificationClient notificationClient;
     private final ObjectMapper objectMapper;
 
     /**
@@ -64,43 +73,43 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
             return 0;
         }
         if (isConfirmTimeoutRule(rule.getRuleCode())) {
-            return escalateConfirmTimeout(rule.getTenantId(), config, now);
+            return escalateConfirmTimeout(rule, config, now);
         }
         if (isDisposeTimeoutRule(rule.getRuleCode())) {
-            return escalateDisposeTimeout(rule.getTenantId(), config, now);
+            return escalateDisposeTimeout(rule, config, now);
         }
         return 0;
     }
 
-    private int escalateConfirmTimeout(Long tenantId, TimeoutConfig config, Date now) {
+    private int escalateConfirmTimeout(AlarmRuleEntity rule, TimeoutConfig config, Date now) {
         if (config.confirmMinutes == null || config.confirmMinutes <= 0) {
             return 0;
         }
         Date deadline = addMinutes(now, -config.confirmMinutes);
         List<AlarmEventEntity> candidates = alarmEventMapper.listTimeoutCandidates(
-                tenantId, AlarmStatus.NEW.name(), config.level, deadline);
+                rule.getTenantId(), AlarmStatus.NEW.name(), config.level, deadline);
         int count = 0;
         for (AlarmEventEntity entity : candidates) {
-            count += escalate(entity, "CONFIRM_TIMEOUT", config.level);
+            count += escalate(entity, rule, "CONFIRM_TIMEOUT", config);
         }
         return count;
     }
 
-    private int escalateDisposeTimeout(Long tenantId, TimeoutConfig config, Date now) {
+    private int escalateDisposeTimeout(AlarmRuleEntity rule, TimeoutConfig config, Date now) {
         if (config.disposeMinutes == null || config.disposeMinutes <= 0) {
             return 0;
         }
         Date deadline = addMinutes(now, -config.disposeMinutes);
         List<AlarmEventEntity> candidates = alarmEventMapper.listDisposeTimeoutCandidates(
-                tenantId, config.level, deadline);
+                rule.getTenantId(), config.level, deadline);
         int count = 0;
         for (AlarmEventEntity entity : candidates) {
-            count += escalate(entity, "DISPOSE_TIMEOUT", config.level);
+            count += escalate(entity, rule, "DISPOSE_TIMEOUT", config);
         }
         return count;
     }
 
-    private int escalate(AlarmEventEntity entity, String reason, String escalationLevel) {
+    private int escalate(AlarmEventEntity entity, AlarmRuleEntity rule, String reason, TimeoutConfig config) {
         if (AlarmStatus.ESCALATED.name().equals(entity.getStatus())) {
             return 0;
         }
@@ -111,13 +120,51 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
         AlarmEscalationRecordEntity record = new AlarmEscalationRecordEntity();
         record.setTenantId(entity.getTenantId());
         record.setAlarmEventId(entity.getId());
-        record.setEscalationLevel(escalationLevel);
+        record.setEscalationLevel(config.level);
         record.setReason(reason);
         record.setOperatorName(OPERATOR_SYSTEM);
         record.setEscalatedAt(new Date());
         escalationRecordMapper.insert(record);
+        dispatchEscalationNotification(entity, rule, reason, config);
         log.info("alarm escalated id={} from={} reason={}", entity.getId(), before, reason);
         return 1;
+    }
+
+    private void dispatchEscalationNotification(AlarmEventEntity entity, AlarmRuleEntity rule,
+                                                String reason, TimeoutConfig config) {
+        List<Long> userIds = config.notifyUserIds == null ? new ArrayList<Long>() : config.notifyUserIds;
+        if (userIds.isEmpty()) {
+            return;
+        }
+        Map<String, String> variables = new HashMap<String, String>();
+        variables.put("alarmNo", entity.getAlarmNo() == null ? String.valueOf(entity.getId()) : entity.getAlarmNo());
+        variables.put("reason", reason);
+        variables.put("level", config.level == null ? "" : config.level);
+        String requestIdPrefix = "ALARM-ESC-" + entity.getId() + "-" + reason;
+        for (Long userId : userIds) {
+            if (userId == null) {
+                continue;
+            }
+            NotificationSendRequest request = CentralNotificationClient.build(
+                    entity.getTenantId(), userId, requestIdPrefix + "-" + userId,
+                    "ALARM_ESCALATION", "ALARM", entity.getId(), variables);
+            notificationClient.send(request);
+            saveAlarmNotificationRecord(entity, userId, request.getRequestId(), variables.get("alarmNo"), reason);
+        }
+    }
+
+    private void saveAlarmNotificationRecord(AlarmEventEntity entity, Long userId, String requestId,
+                                             String alarmNo, String reason) {
+        AlarmNotificationRecordEntity record = new AlarmNotificationRecordEntity();
+        record.setTenantId(entity.getTenantId());
+        record.setAlarmEventId(entity.getId());
+        record.setChannel("IN_APP");
+        record.setNotifyTarget(String.valueOf(userId));
+        record.setNotifyContent("alarm " + alarmNo + " escalated: " + reason + " requestId=" + requestId);
+        record.setStatus("SENT");
+        record.setSentAt(new Date());
+        record.setCreatedAt(new Date());
+        notificationRecordMapper.insert(record);
     }
 
     private TimeoutConfig parseTimeoutConfig(String configJson) {
@@ -135,6 +182,12 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
             }
             if (node.has("disposeMinutes")) {
                 config.disposeMinutes = node.get("disposeMinutes").asInt();
+            }
+            if (node.has("notifyUserIds") && node.get("notifyUserIds").isArray()) {
+                config.notifyUserIds = new ArrayList<Long>();
+                for (JsonNode item : node.get("notifyUserIds")) {
+                    config.notifyUserIds.add(item.asLong());
+                }
             }
             return config;
         } catch (Exception ex) {
@@ -162,5 +215,6 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
         private String level;
         private Integer confirmMinutes;
         private Integer disposeMinutes;
+        private List<Long> notifyUserIds;
     }
 }

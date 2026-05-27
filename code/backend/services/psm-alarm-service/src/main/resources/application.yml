@@ -18,3 +18,5 @@ mybatis-plus:
 psm:
   audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}
   central-audit-enabled: ${PSM_CENTRAL_AUDIT_ENABLED:true}
+  notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
+  central-notification-enabled: ${PSM_CENTRAL_NOTIFICATION_ENABLED:true}

@@ -161,6 +161,16 @@ public class GatewayProxyController {
         return proxy(properties.getFileServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：转发消息中心请求。
+     */
+    @RequestMapping("/api/notifications/**")
+    public ResponseEntity<byte[]> proxyNotification(HttpServletRequest request,
+                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getNotificationServiceUrl(), request, principal);
+    }
+
     private ResponseEntity<byte[]> proxy(String serviceUrl, HttpServletRequest request, AuthPrincipal principal) throws IOException {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

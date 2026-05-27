@@ -21,6 +21,9 @@
 | `psm_contractor` | contractor |
 | `psm_major_hazard` | major-hazard |
 | `psm_alarm` | alarm |
+| `psm_notification` | notification |
+| `psm_file` | file |
+| `psm_work_permit` | work-permit |
 
 ## 服务端口
 
@@ -34,7 +37,11 @@
 | `psm-contractor-service` | 18085 | 承包商 |
 | `psm-major-hazard-service` | 18086 | 重大危险源 |
 | `psm-alarm-service` | 18087 | 报警中心 |
-| `psm-file-service` | 18092 | 文件中心（骨架，附件可 mock fileId） |
+| `psm-work-permit-service` | 18088 | 危险工作票 |
+| `psm-mobile-bff` | 18089 | 移动 BFF |
+| `psm-report-service` | 18090 | 报表/大屏 |
+| `psm-notification-service` | 18093 | 消息中心（站内信） |
+| `psm-file-service` | 18092 | 文件中心 |
 | `psm-audit-service` | 18094 | 中央审计查询 |
 
 ## 启动顺序（建议）
@@ -50,6 +57,9 @@ mvn -pl services/psm-audit-service -am spring-boot:run
 mvn -pl services/psm-contractor-service -am spring-boot:run
 mvn -pl services/psm-major-hazard-service -am spring-boot:run
 mvn -pl services/psm-alarm-service -am spring-boot:run
+mvn -pl services/psm-work-permit-service -am spring-boot:run
+mvn -pl services/psm-file-service -am spring-boot:run
+mvn -pl services/psm-notification-service -am spring-boot:run
 mvn -pl services/psm-gateway -am spring-boot:run
 ```
 

@@ -19,3 +19,4 @@ psm:
     mobile-bff-url: ${PSM_MOBILE_BFF_URL:http://localhost:18089}
     report-service-url: ${PSM_REPORT_SERVICE_URL:http://localhost:18090}
     file-service-url: ${PSM_FILE_SERVICE_URL:http://localhost:18092}
+    notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}

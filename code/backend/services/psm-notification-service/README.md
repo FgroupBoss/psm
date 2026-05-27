@@ -1,11 +1,22 @@
 # psm-notification-service
 
-通知服务。
+消息中心（一期站内信）。
 
-职责：
+## 能力
 
-- 站内信。
-- 短信、邮件、企业微信、钉钉通道预留。
-- 待办、报警升级、证书到期、作业超时等通知。
-- 通知模板和发送记录。
+- 站内信发送、收件箱、已读标记（`IN_APP`）
+- 短信/邮件/企业微信/钉钉通道枚举预留，一期不实际外发
+- 内置模板：`ALARM_ESCALATION`、`CERT_EXPIRE_WARN`、`WKP_TIMEOUT_WARN`
 
+## 端口
+
+- 默认 `18093`
+- 数据库 `psm_notification`，执行 `src/main/resources/db/schema.sql`
+
+## API
+
+- `POST /api/notifications/send` — 业务/内部发送（`requestId` 幂等）
+- `GET /api/notifications/inbox` — 收件箱分页
+- `POST /api/notifications/{id}/read` — 标记已读
+
+网关前缀：`/api/notifications/**`

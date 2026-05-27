@@ -20,3 +20,5 @@ psm:
   contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
   alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}
   gas-test-valid-minutes: ${PSM_GAS_TEST_VALID_MINUTES:30}
+  notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
+  central-notification-enabled: ${PSM_CENTRAL_NOTIFICATION_ENABLED:true}
