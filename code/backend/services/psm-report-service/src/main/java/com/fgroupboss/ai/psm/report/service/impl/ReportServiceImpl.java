@@ -42,9 +42,12 @@ import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportDetailVO;
 import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportSummaryVO;
 import com.fgroupboss.ai.psm.report.service.ReportService;
 import com.fgroupboss.ai.psm.report.support.ReportAuditSupport;
+import com.fgroupboss.ai.psm.report.support.ReportCsvExportSupport;
 import com.fgroupboss.ai.psm.report.support.ReportMetricsSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -69,6 +72,7 @@ public class ReportServiceImpl implements ReportService {
     private final AcceptanceTestCaseMapper testCaseMapper;
     private final AcceptanceTestRunMapper testRunMapper;
     private final ReportAuditSupport reportAuditSupport;
+    private final ReportCsvExportSupport csvExportSupport;
 
     @Value("${psm.report.pilot-offline-work-count:0}")
     private int pilotOfflineWorkCount;
@@ -197,10 +201,20 @@ public class ReportServiceImpl implements ReportService {
         exportTaskMapper.insert(entity);
 
         entity.setStartedAt(new Date());
-        entity.setStatus("COMPLETED");
-        entity.setFilePath("/exports/" + entity.getTenantId() + "/" + entity.getReportType()
-                + "-" + entity.getId() + "." + entity.getExportFormat().toLowerCase(Locale.ROOT));
-        entity.setCompletedAt(new Date());
+        try {
+            String storagePath = buildExportFile(entity);
+            entity.setFilePath(storagePath);
+            entity.setStatus("COMPLETED");
+            entity.setCompletedAt(new Date());
+        } catch (BusinessException ex) {
+            entity.setStatus("FAILED");
+            entity.setErrorMessage(ex.getMessage());
+            entity.setCompletedAt(new Date());
+        } catch (Exception ex) {
+            entity.setStatus("FAILED");
+            entity.setErrorMessage("export generation failed");
+            entity.setCompletedAt(new Date());
+        }
         entity.setUpdatedAt(entity.getCompletedAt());
         exportTaskMapper.updateById(entity);
 
@@ -211,11 +225,62 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ReportExportTaskVO getExportTask(Long tenantId, Long taskId) {
+        return toExportTaskVO(requireExportTask(tenantId, taskId));
+    }
+
+    @Override
+    public Resource loadExportFile(Long tenantId, Long taskId) {
+        ReportExportTaskEntity entity = requireExportTask(tenantId, taskId);
+        if (!"COMPLETED".equalsIgnoreCase(entity.getStatus()) || !StringUtils.hasText(entity.getFilePath())) {
+            throw new BusinessException(409, "export task is not ready for download");
+        }
+        return new FileSystemResource(csvExportSupport.resolve(entity.getFilePath()).toFile());
+    }
+
+    @Override
+    public String exportDownloadFileName(Long tenantId, Long taskId) {
+        ReportExportTaskEntity entity = requireExportTask(tenantId, taskId);
+        return entity.getReportType().toLowerCase(Locale.ROOT) + "-" + entity.getId() + ".csv";
+    }
+
+    private String buildExportFile(ReportExportTaskEntity entity) {
+        Long tenantId = entity.getTenantId();
+        String reportType = entity.getReportType();
+        if ("WORK_PERMIT".equals(reportType)) {
+            List<RemoteWorkPermitVO> permits = workPermitReportClient.listPermits(tenantId);
+            return csvExportSupport.writeWorkPermits(tenantId, entity.getId(),
+                    buildWorkPermitDetails(tenantId, permits, null, null));
+        }
+        if ("ALARM".equals(reportType)) {
+            List<RemoteAlarmEventVO> alarms = alarmReportClient.listAlarms(tenantId);
+            return csvExportSupport.writeAlarms(tenantId, entity.getId(), buildAlarmDetails(tenantId, alarms, null, null));
+        }
+        if ("CONTRACTOR".equals(reportType)) {
+            ContractorReportSummaryVO summary = contractorSummary(tenantId);
+            List<String[]> rows = new ArrayList<String[]>();
+            rows.add(new String[]{"companyCount", String.valueOf(summary.getCompanyCount())});
+            rows.add(new String[]{"workerCount", String.valueOf(summary.getWorkerCount())});
+            rows.add(new String[]{"approvedCompanyCount", String.valueOf(summary.getApprovedCompanyCount())});
+            rows.add(new String[]{"blacklistCount", String.valueOf(summary.getBlacklistCount())});
+            return csvExportSupport.writeSummary(tenantId, entity.getId(), reportType, new String[]{"metric", "value"}, rows);
+        }
+        if ("MAJOR_HAZARD".equals(reportType)) {
+            MajorHazardReportSummaryVO summary = majorHazardSummary(tenantId);
+            List<String[]> rows = new ArrayList<String[]>();
+            rows.add(new String[]{"totalCount", String.valueOf(summary.getTotalCount())});
+            rows.add(new String[]{"publishedCount", String.valueOf(summary.getPublishedCount())});
+            rows.add(new String[]{"archiveCompletenessRate", String.valueOf(summary.getArchiveCompletenessRate())});
+            return csvExportSupport.writeSummary(tenantId, entity.getId(), reportType, new String[]{"metric", "value"}, rows);
+        }
+        throw new BusinessException(400, "unsupported report type: " + reportType);
+    }
+
+    private ReportExportTaskEntity requireExportTask(Long tenantId, Long taskId) {
         ReportExportTaskEntity entity = exportTaskMapper.selectById(taskId);
         if (entity == null || !tenantId.equals(entity.getTenantId())) {
             throw new BusinessException(404, "export task not found");
         }
-        return toExportTaskVO(entity);
+        return entity;
     }
 
     @Override
@@ -334,6 +399,9 @@ public class ReportServiceImpl implements ReportService {
         vo.setExportFormat(entity.getExportFormat());
         vo.setStatus(entity.getStatus());
         vo.setFilePath(entity.getFilePath());
+        if ("COMPLETED".equalsIgnoreCase(entity.getStatus()) && entity.getId() != null) {
+            vo.setDownloadUrl("/api/reports/export/" + entity.getId() + "/download?tenantId=" + entity.getTenantId());
+        }
         vo.setErrorMessage(entity.getErrorMessage());
         vo.setRequestedBy(entity.getRequestedBy());
         vo.setStartedAt(entity.getStartedAt());

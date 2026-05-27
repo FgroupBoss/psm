@@ -26,6 +26,68 @@ body {
   font-size: 28px;
 }
 
+.refresh-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.metric-card.accent {
+  border-color: #38bdf8;
+}
+
+.metric-card.warn {
+  border-color: #f97316;
+}
+
+.sub-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sub-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.sub-card h3 {
+  margin-top: 0;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-height: 180px;
+  margin-top: 16px;
+}
+
+.bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 6px 6px 0 0;
+}
+
+.bar-item span,
+.bar-item strong {
+  font-size: 12px;
+}
+
 .hint {
   color: #94a3b8;
   font-size: 13px;

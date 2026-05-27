@@ -25,3 +25,4 @@ psm:
   report:
     pilot-offline-work-count: ${PSM_REPORT_PILOT_OFFLINE_WORK_COUNT:0}
     critical-operation-baseline: ${PSM_REPORT_CRITICAL_OP_BASELINE:100}
+    export-root: ${PSM_REPORT_EXPORT_ROOT:./data/psm-exports}

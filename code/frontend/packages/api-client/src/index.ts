@@ -87,7 +87,9 @@ import type {
   WorkPermitReportDetail,
   ReportExportTaskRecord,
   TrendSeriesRecord,
-  MobileTaskRecord
+  MobileTaskRecord,
+  MobileFileUploadRecord,
+  TimelineItemRecord
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -1162,17 +1164,57 @@ export async function mobileUploadFile(tenantId: number, file: File, bizType?: s
   form.append('file', file);
   if (bizType) form.append('bizType', bizType);
   if (bizId != null) form.append('bizId', String(bizId));
-  const uploaded = await uploadRequest<{ fileId: string; fileName: string; url?: string; sizeBytes?: number }>(
-    MOBILE_API.fileUpload,
-    form
-  );
+  const uploaded = await uploadRequest<MobileFileUploadRecord>(MOBILE_API.fileUpload, form);
   return {
     id: Number(uploaded.fileId),
     tenantId,
     fileName: uploaded.fileName,
+    contentType: uploaded.contentType,
     sizeBytes: uploaded.sizeBytes,
+    sha256: uploaded.sha256,
     downloadUrl: uploaded.url
   };
+}
+
+export async function fetchWorkPermitTimeline(id: number, tenantId: number): Promise<TimelineItemRecord[]> {
+  return request<TimelineItemRecord[]>(`${WORK_PERMIT_API.base}/${id}/timeline?tenantId=${tenantId}`);
+}
+
+export async function fetchReportExportTask(tenantId: number, taskId: number): Promise<ReportExportTaskRecord> {
+  return request<ReportExportTaskRecord>(`${REPORT_API.export}/${taskId}?tenantId=${tenantId}`);
+}
+
+export async function downloadReportExport(tenantId: number, taskId: number, fileName: string): Promise<void> {
+  const headers = new Headers();
+  const token = getAccessToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const response = await fetch(`${REPORT_API.exportDownload}/${taskId}/download?tenantId=${tenantId}`, { headers });
+  if (!response.ok) {
+    throw new Error(await resolveErrorMessage(response));
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function rejectWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/reject?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function returnWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/return?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
 }
 
 export async function syncMobileDraft(payload: {

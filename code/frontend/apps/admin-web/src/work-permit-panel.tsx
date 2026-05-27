@@ -17,6 +17,8 @@ import {
   sitePermitWorkPermit,
   submitWorkPermit,
   suspendWorkPermit,
+  rejectWorkPermit,
+  returnWorkPermit,
   request
 } from '@psm/api-client';
 import type { PageResult, TimelineItemRecord, WorkPermitDetailRecord, WorkPermitRecord } from '@psm/domain-types';
@@ -299,6 +301,12 @@ export function WorkPermitsPanel({ tenantId }: { tenantId: number }) {
                 </button>
                 <button type="button" disabled={acting} onClick={() => runAndRefresh(() => approveWorkPermit(selectedId, tenantId, '一级审批通过'), '审批通过')}>
                   审批通过
+                </button>
+                <button type="button" className="secondary" disabled={acting} onClick={() => runAndRefresh(() => returnWorkPermit(selectedId, tenantId, '资料不全退回'), '已退回修改')}>
+                  退回
+                </button>
+                <button type="button" className="secondary" disabled={acting} onClick={() => runAndRefresh(() => rejectWorkPermit(selectedId, tenantId, '不符合条件驳回'), '已驳回关闭')}>
+                  驳回
                 </button>
               </div>
             </div>

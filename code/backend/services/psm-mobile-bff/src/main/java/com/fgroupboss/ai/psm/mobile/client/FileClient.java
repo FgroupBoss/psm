@@ -21,6 +21,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -99,6 +100,7 @@ public class FileClient {
         vo.setSizeBytes(size instanceof Number ? ((Number) size).longValue() : 0L);
         vo.setSha256(stringValue(data.get("sha256")));
         vo.setUrl(stringValue(data.get("downloadUrl")));
+        vo.setUploadedAt(new Date());
         return vo;
     }
 

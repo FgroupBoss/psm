@@ -735,6 +735,7 @@ export const REPORT_API = {
   workPermitTrend: '/api/dashboard/work-permits/trend',
   alarmTrend: '/api/dashboard/alarms/trend',
   export: '/api/reports/export',
+  exportDownload: '/api/reports/export',
   acceptanceCases: '/api/acceptance/test-cases',
   acceptanceRuns: '/api/acceptance/test-runs'
 } as const;
@@ -968,6 +969,7 @@ export interface ContractorReportSummary {
   approvedCompanyCount?: number;
   approvedWorkerCount?: number;
   certificateExpiringCount?: number;
+  blacklistCount?: number;
   violationCount?: number;
   dataRefreshedAt?: string;
   dataSource?: string;
@@ -997,8 +999,21 @@ export interface ReportExportTaskRecord {
   reportType: string;
   exportFormat?: string;
   status: string;
-  fileRef?: string;
+  filePath?: string;
+  downloadUrl?: string;
+  errorMessage?: string;
   createdAt?: string;
+  completedAt?: string;
+}
+
+export interface MobileFileUploadRecord {
+  fileId: string;
+  fileName: string;
+  contentType?: string;
+  sizeBytes?: number;
+  sha256?: string;
+  url?: string;
+  uploadedAt?: string;
 }
 
 export interface AcceptanceTestRunRequest {

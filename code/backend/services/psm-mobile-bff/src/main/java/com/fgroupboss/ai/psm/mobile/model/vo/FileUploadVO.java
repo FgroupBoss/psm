@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * 移动端附件上传 mock 响应。
+ * 移动端附件上传响应（来自 psm-file-service）。
  */
 @Data
 public class FileUploadVO {

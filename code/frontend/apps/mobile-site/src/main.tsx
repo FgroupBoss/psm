@@ -16,9 +16,10 @@ import {
   mobileSitePermit,
   mobileSuspend,
   mobileUploadFile,
-  syncMobileDraft
+  syncMobileDraft,
+  fetchWorkPermitTimeline
 } from '@psm/api-client';
-import type { AuthUser, MobileTaskRecord, SafetyMeasureRecord, WorkPermitDetailRecord } from '@psm/domain-types';
+import type { AuthUser, MobileTaskRecord, SafetyMeasureRecord, TimelineItemRecord, WorkPermitDetailRecord } from '@psm/domain-types';
 import './styles.css';
 
 type Screen = 'tasks' | 'permit' | 'alarm';
@@ -37,6 +38,8 @@ function App() {
   const [gasQualified, setGasQualified] = React.useState(true);
   const [monitorText, setMonitorText] = React.useState('巡检正常');
   const [selectedMeasure, setSelectedMeasure] = React.useState<SafetyMeasureRecord | null>(null);
+  const [timeline, setTimeline] = React.useState<TimelineItemRecord[]>([]);
+  const [uploadedFileName, setUploadedFileName] = React.useState('');
 
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
@@ -64,8 +67,12 @@ function App() {
       return;
     }
     setScreen('permit');
-    const detail = await fetchMobileWorkPermitDetail(task.bizId, user!.tenantId);
+    const [detail, timelineData] = await Promise.all([
+      fetchMobileWorkPermitDetail(task.bizId, user!.tenantId),
+      fetchWorkPermitTimeline(task.bizId, user!.tenantId)
+    ]);
     setPermitDetail(detail);
+    setTimeline(timelineData);
     const pending = detail.safetyMeasures.find((m) => m.confirmStatus !== 'CONFIRMED');
     setSelectedMeasure(pending || detail.safetyMeasures[0] || null);
   }
@@ -78,8 +85,12 @@ function App() {
       await action();
       setMessage(success);
       if (screen === 'permit') {
-        const detail = await fetchMobileWorkPermitDetail(selectedTask.bizId, user.tenantId);
+        const [detail, timelineData] = await Promise.all([
+          fetchMobileWorkPermitDetail(selectedTask.bizId, user.tenantId),
+          fetchWorkPermitTimeline(selectedTask.bizId, user.tenantId)
+        ]);
         setPermitDetail(detail);
+        setTimeline(timelineData);
       }
       await loadTasks(user);
     } catch (err: unknown) {
@@ -92,10 +103,10 @@ function App() {
   async function handlePhotoUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file || !user || !selectedTask) return;
-    await runAction(
-      () => mobileUploadFile(user.tenantId, file, 'WORK_PERMIT', selectedTask.bizId),
-      `附件已上传：${file.name}`
-    );
+    await runAction(async () => {
+      const uploaded = await mobileUploadFile(user.tenantId, file, 'WORK_PERMIT', selectedTask.bizId);
+      setUploadedFileName(`${uploaded.fileName} (#${uploaded.id})`);
+    }, `附件已上传：${file.name}`);
   }
 
   React.useEffect(() => {
@@ -294,9 +305,24 @@ function App() {
       </div>
 
       <div className="detail-card">
-        <h4>附件拍照</h4>
+        <h4>附件拍照（file-service）</h4>
         <input type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} />
+        {uploadedFileName && <p className="message">最近上传：{uploadedFileName}</p>}
       </div>
+
+      {timeline.length > 0 && (
+        <div className="detail-card">
+          <h4>作业时间线</h4>
+          <ul className="timeline-list">
+            {timeline.map((item, index) => (
+              <li key={`${item.itemType}-${index}`}>
+                <strong>{item.title}</strong>
+                <span>{item.operatorName || '-'} · {item.occurredAt || ''}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="detail-card">
         <h4>许可开工</h4>

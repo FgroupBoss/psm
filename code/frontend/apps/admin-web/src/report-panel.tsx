@@ -2,6 +2,8 @@ import React from 'react';
 import {
   createAcceptanceTestRun,
   createReportExport,
+  downloadReportExport,
+  fetchReportExportTask,
   fetchAcceptanceTestCases,
   fetchAcceptanceTestRuns,
   fetchAlarmReportDetails,
@@ -23,7 +25,8 @@ import type {
   DashboardOverviewRecord,
   MajorHazardReportSummary,
   WorkPermitReportDetail,
-  WorkPermitReportSummary
+  WorkPermitReportSummary,
+  ReportExportTaskRecord
 } from '@psm/domain-types';
 import { errorMessage, formatTime } from './ui-helpers';
 
@@ -39,6 +42,7 @@ export function ReportOverviewPanel({ tenantId }: { tenantId: number }) {
   const [workDetails, setWorkDetails] = React.useState<WorkPermitReportDetail[]>([]);
   const [alarmDetails, setAlarmDetails] = React.useState<AlarmReportDetail[]>([]);
   const [exportType, setExportType] = React.useState('WORK_PERMIT');
+  const [lastExport, setLastExport] = React.useState<ReportExportTaskRecord | null>(null);
   const [message, setMessage] = React.useState('');
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(true);
@@ -77,9 +81,26 @@ export function ReportOverviewPanel({ tenantId }: { tenantId: number }) {
     setError('');
     try {
       const task = await createReportExport({ tenantId, reportType: exportType, exportFormat: 'CSV', requestedBy: 'admin' });
-      setMessage(`导出任务已创建 #${task.id}，状态 ${task.status}`);
+      setLastExport(task);
+      if (task.status === 'COMPLETED') {
+        setMessage(`导出完成 #${task.id}，可下载 CSV 文件`);
+      } else {
+        setMessage(`导出失败 #${task.id}：${task.errorMessage || task.status}`);
+      }
     } catch (err: unknown) {
       setError(errorMessage(err, '导出失败'));
+    }
+  }
+
+  async function handleDownloadExport() {
+    if (!lastExport || lastExport.status !== 'COMPLETED') return;
+    setError('');
+    try {
+      const latest = await fetchReportExportTask(tenantId, lastExport.id);
+      await downloadReportExport(tenantId, latest.id, `${latest.reportType.toLowerCase()}-${latest.id}.csv`);
+      setMessage(`已下载导出文件 #${latest.id}`);
+    } catch (err: unknown) {
+      setError(errorMessage(err, '下载失败'));
     }
   }
 
@@ -107,6 +128,11 @@ export function ReportOverviewPanel({ tenantId }: { tenantId: number }) {
         <button type="button" className="secondary" onClick={handleExport}>
           导出 CSV
         </button>
+        {lastExport?.status === 'COMPLETED' && (
+          <button type="button" onClick={handleDownloadExport}>
+            下载 #{lastExport.id}
+          </button>
+        )}
         <button type="button" className="secondary" onClick={load}>
           刷新
         </button>
@@ -166,7 +192,7 @@ export function ReportOverviewPanel({ tenantId }: { tenantId: number }) {
           <Metric label="单位数" value={contractorSummary.companyCount ?? '-'} />
           <Metric label="人员数" value={contractorSummary.workerCount ?? '-'} />
           <Metric label="准入单位" value={contractorSummary.approvedCompanyCount ?? '-'} />
-          <Metric label="违章记录" value={contractorSummary.violationCount ?? '-'} />
+          <Metric label="黑名单" value={contractorSummary.blacklistCount ?? '-'} />
         </div>
       )}
       {!loading && tab === 'audit' && auditSummary && (

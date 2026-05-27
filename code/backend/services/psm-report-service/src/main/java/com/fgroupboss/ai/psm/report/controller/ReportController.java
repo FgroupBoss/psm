@@ -14,6 +14,10 @@ import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportDetailVO;
 import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportSummaryVO;
 import com.fgroupboss.ai.psm.report.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,5 +91,15 @@ public class ReportController {
     @GetMapping("/export/{taskId}")
     public ResponseVO<ReportExportTaskVO> getExportTask(@PathVariable Long taskId, @RequestParam Long tenantId) {
         return ResponseVO.success(reportService.getExportTask(tenantId, taskId));
+    }
+
+    @GetMapping("/export/{taskId}/download")
+    public ResponseEntity<Resource> downloadExport(@PathVariable Long taskId, @RequestParam Long tenantId) {
+        Resource resource = reportService.loadExportFile(tenantId, taskId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + reportService.exportDownloadFileName(tenantId, taskId) + "\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(resource);
     }
 }

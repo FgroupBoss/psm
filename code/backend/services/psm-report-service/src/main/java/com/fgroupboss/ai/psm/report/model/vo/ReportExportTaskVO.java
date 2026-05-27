@@ -13,6 +13,7 @@ public class ReportExportTaskVO {
     private String exportFormat;
     private String status;
     private String filePath;
+    private String downloadUrl;
     private String errorMessage;
     private String requestedBy;
     private Date startedAt;

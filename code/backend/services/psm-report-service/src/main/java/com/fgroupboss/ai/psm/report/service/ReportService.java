@@ -17,6 +17,7 @@ import com.fgroupboss.ai.psm.report.model.vo.ReportHealthVO;
 import com.fgroupboss.ai.psm.report.model.vo.TrendSeriesVO;
 import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportDetailVO;
 import com.fgroupboss.ai.psm.report.model.vo.WorkPermitReportSummaryVO;
+import org.springframework.core.io.Resource;
 
 import java.util.List;
 
@@ -50,6 +51,10 @@ public interface ReportService {
     ReportExportTaskVO createExport(ReportExportRequest request);
 
     ReportExportTaskVO getExportTask(Long tenantId, Long taskId);
+
+    Resource loadExportFile(Long tenantId, Long taskId);
+
+    String exportDownloadFileName(Long tenantId, Long taskId);
 
     PageResult<AcceptanceTestCaseVO> pageTestCases(Long tenantId, String module, String status,
                                                    int pageNo, int pageSize);
