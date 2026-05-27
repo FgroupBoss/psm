@@ -5,3 +5,6 @@ spring:
   application:
     name: psm-mobile-bff
 
+psm:
+  work-permit-service-url: ${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}
+  alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}

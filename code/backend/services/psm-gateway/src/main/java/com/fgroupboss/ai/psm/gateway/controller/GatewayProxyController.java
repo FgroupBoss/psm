@@ -103,6 +103,30 @@ public class GatewayProxyController {
         return proxy(properties.getAlarmServiceUrl(), request, body, principal);
     }
 
+    @RequestMapping("/api/work-permits/**")
+    public ResponseEntity<String> proxyWorkPermit(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                                   @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getWorkPermitServiceUrl(), request, body, principal);
+    }
+
+    @RequestMapping("/api/mobile/**")
+    public ResponseEntity<String> proxyMobile(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                              @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getMobileBffUrl(), request, body, principal);
+    }
+
+    @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
+    public ResponseEntity<String> proxyReport(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+                                              @RequestBody(required = false) String body) {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getReportServiceUrl(), request, body, principal);
+    }
+
     private ResponseEntity<String> proxy(String serviceUrl, HttpServletRequest request, String body, AuthPrincipal principal) {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

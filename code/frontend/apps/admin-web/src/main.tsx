@@ -36,6 +36,8 @@ import type {
 } from '@psm/domain-types';
 import { buildNavItems, DEFAULT_NAV, groupNavItems, viewTitle, type AppView } from './nav';
 import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MajorHazardsPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
+import { AcceptancePanel, DashboardPanel, ReportOverviewPanel } from './report-panel';
+import { WorkPermitsPanel } from './work-permit-panel';
 import {
   confirmAction,
   errorMessage,
@@ -209,6 +211,18 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     if (view === 'alarm:list') {
       return <AlarmsPanel tenantId={user.tenantId} />;
     }
+    if (view === 'work-permit:list') {
+      return <WorkPermitsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'report:overview') {
+      return <ReportOverviewPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'report:dashboard') {
+      return <DashboardPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'report:acceptance') {
+      return <AcceptancePanel tenantId={user.tenantId} />;
+    }
     if (view.startsWith('hazard:')) {
       return <ModulePlaceholderPanel title="重大危险源" hint="该视图尚未实现" />;
     }
@@ -234,12 +248,6 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
               ))}
             </div>
           ))}
-          <button className="nav-item" disabled>
-            危险工作票
-          </button>
-          <button className="nav-item" disabled>
-            报警中心
-          </button>
         </nav>
       </aside>
       <section className="workspace">

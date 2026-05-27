@@ -1,5 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -62,7 +62,18 @@ import type {
   OrgTreeNode,
   RoleRecord,
   RoleRequest,
-  UserPermissionSummary
+  UserPermissionSummary,
+  WorkPermitHealthInfo,
+  WorkPermitRecord,
+  WorkPermitDetailRecord,
+  WorkPermitRequest,
+  WorkPermitWorkerRequest,
+  WorkPermitWorkerRecord,
+  PreCheckResult,
+  DashboardOverviewRecord,
+  WorkPermitReportSummary,
+  AcceptanceTestCaseRecord,
+  AcceptanceTestRunRecord
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -880,6 +891,79 @@ export async function deleteMenu(id: number, tenantId: number): Promise<void> {
   return request<void>(`/api/iam/menus/${id}?tenantId=${tenantId}`, {
     method: 'DELETE'
   });
+}
+
+export async function fetchWorkPermitHealth(): Promise<WorkPermitHealthInfo> {
+  return request<WorkPermitHealthInfo>(WORK_PERMIT_API.health);
+}
+
+export async function fetchWorkPermits(query: PageQuery & { workType?: string; status?: string; areaId?: number }): Promise<PageResult<WorkPermitRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(query.tenantId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.keyword) params.set('keyword', query.keyword);
+  if (query.status) params.set('status', query.status);
+  if (query.workType) params.set('workType', query.workType);
+  if (query.areaId) params.set('areaId', String(query.areaId));
+  return request<PageResult<WorkPermitRecord>>(`${WORK_PERMIT_API.base}?${params.toString()}`);
+}
+
+export async function fetchWorkPermitsByHazard(tenantId: number, hazardId: number): Promise<WorkPermitRecord[]> {
+  return request<WorkPermitRecord[]>(`${WORK_PERMIT_API.byHazard}?tenantId=${tenantId}&hazardId=${hazardId}`);
+}
+
+export async function fetchWorkPermitDetail(id: number, tenantId: number): Promise<WorkPermitDetailRecord> {
+  return request<WorkPermitDetailRecord>(`${WORK_PERMIT_API.base}/${id}?tenantId=${tenantId}`);
+}
+
+export async function createWorkPermit(payload: WorkPermitRequest): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(WORK_PERMIT_API.base, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function submitWorkPermit(id: number, tenantId: number): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function approveWorkPermit(id: number, tenantId: number, opinion?: string): Promise<WorkPermitRecord> {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/approve?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ opinion })
+  });
+}
+
+export async function preCheckWorkPermit(id: number, tenantId: number, checkPoint: string): Promise<PreCheckResult> {
+  return request<PreCheckResult>(`${WORK_PERMIT_API.base}/${id}/pre-check?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, checkPoint })
+  });
+}
+
+export async function addWorkPermitWorker(id: number, tenantId: number, payload: WorkPermitWorkerRequest): Promise<WorkPermitWorkerRecord> {
+  return request<WorkPermitWorkerRecord>(`${WORK_PERMIT_API.base}/${id}/workers?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchDashboardOverview(tenantId: number): Promise<DashboardOverviewRecord> {
+  return request<DashboardOverviewRecord>(`${REPORT_API.dashboardOverview}?tenantId=${tenantId}`);
+}
+
+export async function fetchWorkPermitReportSummary(tenantId: number): Promise<WorkPermitReportSummary> {
+  return request<WorkPermitReportSummary>(`${REPORT_API.workPermitSummary}?tenantId=${tenantId}`);
+}
+
+export async function fetchAcceptanceTestCases(tenantId: number): Promise<AcceptanceTestCaseRecord[]> {
+  return request<AcceptanceTestCaseRecord[]>(`${REPORT_API.acceptanceCases}?tenantId=${tenantId}`);
+}
+
+export async function fetchAcceptanceTestRuns(tenantId: number): Promise<AcceptanceTestRunRecord[]> {
+  return request<AcceptanceTestRunRecord[]>(`${REPORT_API.acceptanceRuns}?tenantId=${tenantId}`);
 }
 
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {

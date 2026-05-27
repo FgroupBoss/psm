@@ -15,6 +15,9 @@ public class GatewayProperties {
     private String contractorServiceUrl = "http://localhost:18085";
     private String majorHazardServiceUrl = "http://localhost:18086";
     private String alarmServiceUrl = "http://localhost:18087";
+    private String workPermitServiceUrl = "http://localhost:18088";
+    private String mobileBffUrl = "http://localhost:18089";
+    private String reportServiceUrl = "http://localhost:18090";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -78,6 +81,30 @@ public class GatewayProperties {
 
     public void setAlarmServiceUrl(String alarmServiceUrl) {
         this.alarmServiceUrl = trimTrailingSlash(alarmServiceUrl);
+    }
+
+    public String getWorkPermitServiceUrl() {
+        return workPermitServiceUrl;
+    }
+
+    public void setWorkPermitServiceUrl(String workPermitServiceUrl) {
+        this.workPermitServiceUrl = trimTrailingSlash(workPermitServiceUrl);
+    }
+
+    public String getMobileBffUrl() {
+        return mobileBffUrl;
+    }
+
+    public void setMobileBffUrl(String mobileBffUrl) {
+        this.mobileBffUrl = trimTrailingSlash(mobileBffUrl);
+    }
+
+    public String getReportServiceUrl() {
+        return reportServiceUrl;
+    }
+
+    public void setReportServiceUrl(String reportServiceUrl) {
+        this.reportServiceUrl = trimTrailingSlash(reportServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

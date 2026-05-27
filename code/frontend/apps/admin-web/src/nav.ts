@@ -15,7 +15,11 @@ export type AppView =
   | 'contractor:companies'
   | 'contractor:workers'
   | 'hazard:ledger'
-  | 'alarm:list';
+  | 'alarm:list'
+  | 'work-permit:list'
+  | 'report:overview'
+  | 'report:dashboard'
+  | 'report:acceptance';
 
 export interface NavItem {
   view: AppView;
@@ -65,7 +69,19 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   MENU_HAZ_LEDGER: 'hazard:ledger',
   'alarm/list': 'alarm:list',
   'alarm:list': 'alarm:list',
-  MENU_ALM_LIST: 'alarm:list'
+  MENU_ALM_LIST: 'alarm:list',
+  'work-permit/list': 'work-permit:list',
+  'work-permit:list': 'work-permit:list',
+  MENU_WKP_LIST: 'work-permit:list',
+  'report/overview': 'report:overview',
+  'report:overview': 'report:overview',
+  MENU_RPT_OVERVIEW: 'report:overview',
+  'report/dashboard': 'report:dashboard',
+  'report:dashboard': 'report:dashboard',
+  MENU_RPT_DASHBOARD: 'report:dashboard',
+  'report/acceptance': 'report:acceptance',
+  'report:acceptance': 'report:acceptance',
+  MENU_RPT_ACCEPTANCE: 'report:acceptance'
 };
 
 /** 无 IAM 菜单数据时的默认可访问菜单（试点管理员）。 */
@@ -83,7 +99,11 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'contractor:companies', label: '承包商单位', group: '承包商管理' },
   { view: 'contractor:workers', label: '承包商人员', group: '承包商管理' },
   { view: 'hazard:ledger', label: '危险源台账', group: '重大危险源' },
-  { view: 'alarm:list', label: '实时报警', group: '报警中心' }
+  { view: 'alarm:list', label: '实时报警', group: '报警中心' },
+  { view: 'work-permit:list', label: '作业票列表', group: '危险工作票' },
+  { view: 'report:overview', label: '报表总览', group: '报表大屏' },
+  { view: 'report:dashboard', label: '态势大屏', group: '报表大屏' },
+  { view: 'report:acceptance', label: '上线验收', group: '报表大屏' }
 ];
 
 const VIEW_TITLES: Record<AppView, string> = {
@@ -100,7 +120,11 @@ const VIEW_TITLES: Record<AppView, string> = {
   'contractor:companies': '承包商单位',
   'contractor:workers': '承包商人员',
   'hazard:ledger': '危险源台账',
-  'alarm:list': '实时报警'
+  'alarm:list': '实时报警',
+  'work-permit:list': '作业票列表',
+  'report:overview': '报表总览',
+  'report:dashboard': '态势大屏',
+  'report:acceptance': '上线验收'
 };
 
 export function viewTitle(view: AppView): string {

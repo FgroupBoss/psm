@@ -15,3 +15,6 @@ psm:
     contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
     major-hazard-service-url: ${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}
     alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}
+    work-permit-service-url: ${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}
+    mobile-bff-url: ${PSM_MOBILE_BFF_URL:http://localhost:18089}
+    report-service-url: ${PSM_REPORT_SERVICE_URL:http://localhost:18090}

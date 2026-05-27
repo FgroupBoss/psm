@@ -706,3 +706,173 @@ export interface RiskContextResult {
   blockingAlarm: boolean;
   blockingReason?: string | null;
 }
+
+/** 危险工作票 API 路径常量。 */
+export const WORK_PERMIT_API = {
+  base: '/api/work-permits',
+  health: '/api/work-permits/health',
+  byHazard: '/api/work-permits/by-hazard'
+} as const;
+
+/** 报表与大屏 API 路径常量。 */
+export const REPORT_API = {
+  health: '/api/reports/health',
+  workPermitSummary: '/api/reports/work-permits/summary',
+  alarmSummary: '/api/reports/alarms/summary',
+  dashboardOverview: '/api/dashboard/overview',
+  export: '/api/reports/export',
+  acceptanceCases: '/api/acceptance/test-cases',
+  acceptanceRuns: '/api/acceptance/test-runs'
+} as const;
+
+export const MOBILE_API = {
+  tasks: '/api/mobile/tasks',
+  draftsSync: '/api/mobile/drafts/sync'
+} as const;
+
+export type WorkPermitStatus =
+  | 'DRAFT'
+  | 'APPROVING'
+  | 'RETURNED'
+  | 'PENDING_SITE_PERMIT'
+  | 'IN_PROGRESS'
+  | 'SUSPENDED'
+  | 'PENDING_ACCEPTANCE'
+  | 'CLOSED';
+
+export interface WorkPermitHealthInfo {
+  service: string;
+  module: string;
+  version: string;
+  permitCount: number;
+}
+
+export interface WorkPermitRecord {
+  id: number;
+  tenantId: number;
+  permitNo: string;
+  workType: string;
+  status: WorkPermitStatus;
+  title?: string;
+  areaId?: number;
+  hazardId?: number;
+  contractorCompanyId?: number;
+  planStartAt?: string;
+  planEndAt?: string;
+  updatedAt?: string;
+}
+
+export interface WorkPermitDetailRecord {
+  permit: WorkPermitRecord;
+  workers: WorkPermitWorkerRecord[];
+  riskAnalysis: RiskAnalysisRecord[];
+  safetyMeasures: SafetyMeasureRecord[];
+  gasTests: GasTestRecord[];
+  timeline: TimelineItemRecord[];
+}
+
+export interface WorkPermitWorkerRecord {
+  id: number;
+  workerType: string;
+  workerId?: number;
+  workerName: string;
+  roleCode?: string;
+  companyId?: number;
+}
+
+export interface WorkPermitRequest {
+  tenantId: number;
+  workType: string;
+  title?: string;
+  workContent?: string;
+  areaId?: number;
+  unitId?: number;
+  equipmentId?: number;
+  hazardId?: number;
+  contractorCompanyId?: number;
+  planStartAt?: string;
+  planEndAt?: string;
+  supervisorUserId?: number;
+  permitIssuerUserId?: number;
+  guardianUserId?: number;
+}
+
+export interface WorkPermitWorkerRequest {
+  workerType: string;
+  workerId?: number;
+  workerName: string;
+  roleCode?: string;
+  companyId?: number;
+}
+
+export interface RiskAnalysisRecord {
+  id: number;
+  hazardDesc?: string;
+  controlMeasure?: string;
+  riskLevel?: string;
+}
+
+export interface SafetyMeasureRecord {
+  id: number;
+  measureCode: string;
+  measureName: string;
+  requiredFlag?: boolean;
+  confirmStatus: string;
+}
+
+export interface GasTestRecord {
+  id: number;
+  gasName: string;
+  qualified: boolean;
+  testedAt?: string;
+}
+
+export interface TimelineItemRecord {
+  itemType: string;
+  title: string;
+  content?: string;
+  operatorName?: string;
+  occurredAt?: string;
+}
+
+export interface PreCheckResult {
+  passed: boolean;
+  reasons: string[];
+}
+
+export interface DashboardOverviewRecord {
+  refreshedAt: string;
+  dataSources: string[];
+  workPermitTotal: number;
+  workPermitInProgress: number;
+  workPermitPendingPermit: number;
+  alarmOpenCount: number;
+  alarmClosedRate?: number;
+  hazardCount: number;
+  contractorOnSite?: number;
+}
+
+export interface WorkPermitReportSummary {
+  totalCount: number;
+  systemHandlingRate?: number;
+  sitePermitTraceRate?: number;
+  contractorEligibilityCoverage?: number;
+  byStatus?: Record<string, number>;
+  byWorkType?: Record<string, number>;
+}
+
+export interface AcceptanceTestCaseRecord {
+  id: number;
+  caseCode: string;
+  caseName: string;
+  moduleName?: string;
+  status: string;
+}
+
+export interface AcceptanceTestRunRecord {
+  id: number;
+  caseId: number;
+  runResult: string;
+  evidenceRef?: string;
+  executedAt?: string;
+}

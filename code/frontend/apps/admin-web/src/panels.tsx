@@ -39,6 +39,7 @@ import {
   fetchMajorHazard,
   fetchMajorHazardAttachments,
   fetchMajorHazardAlarms,
+  fetchWorkPermitsByHazard,
   fetchMajorHazardPoints,
   fetchMajorHazardResponsibilities,
   fetchMajorHazards,
@@ -83,6 +84,7 @@ import type {
   HazardPointRequest,
   MajorHazardRecord,
   MajorHazardRequest,
+  WorkPermitRecord,
   MajorHazardResponsibilityRecord,
   ResponsibilityRequest,
   IamUserRecord,
@@ -3299,6 +3301,7 @@ function MajorHazardDetailModal({
   const [points, setPoints] = React.useState<HazardPointRecord[]>([]);
   const [attachments, setAttachments] = React.useState<HazardAttachmentRecord[]>([]);
   const [alarms, setAlarms] = React.useState<HazardAlarmSummaryRecord[]>([]);
+  const [permits, setPermits] = React.useState<WorkPermitRecord[]>([]);
   const [monitorPoints, setMonitorPoints] = React.useState<BaseDataRecord[]>([]);
   const [selectedPointId, setSelectedPointId] = React.useState<number | ''>('');
   const [attachmentForm, setAttachmentForm] = React.useState<HazardAttachmentRequest>({
@@ -3319,6 +3322,8 @@ function MajorHazardDetailModal({
     setAttachments(attachmentList);
     const alarmList = await fetchMajorHazardAlarms(record.id, tenantId);
     setAlarms(alarmList);
+    const permitList = await fetchWorkPermitsByHazard(tenantId, record.id);
+    setPermits(permitList);
     await onChanged();
   }, [record.id, tenantId, onChanged]);
 
@@ -3703,8 +3708,33 @@ function MajorHazardDetailModal({
         )}
 
         {tab === 'permits' && (
-          <div className="empty-state">
-            <p>关联作业票将在第 4 迭代接入危险工作票后展示。</p>
+          <div>
+            {permits.length === 0 && <div className="empty-state">暂无关联作业票</div>}
+            {permits.length > 0 && (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>编号</th>
+                    <th>类型</th>
+                    <th>状态</th>
+                    <th>标题</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {permits.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.permitNo}</td>
+                      <td>{item.workType}</td>
+                      <td>
+                        <StatusTag status={item.status} />
+                      </td>
+                      <td>{item.title || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <p className="hint">完整流程请前往「危险工作票 → 作业票列表」。</p>
           </div>
         )}
 

@@ -4,4 +4,24 @@ server:
 spring:
   application:
     name: psm-report-service
+  datasource:
+    url: ${PSM_REPORT_DB_URL:jdbc:mysql://localhost:3306/psm_report?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${PSM_REPORT_DB_USERNAME:psm}
+    password: ${PSM_REPORT_DB_PASSWORD:psm}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+psm:
+  audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}
+  central-audit-enabled: ${PSM_CENTRAL_AUDIT_ENABLED:true}
+  work-permit-service-url: ${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}
+  alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}
+  contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
+  major-hazard-service-url: ${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}
+  report:
+    pilot-offline-work-count: ${PSM_REPORT_PILOT_OFFLINE_WORK_COUNT:0}
+    critical-operation-baseline: ${PSM_REPORT_CRITICAL_OP_BASELINE:100}

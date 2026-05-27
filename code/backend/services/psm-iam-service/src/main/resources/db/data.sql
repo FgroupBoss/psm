@@ -35,7 +35,13 @@ values
   (40, 0, null, 'MENU', 'MENU_ROOT_HAZARD', '重大危险源', null, 60, 1, 'ENABLED'),
   (41, 0, 40, 'MENU', 'MENU_HAZ_LEDGER', '危险源台账', 'hazard:ledger', 61, 1, 'ENABLED'),
   (50, 0, null, 'MENU', 'MENU_ROOT_ALARM', '报警中心', null, 70, 1, 'ENABLED'),
-  (51, 0, 50, 'MENU', 'MENU_ALM_LIST', '实时报警', 'alarm:list', 71, 1, 'ENABLED')
+  (51, 0, 50, 'MENU', 'MENU_ALM_LIST', '实时报警', 'alarm:list', 71, 1, 'ENABLED'),
+  (60, 0, null, 'MENU', 'MENU_ROOT_WKP', '危险工作票', null, 80, 1, 'ENABLED'),
+  (61, 0, 60, 'MENU', 'MENU_WKP_LIST', '作业票列表', 'work-permit:list', 81, 1, 'ENABLED'),
+  (70, 0, null, 'MENU', 'MENU_ROOT_REPORT', '报表大屏', null, 90, 1, 'ENABLED'),
+  (71, 0, 70, 'MENU', 'MENU_RPT_OVERVIEW', '报表总览', 'report:overview', 91, 1, 'ENABLED'),
+  (72, 0, 70, 'MENU', 'MENU_RPT_DASHBOARD', '态势大屏', 'report:dashboard', 92, 1, 'ENABLED'),
+  (73, 0, 70, 'MENU', 'MENU_RPT_ACCEPTANCE', '上线验收', 'report:acceptance', 93, 1, 'ENABLED')
 on duplicate key update resource_name = values(resource_name), route_path = values(route_path), updated_at = now();
 
 insert into sys_role_permission (tenant_id, role_id, resource_id, permission_code)
