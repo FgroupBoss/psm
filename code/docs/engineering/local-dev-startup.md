@@ -1,6 +1,6 @@
 # 本地联调启动说明
 
-> 适用：一期多迭代联调；当前含第 2 迭代（承包商/危险源）与第 3 迭代（报警闭环，已签收）。
+> 适用：一期全量联调；当前覆盖承包商、危险源、报警、作业票、移动现场、报表大屏、文件与通知服务。
 
 ## 前置条件
 
@@ -24,6 +24,7 @@
 | `psm_notification` | notification |
 | `psm_file` | file |
 | `psm_work_permit` | work-permit |
+| `psm_report` | report |
 
 ## 服务端口
 
@@ -58,6 +59,8 @@ mvn -pl services/psm-contractor-service -am spring-boot:run
 mvn -pl services/psm-major-hazard-service -am spring-boot:run
 mvn -pl services/psm-alarm-service -am spring-boot:run
 mvn -pl services/psm-work-permit-service -am spring-boot:run
+mvn -pl services/psm-mobile-bff -am spring-boot:run
+mvn -pl services/psm-report-service -am spring-boot:run
 mvn -pl services/psm-file-service -am spring-boot:run
 mvn -pl services/psm-notification-service -am spring-boot:run
 mvn -pl services/psm-gateway -am spring-boot:run
@@ -68,9 +71,15 @@ mvn -pl services/psm-gateway -am spring-boot:run
 ```powershell
 npm install
 npm run dev:admin
+npm run dev:mobile
+npm run dev:dashboard
 ```
 
-访问 `http://localhost:5173`，Vite 代理到网关 `18080`。
+访问入口：
+
+- 管理端：`http://localhost:5173`，Vite 代理到网关 `18080`。
+- 移动端：`http://localhost:5174`。
+- 大屏端：`http://localhost:5175`。
 
 ## 试点账号
 
@@ -94,7 +103,13 @@ npm run dev:admin
 - 区域阻断：`POST /api/alarms/area-active-check`；major-hazard `risk-context` 默认查询并设置 `blockingAlarm`。
 - 危险源 Tab：`GET /api/major-hazards/{id}/alarms` 代理 alarm 列表（按 hazardId 筛选）。
 
+## M06～M08 联调要点
+
+- 作业票：动火/受限空间创建、审批、许可、暂停恢复、验收、归档全流程已完成 AC-M06 验收。
+- 移动现场：待办、签到、气体检测、措施确认、拍照/签名、许可、监护、弱网草稿、报警反馈已完成 AC-M07 验收。
+- 报表大屏：作业、报警、危险源、承包商、审计统计、明细下钻、导出、大屏和 UAT 记录已完成 AC-M08 验收。
+
 ## 验收脚本
 
 - 构建：`mvn -DskipTests=false test`；`npm run typecheck && npm run build`
-- 用例清单见 [第 2 迭代档案](../../../design/10_一期落地设计/00_开发总览/迭代/02_准入与风险对象.md)
+- 用例清单见 [模块功能闭环索引](../../../design/10_一期落地设计/00_开发总览/迭代/00_模块功能闭环索引.md)
