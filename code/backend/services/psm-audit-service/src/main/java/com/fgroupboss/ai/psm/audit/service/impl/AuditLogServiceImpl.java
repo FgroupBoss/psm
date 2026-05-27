@@ -15,12 +15,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载审计日志业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class AuditLogServiceImpl implements AuditLogService {
 
     private final AuditChangeLogMapper auditChangeLogMapper;
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<AuditLogRecordVO> page(Long tenantId, String bizType, String bizTypePrefix, Long bizId,
                                              String action, String operatorName, LocalDateTime startTime,
@@ -41,6 +47,9 @@ public class AuditLogServiceImpl implements AuditLogService {
         return new PageResult<AuditLogRecordVO>(total, normalizedPageNo, normalizedPageSize, toVOList(entities));
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public void append(AuditLogIngestRequest request) {
         validateTenant(request.getTenantId());

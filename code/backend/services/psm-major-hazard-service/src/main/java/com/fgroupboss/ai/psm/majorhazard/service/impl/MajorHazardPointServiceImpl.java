@@ -18,6 +18,9 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载危险源点位业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class MajorHazardPointServiceImpl implements MajorHazardPointService {
@@ -26,6 +29,9 @@ public class MajorHazardPointServiceImpl implements MajorHazardPointService {
     private final MajorHazardPointRelMapper pointRelMapper;
     private final MajorHazardAuditSupport auditSupport;
 
+    /**
+     * 实现方式：查询关联点位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<HazardPointVO> listPoints(Long tenantId, Long hazardId) {
         requireHazard(tenantId, hazardId);
@@ -37,6 +43,9 @@ public class MajorHazardPointServiceImpl implements MajorHazardPointService {
         return records;
     }
 
+    /**
+     * 实现方式：绑定点位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public HazardPointVO bindPoint(Long tenantId, Long hazardId, HazardPointRequest request, String operator) {
@@ -59,6 +68,9 @@ public class MajorHazardPointServiceImpl implements MajorHazardPointService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：解绑点位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void unbindPoint(Long tenantId, Long hazardId, Long relId, String operator) {

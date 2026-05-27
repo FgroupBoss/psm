@@ -39,6 +39,9 @@ public class MasterDataServiceImpl implements MasterDataService {
     private final AuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MasterDataRecordVO create(MasterDataType type, MasterDataRequest request, String operator) {
@@ -54,6 +57,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MasterDataRecordVO update(MasterDataType type, Long id, MasterDataRequest request, String operator) {
@@ -71,6 +77,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         return after;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void disable(MasterDataType type, Long tenantId, Long id, String operator) {
@@ -83,6 +92,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         writeAudit(tenantId, operator, "DISABLE", type.getCategory(), id, before, after);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void delete(MasterDataType type, Long tenantId, Long id, String operator) {
@@ -94,6 +106,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         writeAudit(tenantId, operator, "DELETE", type.getCategory(), id, before, null);
     }
 
+    /**
+     * 实现方式：查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public MasterDataRecordVO get(MasterDataType type, Long tenantId, Long id) {
         validateTenant(tenantId);
@@ -104,6 +119,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<MasterDataRecordVO> page(MasterDataType type, Long tenantId, String keyword, int pageNo, int pageSize) {
         validateTenant(tenantId);
@@ -117,6 +135,9 @@ public class MasterDataServiceImpl implements MasterDataService {
         return new PageResult<MasterDataRecordVO>(total, normalizedPageNo, normalizedPageSize, toVOList(entities));
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<MasterDataRecordVO> tree(MasterDataType type, Long tenantId) {
         validateTenant(tenantId);

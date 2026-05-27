@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载承包商企业业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class ContractorCompanyServiceImpl implements ContractorCompanyService {
@@ -36,6 +39,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
     private final ContractorBlacklistMapper blacklistMapper;
     private final CentralAuditClient centralAuditClient;
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<ContractorCompanyVO> page(Long tenantId, String keyword, String status, int pageNo, int pageSize) {
         requireTenantId(tenantId);
@@ -53,11 +59,17 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return new PageResult<ContractorCompanyVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：按 ID 查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ContractorCompanyVO getById(Long tenantId, Long id) {
         return toVO(requireCompany(tenantId, id));
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO create(ContractorCompanyRequest request, String operator) {
@@ -74,6 +86,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO update(Long id, ContractorCompanyRequest request, String operator) {
@@ -87,6 +102,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：提交审批，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO submit(Long tenantId, Long id, String operator) {
@@ -101,6 +119,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：审批业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO approve(Long tenantId, Long id, CompanyApproveRequest request, String operator) {
@@ -116,6 +137,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：挂起业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO suspend(Long tenantId, Long id, CompanyReasonRequest request, String operator) {
@@ -129,6 +153,9 @@ public class ContractorCompanyServiceImpl implements ContractorCompanyService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：加入黑名单，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ContractorCompanyVO blacklist(Long tenantId, Long id, CompanyReasonRequest request, String operator) {

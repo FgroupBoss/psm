@@ -13,12 +13,18 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载报警规则业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class AlarmRuleServiceImpl implements AlarmRuleService {
 
     private final AlarmRuleMapper alarmRuleMapper;
 
+    /**
+     * 实现方式：查询列表数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<AlarmRuleVO> list(Long tenantId, String ruleType) {
         requireTenantId(tenantId);
@@ -30,11 +36,17 @@ public class AlarmRuleServiceImpl implements AlarmRuleService {
         return result;
     }
 
+    /**
+     * 实现方式：查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmRuleVO get(Long tenantId, Long id) {
         return toVO(requireRule(tenantId, id));
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmRuleVO create(AlarmRuleSaveRequest request) {
         requireTenantId(request.getTenantId());
@@ -53,6 +65,9 @@ public class AlarmRuleServiceImpl implements AlarmRuleService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmRuleVO update(Long id, AlarmRuleSaveRequest request) {
         AlarmRuleEntity entity = requireRule(request.getTenantId(), id);

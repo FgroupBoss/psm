@@ -82,6 +82,9 @@ import java.util.Date;
 import java.util.List;
 
 @Slf4j
+/**
+ * 实现方式：承载作业票业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class WorkPermitServiceImpl implements WorkPermitService {
@@ -111,6 +114,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     @Value("${psm.gas-test-valid-minutes:30}")
     private int gasTestValidMinutes;
 
+    /**
+     * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkPermitHealthVO health() {
         LambdaQueryWrapper<WorkPermitEntity> wrapper = new LambdaQueryWrapper<WorkPermitEntity>()
@@ -119,6 +125,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return new WorkPermitHealthVO("psm-work-permit-service", "work-permit", "1.0.0-batch6", count);
     }
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<WorkPermitVO> page(Long tenantId, String keyword, String status, String workType,
                                          Long areaId, Long hazardId, int pageNo, int pageSize) {
@@ -142,6 +151,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return new PageResult<WorkPermitVO>(total, spec.pageNo, spec.pageSize, records);
     }
 
+    /**
+     * 实现方式：按重大危险源查询关联作业票，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkPermitVO> listByHazard(Long tenantId, Long hazardId) {
         requireTenantId(tenantId);
@@ -159,6 +171,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkPermitDetailVO getDetail(Long tenantId, Long id) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
@@ -175,6 +190,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return detail;
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO create(WorkPermitRequest request, String operator) {
@@ -195,6 +213,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO update(Long id, WorkPermitRequest request, String operator) {
@@ -206,6 +227,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：查询作业人员，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkPermitWorkerVO> listWorkers(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -217,6 +241,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：新增作业人员，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitWorkerVO addWorker(Long tenantId, Long id, WorkPermitWorkerRequest request, String operator) {
@@ -235,6 +262,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toWorkerVO(entity);
     }
 
+    /**
+     * 实现方式：移除作业人员，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void removeWorker(Long tenantId, Long id, Long workerId, String operator) {
@@ -249,6 +279,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         workerMapper.updateById(entity);
     }
 
+    /**
+     * 实现方式：提交审批，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO submit(Long tenantId, Long id, String operator) {
@@ -260,6 +293,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return transition(entity, WorkPermitStatusTransition::submitTarget, "SUBMIT", null, operator);
     }
 
+    /**
+     * 实现方式：审批业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO approve(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -270,6 +306,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO returnPermit(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -280,6 +319,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO reject(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -292,6 +334,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：查询风险分析列表，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<RiskAnalysisVO> listRiskAnalysis(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -304,6 +349,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public RiskAnalysisVO saveRiskAnalysis(Long tenantId, Long id, RiskAnalysisRequest request, String operator) {
@@ -322,6 +370,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toRiskVO(entity);
     }
 
+    /**
+     * 实现方式：查询安全措施，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<SafetyMeasureVO> listSafetyMeasures(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -334,6 +385,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：确认安全措施，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public SafetyMeasureVO confirmSafetyMeasure(Long tenantId, Long id, Long measureId,
@@ -354,6 +408,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toMeasureVO(entity);
     }
 
+    /**
+     * 实现方式：查询气体检测记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<GasTestVO> listGasTests(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -366,6 +423,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：新增气体检测记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public GasTestVO addGasTest(Long tenantId, Long id, GasTestRequest request, String operator) {
@@ -386,6 +446,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toGasVO(entity);
     }
 
+    /**
+     * 实现方式：执行作业前置校验，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PreCheckResultVO preCheck(Long tenantId, Long id, PreCheckRequest request) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
@@ -393,6 +456,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return runPreCheck(entity, checkPoint, checkPoint == PermitCheckPoint.SITE_PERMIT);
     }
 
+    /**
+     * 实现方式：提交现场许可，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO sitePermit(Long tenantId, Long id, SitePermitRequest request, String operator) {
@@ -409,6 +475,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：提交现场签到，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public SiteConfirmVO checkIn(Long tenantId, Long id, CheckInRequest request, String operator) {
@@ -418,6 +487,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toSiteConfirmVO(entity);
     }
 
+    /**
+     * 实现方式：查询监护记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<MonitorRecordVO> listMonitorRecords(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -430,6 +502,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：新增监护记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MonitorRecordVO addMonitorRecord(Long tenantId, Long id, MonitorRecordRequest request, String operator) {
@@ -447,6 +522,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return toMonitorVO(entity);
     }
 
+    /**
+     * 实现方式：挂起业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO suspend(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -454,6 +532,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return transition(entity, WorkPermitStatusTransition::suspendTarget, "SUSPEND", actionOpinion(request), operator);
     }
 
+    /**
+     * 实现方式：恢复业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO resume(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -461,6 +542,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return transition(entity, WorkPermitStatusTransition::resumeTarget, "RESUME", actionOpinion(request), operator);
     }
 
+    /**
+     * 实现方式：终止作业票，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO terminate(Long tenantId, Long id, PermitActionRequest request, String operator) {
@@ -473,6 +557,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    /**
+     * 实现方式：提交验收，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public WorkPermitVO acceptance(Long tenantId, Long id, AcceptanceRequest request, String operator) {
@@ -493,6 +580,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         throw new BusinessException(409, "当前状态不允许验收");
     }
 
+    /**
+     * 实现方式：查询作业票时间线，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<TimelineItemVO> timeline(Long tenantId, Long id) {
         requirePermit(tenantId, id);
@@ -503,6 +593,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         appendMonitorRecords(tenantId, id, items);
         appendAcceptanceRecords(tenantId, id, items);
         Collections.sort(items, new Comparator<TimelineItemVO>() {
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
             @Override
             public int compare(TimelineItemVO a, TimelineItemVO b) {
                 Date left = a.getOccurredAt();
@@ -522,6 +615,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return items;
     }
 
+    /**
+     * 实现方式：同步移动端草稿，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MobileDraftSyncResultVO syncMobileDraft(MobileDraftSyncRequest request) {

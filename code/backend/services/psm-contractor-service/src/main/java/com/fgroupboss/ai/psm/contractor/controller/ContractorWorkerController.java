@@ -50,6 +50,9 @@ public class ContractorWorkerController {
     private final WorkerViolationService violationService;
     private final WorkerEligibilityService eligibilityService;
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping
     public ResponseVO<PageResult<ContractorWorkerVO>> page(@RequestParam Long tenantId,
                                                            @RequestParam(required = false) Long companyId,
@@ -60,6 +63,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.page(tenantId, companyId, keyword, accessStatus, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建业务数据。
+     */
     @PostMapping
     public ResponseVO<ContractorWorkerVO> create(@Valid @RequestBody ContractorWorkerRequest request,
                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -68,11 +74,17 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.create(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{id}")
     public ResponseVO<ContractorWorkerVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workerService.getById(tenantId, id));
     }
 
+    /**
+     * 接口用途：更新业务数据。
+     */
     @PutMapping("/{id}")
     public ResponseVO<ContractorWorkerVO> update(@PathVariable Long id,
                                                  @Valid @RequestBody ContractorWorkerRequest request,
@@ -82,6 +94,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.update(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：提交审批。
+     */
     @PostMapping("/{id}/submit")
     public ResponseVO<ContractorWorkerVO> submit(@PathVariable Long id,
                                                  @RequestParam Long tenantId,
@@ -91,6 +106,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.submit(tenantId, id, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：审批业务数据。
+     */
     @PostMapping("/{id}/approve")
     public ResponseVO<ContractorWorkerVO> approve(@PathVariable Long id,
                                                   @RequestParam Long tenantId,
@@ -101,6 +119,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.approve(tenantId, id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：挂起业务数据。
+     */
     @PostMapping("/{id}/suspend")
     public ResponseVO<ContractorWorkerVO> suspend(@PathVariable Long id,
                                                   @RequestParam Long tenantId,
@@ -111,6 +132,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.suspend(tenantId, id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：加入黑名单。
+     */
     @PostMapping("/{id}/blacklist")
     public ResponseVO<ContractorWorkerVO> blacklist(@PathVariable Long id,
                                                     @RequestParam Long tenantId,
@@ -121,11 +145,17 @@ public class ContractorWorkerController {
         return ResponseVO.success(workerService.blacklist(tenantId, id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询人员证书列表。
+     */
     @GetMapping("/{id}/certificates")
     public ResponseVO<List<WorkerCertificateVO>> listCertificates(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(certificateService.listByWorker(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增人员证书。
+     */
     @PostMapping("/{id}/certificates")
     public ResponseVO<WorkerCertificateVO> createCertificate(@PathVariable Long id,
                                                              @Valid @RequestBody WorkerCertificateRequest request,
@@ -135,6 +165,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(certificateService.create(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新人员证书。
+     */
     @PutMapping("/{id}/certificates/{certId}")
     public ResponseVO<WorkerCertificateVO> updateCertificate(@PathVariable Long id,
                                                              @PathVariable Long certId,
@@ -145,6 +178,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(certificateService.update(id, certId, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除人员证书。
+     */
     @DeleteMapping("/{id}/certificates/{certId}")
     public ResponseVO<Void> deleteCertificate(@PathVariable Long id,
                                               @PathVariable Long certId,
@@ -156,11 +192,17 @@ public class ContractorWorkerController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 接口用途：查询人员培训记录。
+     */
     @GetMapping("/{id}/trainings")
     public ResponseVO<List<WorkerTrainingVO>> listTrainings(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(trainingService.listByWorker(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增人员培训记录。
+     */
     @PostMapping("/{id}/trainings")
     public ResponseVO<WorkerTrainingVO> createTraining(@PathVariable Long id,
                                                        @Valid @RequestBody WorkerTrainingRequest request,
@@ -170,6 +212,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(trainingService.create(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新人员培训记录。
+     */
     @PutMapping("/{id}/trainings/{trainingId}")
     public ResponseVO<WorkerTrainingVO> updateTraining(@PathVariable Long id,
                                                        @PathVariable Long trainingId,
@@ -180,6 +225,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(trainingService.update(id, trainingId, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除人员培训记录。
+     */
     @DeleteMapping("/{id}/trainings/{trainingId}")
     public ResponseVO<Void> deleteTraining(@PathVariable Long id,
                                            @PathVariable Long trainingId,
@@ -191,11 +239,17 @@ public class ContractorWorkerController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 接口用途：查询人员违章记录。
+     */
     @GetMapping("/{id}/violations")
     public ResponseVO<List<WorkerViolationVO>> listViolations(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(violationService.listByWorker(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增人员违章记录。
+     */
     @PostMapping("/{id}/violations")
     public ResponseVO<WorkerViolationVO> createViolation(@PathVariable Long id,
                                                          @Valid @RequestBody WorkerViolationRequest request,
@@ -205,6 +259,9 @@ public class ContractorWorkerController {
         return ResponseVO.success(violationService.create(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：执行人员准入校验。
+     */
     @PostMapping("/eligibility-check")
     public ResponseVO<EligibilityCheckResultVO> eligibilityCheck(@Valid @RequestBody EligibilityCheckRequest request) {
         return ResponseVO.success(eligibilityService.check(request));

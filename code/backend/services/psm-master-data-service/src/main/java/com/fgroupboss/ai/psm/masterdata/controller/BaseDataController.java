@@ -33,6 +33,9 @@ public class BaseDataController {
 
     private final BaseDataService service;
 
+    /**
+     * 接口用途：创建业务数据。
+     */
     @PostMapping("/{type:areas|units|equipments|monitor-points}")
     public ResponseVO<BaseDataRecordVO> create(@PathVariable String type,
                                                @Valid @RequestBody BaseDataRequest request,
@@ -42,6 +45,9 @@ public class BaseDataController {
         return ResponseVO.success(service.create(BaseDataType.fromPath(type), request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新业务数据。
+     */
     @PutMapping("/{type:areas|units|equipments|monitor-points}/{id}")
     public ResponseVO<BaseDataRecordVO> update(@PathVariable String type,
                                                @PathVariable Long id,
@@ -52,6 +58,9 @@ public class BaseDataController {
         return ResponseVO.success(service.update(BaseDataType.fromPath(type), id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/enable")
     public ResponseVO<Void> enable(@PathVariable String type,
                                    @PathVariable Long id,
@@ -63,6 +72,9 @@ public class BaseDataController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable String type,
                                     @PathVariable Long id,
@@ -74,6 +86,9 @@ public class BaseDataController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：删除业务数据。
+     */
     @DeleteMapping("/{type:areas|units|equipments|monitor-points}/{id}")
     public ResponseVO<Void> delete(@PathVariable String type,
                                    @PathVariable Long id,
@@ -85,6 +100,9 @@ public class BaseDataController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{type:areas|units|equipments|monitor-points}/{id}")
     public ResponseVO<BaseDataRecordVO> get(@PathVariable String type,
                                             @PathVariable Long id,
@@ -92,6 +110,9 @@ public class BaseDataController {
         return ResponseVO.success(service.get(BaseDataType.fromPath(type), tenantId, id));
     }
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping("/{type:areas|units|equipments|monitor-points}")
     public ResponseVO<PageResult<BaseDataRecordVO>> page(@PathVariable String type,
                                                          @RequestParam Long tenantId,
@@ -102,6 +123,9 @@ public class BaseDataController {
         return ResponseVO.success(service.page(BaseDataType.fromPath(type), tenantId, keyword, status, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @GetMapping("/{type:areas|units|equipments|monitor-points}/tree")
     public ResponseVO<List<BaseDataRecordVO>> tree(@PathVariable String type,
                                                    @RequestParam Long tenantId) {

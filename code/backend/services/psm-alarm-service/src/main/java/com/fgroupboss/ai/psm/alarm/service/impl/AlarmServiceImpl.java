@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 实现方式：承载报警业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class AlarmServiceImpl implements AlarmService {
@@ -48,6 +51,9 @@ public class AlarmServiceImpl implements AlarmService {
     private final AlarmAuditSupport auditSupport;
     private final AlarmDedupSupport dedupSupport;
 
+    /**
+     * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmHealthVO health() {
         LambdaQueryWrapper<AlarmEventEntity> wrapper = new LambdaQueryWrapper<AlarmEventEntity>()
@@ -56,6 +62,9 @@ public class AlarmServiceImpl implements AlarmService {
         return new AlarmHealthVO("psm-alarm-service", "alarm", "1.0.0-batch6", count);
     }
 
+    /**
+     * 实现方式：接入报警事件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO ingest(AlarmIngestRequest request) {
@@ -80,6 +89,9 @@ public class AlarmServiceImpl implements AlarmService {
         return toVO(draft);
     }
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<AlarmEventVO> page(Long tenantId, String keyword, String status, String alarmLevel,
                                          Long areaId, Long hazardId, String sourceType, Date occurredFrom, Date occurredTo,
@@ -105,6 +117,9 @@ public class AlarmServiceImpl implements AlarmService {
         return new PageResult<AlarmEventVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmDetailVO getDetail(Long tenantId, Long id) {
         AlarmEventEntity entity = requireEvent(tenantId, id);
@@ -115,6 +130,9 @@ public class AlarmServiceImpl implements AlarmService {
         return detail;
     }
 
+    /**
+     * 实现方式：确认报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO confirm(Long tenantId, Long id, AlarmActionRequest request, String operator) {
@@ -122,6 +140,9 @@ public class AlarmServiceImpl implements AlarmService {
                 AlarmStatusTransition::confirmTarget);
     }
 
+    /**
+     * 实现方式：派发报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO dispatch(Long tenantId, Long id, AlarmActionRequest request, String operator) {
@@ -129,6 +150,9 @@ public class AlarmServiceImpl implements AlarmService {
                 AlarmStatusTransition::dispatchTarget);
     }
 
+    /**
+     * 实现方式：反馈报警处理结果，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO feedback(Long tenantId, Long id, AlarmActionRequest request, String operator) {
@@ -136,6 +160,9 @@ public class AlarmServiceImpl implements AlarmService {
                 AlarmStatusTransition::feedbackTarget);
     }
 
+    /**
+     * 实现方式：关闭报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO close(Long tenantId, Long id, AlarmActionRequest request, String operator) {
@@ -143,6 +170,9 @@ public class AlarmServiceImpl implements AlarmService {
                 AlarmStatusTransition::closeTarget);
     }
 
+    /**
+     * 实现方式：误报关闭报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AlarmEventVO falseClose(Long tenantId, Long id, AlarmFalseCloseRequest request, String operator) {
@@ -157,6 +187,9 @@ public class AlarmServiceImpl implements AlarmService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：检查区域活跃报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmAreaActiveCheckVO areaActiveCheck(AlarmAreaActiveCheckRequest request) {
         requireTenantId(request.getTenantId());

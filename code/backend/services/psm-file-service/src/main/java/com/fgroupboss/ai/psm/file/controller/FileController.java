@@ -30,11 +30,17 @@ public class FileController {
 
     private final FileService fileService;
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<FileHealthVO> health() {
         return ResponseVO.success(fileService.health());
     }
 
+    /**
+     * 接口用途：上传文件。
+     */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseVO<FileObjectVO> upload(@RequestParam Long tenantId,
                                            @RequestParam("file") MultipartFile file,
@@ -47,11 +53,17 @@ public class FileController {
                 UserContextResolver.operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{id}")
     public ResponseVO<FileObjectVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(fileService.get(tenantId, id));
     }
 
+    /**
+     * 接口用途：下载文件。
+     */
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> download(@PathVariable Long id, @RequestParam Long tenantId) {
         FileObjectVO meta = fileService.get(tenantId, id);

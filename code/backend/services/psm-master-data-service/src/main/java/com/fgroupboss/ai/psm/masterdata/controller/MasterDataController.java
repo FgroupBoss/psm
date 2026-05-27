@@ -33,6 +33,9 @@ public class MasterDataController {
 
     private final MasterDataService service;
 
+    /**
+     * 接口用途：创建业务数据。
+     */
     @PostMapping("/{type}")
     public ResponseVO<MasterDataRecordVO> create(@PathVariable String type,
                                                  @Valid @RequestBody MasterDataRequest request,
@@ -42,6 +45,9 @@ public class MasterDataController {
         return ResponseVO.success(service.create(MasterDataType.fromPath(type), request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新业务数据。
+     */
     @PutMapping("/{type}/{id}")
     public ResponseVO<MasterDataRecordVO> update(@PathVariable String type,
                                                  @PathVariable Long id,
@@ -52,6 +58,9 @@ public class MasterDataController {
         return ResponseVO.success(service.update(MasterDataType.fromPath(type), id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{type}/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable String type,
                                     @PathVariable Long id,
@@ -63,6 +72,9 @@ public class MasterDataController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：删除业务数据。
+     */
     @DeleteMapping("/{type}/{id}")
     public ResponseVO<Void> delete(@PathVariable String type,
                                    @PathVariable Long id,
@@ -74,6 +86,9 @@ public class MasterDataController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{type}/{id}")
     public ResponseVO<MasterDataRecordVO> get(@PathVariable String type,
                                               @PathVariable Long id,
@@ -81,6 +96,9 @@ public class MasterDataController {
         return ResponseVO.success(service.get(MasterDataType.fromPath(type), tenantId, id));
     }
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping("/{type}")
     public ResponseVO<PageResult<MasterDataRecordVO>> page(@PathVariable String type,
                                                            @RequestParam Long tenantId,
@@ -90,6 +108,9 @@ public class MasterDataController {
         return ResponseVO.success(service.page(MasterDataType.fromPath(type), tenantId, keyword, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @GetMapping("/{type}/tree")
     public ResponseVO<List<MasterDataRecordVO>> tree(@PathVariable String type,
                                                      @RequestParam Long tenantId) {

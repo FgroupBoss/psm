@@ -42,6 +42,9 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
     private final AuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ConfigItemVO create(ConfigType type, ConfigItemRequest request, String operator) {
@@ -58,6 +61,9 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ConfigItemVO update(ConfigType type, Long id, ConfigItemRequest request, String operator) {
@@ -81,6 +87,9 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
         return after;
     }
 
+    /**
+     * 实现方式：查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ConfigItemVO get(Long tenantId, Long id) {
         validateTenant(tenantId);
@@ -91,6 +100,9 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<ConfigItemVO> page(ConfigType type, Long tenantId, String keyword, String status,
                                          String bizScene, int pageNo, int pageSize) {
@@ -108,18 +120,27 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
         return new PageResult<ConfigItemVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：发布业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void publish(Long tenantId, Long id, String operator) {
         changeStatus(tenantId, id, "PUBLISHED", "PUBLISH", operator);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void disable(Long tenantId, Long id, String operator) {
         changeStatus(tenantId, id, "DISABLED", "DISABLE", operator);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void delete(Long tenantId, Long id, String operator) {
@@ -133,6 +154,9 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
         writeAudit(tenantId, operator, "DELETE", before.getConfigType(), id, before, null);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<RuleEvaluationResultVO> evaluate(RuleEvaluationRequest request) {
         validateTenant(request.getTenantId());

@@ -20,6 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 实现方式：承载风险上下文业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class RiskContextServiceImpl implements RiskContextService {
@@ -32,6 +35,9 @@ public class RiskContextServiceImpl implements RiskContextService {
     @Value("${psm.blocking-alarm-enabled:true}")
     private boolean blockingAlarmEnabled;
 
+    /**
+     * 实现方式：查询业务上下文，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public RiskContextVO query(RiskContextRequest request) {
         requireTenantId(request.getTenantId());

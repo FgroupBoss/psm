@@ -15,6 +15,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载承包商资质业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class ContractorQualificationServiceImpl implements ContractorQualificationService {
@@ -22,6 +25,9 @@ public class ContractorQualificationServiceImpl implements ContractorQualificati
     private final ContractorQualificationMapper qualificationMapper;
     private final ContractorCompanyMapper companyMapper;
 
+    /**
+     * 实现方式：按承包商企业查询资质记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<ContractorQualificationVO> listByCompany(Long tenantId, Long companyId) {
         requireCompany(tenantId, companyId);
@@ -33,6 +39,9 @@ public class ContractorQualificationServiceImpl implements ContractorQualificati
         return records;
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ContractorQualificationVO create(Long companyId, ContractorQualificationRequest request, String operator) {
         requireCompany(request.getTenantId(), companyId);
@@ -46,6 +55,9 @@ public class ContractorQualificationServiceImpl implements ContractorQualificati
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ContractorQualificationVO update(Long companyId, Long qualId, ContractorQualificationRequest request,
                                             String operator) {
@@ -55,6 +67,9 @@ public class ContractorQualificationServiceImpl implements ContractorQualificati
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public void delete(Long tenantId, Long companyId, Long qualId, String operator) {
         ContractorQualificationEntity entity = requireQualification(tenantId, companyId, qualId);

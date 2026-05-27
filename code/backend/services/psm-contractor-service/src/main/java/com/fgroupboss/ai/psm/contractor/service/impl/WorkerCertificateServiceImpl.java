@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载人员证书业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class WorkerCertificateServiceImpl implements WorkerCertificateService {
@@ -24,6 +27,9 @@ public class WorkerCertificateServiceImpl implements WorkerCertificateService {
     private final ContractorWorkerMapper workerMapper;
     private final ContractorWorkerService workerService;
 
+    /**
+     * 实现方式：按承包商人员查询证书记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkerCertificateVO> listByWorker(Long tenantId, Long workerId) {
         requireWorker(tenantId, workerId);
@@ -35,6 +41,9 @@ public class WorkerCertificateServiceImpl implements WorkerCertificateService {
         return records;
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkerCertificateVO create(Long workerId, WorkerCertificateRequest request, String operator) {
         requireWorker(request.getTenantId(), workerId);
@@ -49,6 +58,9 @@ public class WorkerCertificateServiceImpl implements WorkerCertificateService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkerCertificateVO update(Long workerId, Long certId, WorkerCertificateRequest request, String operator) {
         WorkerCertificateEntity entity = requireCertificate(request.getTenantId(), workerId, certId);
@@ -58,6 +70,9 @@ public class WorkerCertificateServiceImpl implements WorkerCertificateService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public void delete(Long tenantId, Long workerId, Long certId, String operator) {
         WorkerCertificateEntity entity = requireCertificate(tenantId, workerId, certId);

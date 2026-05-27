@@ -67,6 +67,9 @@ public class AuthServiceImpl implements AuthService {
     private final IamPermissionClient iamPermissionClient;
     private final SecureRandom secureRandom = new SecureRandom();
 
+    /**
+     * 实现方式：注册本地账号，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AuthUserVO register(RegisterRequest request) {
@@ -79,6 +82,9 @@ public class AuthServiceImpl implements AuthService {
         return toUserVO(authUserMapper.findByIdAndTenant(user.getTenantId(), user.getId()));
     }
 
+    /**
+     * 实现方式：完成账号登录并签发令牌，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AuthTokenResponse login(LoginRequest request, String clientIp, String userAgent) {
@@ -96,6 +102,9 @@ public class AuthServiceImpl implements AuthService {
         return issueToken(user);
     }
 
+    /**
+     * 实现方式：刷新令牌会话，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AuthTokenResponse refresh(RefreshTokenRequest request) {
@@ -109,12 +118,18 @@ public class AuthServiceImpl implements AuthService {
         return issueToken(user);
     }
 
+    /**
+     * 实现方式：注销当前令牌会话，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void logout(String accessToken) {
         authSessionMapper.revoke(currentSession(accessToken).getId());
     }
 
+    /**
+     * 实现方式：查询当前登录用户信息，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AuthUserVO me(String accessToken) {
         AuthSessionEntity session = currentSession(accessToken);
@@ -123,6 +138,9 @@ public class AuthServiceImpl implements AuthService {
         return toUserVO(user);
     }
 
+    /**
+     * 实现方式：查询租户可用身份提供方，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<IdentityProviderVO> providers(Long tenantId) {
         validateTenant(tenantId);
@@ -133,6 +151,9 @@ public class AuthServiceImpl implements AuthService {
         return result;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public SsoLoginResponse startSso(Long tenantId, String providerCode, String redirectAfterLogin) {
@@ -148,6 +169,9 @@ public class AuthServiceImpl implements AuthService {
         return response;
     }
 
+    /**
+     * 实现方式：处理单点登录回调，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AuthTokenResponse ssoCallback(String providerCode, SsoCallbackRequest request,

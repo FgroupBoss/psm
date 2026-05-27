@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载人员违章业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class WorkerViolationServiceImpl implements WorkerViolationService {
@@ -21,6 +24,9 @@ public class WorkerViolationServiceImpl implements WorkerViolationService {
     private final ContractorViolationMapper violationMapper;
     private final ContractorWorkerMapper workerMapper;
 
+    /**
+     * 实现方式：按承包商人员查询违章记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkerViolationVO> listByWorker(Long tenantId, Long workerId) {
         requireWorker(tenantId, workerId);
@@ -32,6 +38,9 @@ public class WorkerViolationServiceImpl implements WorkerViolationService {
         return records;
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkerViolationVO create(Long workerId, WorkerViolationRequest request, String operator) {
         ContractorWorkerEntity worker = requireWorker(request.getTenantId(), workerId);

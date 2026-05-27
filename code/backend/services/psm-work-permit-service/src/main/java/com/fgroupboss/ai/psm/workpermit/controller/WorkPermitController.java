@@ -54,11 +54,17 @@ public class WorkPermitController {
 
     private final WorkPermitService workPermitService;
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<WorkPermitHealthVO> health() {
         return ResponseVO.success(workPermitService.health());
     }
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping
     public ResponseVO<PageResult<WorkPermitVO>> page(@RequestParam Long tenantId,
                                                        @RequestParam(required = false) String keyword,
@@ -71,16 +77,25 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.page(tenantId, keyword, status, workType, areaId, hazardId, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：按重大危险源查询关联作业票。
+     */
     @GetMapping("/by-hazard")
     public ResponseVO<List<WorkPermitVO>> listByHazard(@RequestParam Long tenantId, @RequestParam Long hazardId) {
         return ResponseVO.success(workPermitService.listByHazard(tenantId, hazardId));
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{id}")
     public ResponseVO<WorkPermitDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.getDetail(tenantId, id));
     }
 
+    /**
+     * 接口用途：创建业务数据。
+     */
     @PostMapping
     public ResponseVO<WorkPermitVO> create(@Valid @RequestBody WorkPermitRequest request,
                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -89,6 +104,9 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.create(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新业务数据。
+     */
     @PutMapping("/{id}")
     public ResponseVO<WorkPermitVO> update(@PathVariable Long id,
                                            @Valid @RequestBody WorkPermitRequest request,
@@ -98,11 +116,17 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.update(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询作业人员。
+     */
     @GetMapping("/{id}/workers")
     public ResponseVO<List<WorkPermitWorkerVO>> listWorkers(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listWorkers(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增作业人员。
+     */
     @PostMapping("/{id}/workers")
     public ResponseVO<WorkPermitWorkerVO> addWorker(@PathVariable Long id,
                                                       @Valid @RequestBody WorkPermitWorkerRequest request,
@@ -113,6 +137,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：移除作业人员。
+     */
     @DeleteMapping("/{id}/workers/{workerId}")
     public ResponseVO<Void> removeWorker(@PathVariable Long id,
                                          @PathVariable Long workerId,
@@ -124,6 +151,9 @@ public class WorkPermitController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 接口用途：提交审批。
+     */
     @PostMapping("/{id}/submit")
     public ResponseVO<WorkPermitVO> submit(@PathVariable Long id,
                                            @RequestParam Long tenantId,
@@ -133,6 +163,9 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.submit(tenantId, id, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：审批业务数据。
+     */
     @PostMapping("/{id}/approve")
     public ResponseVO<WorkPermitVO> approve(@PathVariable Long id,
                                             @RequestParam Long tenantId,
@@ -144,6 +177,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{id}/return")
     public ResponseVO<WorkPermitVO> returnPermit(@PathVariable Long id,
                                                  @RequestParam Long tenantId,
@@ -155,6 +191,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{id}/reject")
     public ResponseVO<WorkPermitVO> reject(@PathVariable Long id,
                                            @RequestParam Long tenantId,
@@ -166,11 +205,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询风险分析列表。
+     */
     @GetMapping("/{id}/risk-analysis")
     public ResponseVO<List<RiskAnalysisVO>> listRiskAnalysis(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listRiskAnalysis(tenantId, id));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/{id}/risk-analysis")
     public ResponseVO<RiskAnalysisVO> saveRiskAnalysis(@PathVariable Long id,
                                                          @Valid @RequestBody RiskAnalysisRequest request,
@@ -181,11 +226,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询安全措施。
+     */
     @GetMapping("/{id}/safety-measures")
     public ResponseVO<List<SafetyMeasureVO>> listSafetyMeasures(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listSafetyMeasures(tenantId, id));
     }
 
+    /**
+     * 接口用途：确认安全措施。
+     */
     @PostMapping("/{id}/safety-measures/{measureId}")
     public ResponseVO<SafetyMeasureVO> confirmSafetyMeasure(@PathVariable Long id,
                                                             @PathVariable Long measureId,
@@ -197,11 +248,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询气体检测记录。
+     */
     @GetMapping("/{id}/gas-tests")
     public ResponseVO<List<GasTestVO>> listGasTests(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listGasTests(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增气体检测记录。
+     */
     @PostMapping("/{id}/gas-tests")
     public ResponseVO<GasTestVO> addGasTest(@PathVariable Long id,
                                             @Valid @RequestBody GasTestRequest request,
@@ -212,11 +269,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：执行作业前置校验。
+     */
     @PostMapping("/{id}/pre-check")
     public ResponseVO<PreCheckResultVO> preCheck(@PathVariable Long id, @Valid @RequestBody PreCheckRequest request) {
         return ResponseVO.success(workPermitService.preCheck(request.getTenantId(), id, request));
     }
 
+    /**
+     * 接口用途：提交现场许可。
+     */
     @PostMapping("/{id}/site-permit")
     public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
                                                @Valid @RequestBody SitePermitRequest request,
@@ -227,6 +290,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：提交现场签到。
+     */
     @PostMapping("/{id}/check-in")
     public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
                                              @Valid @RequestBody CheckInRequest request,
@@ -237,11 +303,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询监护记录。
+     */
     @GetMapping("/{id}/monitor-records")
     public ResponseVO<List<MonitorRecordVO>> listMonitorRecords(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listMonitorRecords(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增监护记录。
+     */
     @PostMapping("/{id}/monitor-records")
     public ResponseVO<MonitorRecordVO> addMonitorRecord(@PathVariable Long id,
                                                         @Valid @RequestBody MonitorRecordRequest request,
@@ -252,6 +324,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：挂起业务数据。
+     */
     @PostMapping("/{id}/suspend")
     public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
                                             @RequestParam Long tenantId,
@@ -263,6 +338,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：恢复业务数据。
+     */
     @PostMapping("/{id}/resume")
     public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
                                            @RequestParam Long tenantId,
@@ -274,6 +352,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：终止作业票。
+     */
     @PostMapping("/{id}/terminate")
     public ResponseVO<WorkPermitVO> terminate(@PathVariable Long id,
                                               @RequestParam Long tenantId,
@@ -285,6 +366,9 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：提交验收。
+     */
     @PostMapping("/{id}/acceptance")
     public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
                                                @Valid @RequestBody AcceptanceRequest request,
@@ -295,11 +379,17 @@ public class WorkPermitController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询作业票时间线。
+     */
     @GetMapping("/{id}/timeline")
     public ResponseVO<List<TimelineItemVO>> timeline(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.timeline(tenantId, id));
     }
 
+    /**
+     * 接口用途：同步移动端草稿。
+     */
     @PostMapping("/mobile/drafts/sync")
     public ResponseVO<MobileDraftSyncResultVO> syncMobileDraft(@Valid @RequestBody MobileDraftSyncRequest request) {
         return ResponseVO.success(workPermitService.syncMobileDraft(request));

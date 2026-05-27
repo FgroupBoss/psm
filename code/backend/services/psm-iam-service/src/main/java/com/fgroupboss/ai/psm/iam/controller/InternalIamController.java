@@ -20,16 +20,25 @@ public class InternalIamController {
 
     private final IamAdminService service;
 
+    /**
+     * 接口用途：查询用户权限摘要。
+     */
     @GetMapping("/users/{userId}/permissions")
     public ResponseVO<UserPermissionSummaryVO> permissions(@PathVariable Long userId, @RequestParam Long tenantId) {
         return ResponseVO.success(service.userPermissions(tenantId, userId));
     }
 
+    /**
+     * 接口用途：查询用户权限版本。
+     */
     @GetMapping("/users/{userId}/permission-version")
     public ResponseVO<Long> permissionVersion(@PathVariable Long userId, @RequestParam Long tenantId) {
         return ResponseVO.success(service.userPermissions(tenantId, userId).getPermissionVersion());
     }
 
+    /**
+     * 接口用途：查询用户数据权限范围。
+     */
     @GetMapping("/users/{userId}/data-scope")
     public ResponseVO<UserPermissionSummaryVO> dataScope(@PathVariable Long userId, @RequestParam Long tenantId) {
         return ResponseVO.success(service.userPermissions(tenantId, userId));

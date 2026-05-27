@@ -48,6 +48,9 @@ public class IamAdminController {
 
     private final IamAdminService service;
 
+    /**
+     * 接口用途：分页查询租户。
+     */
     @GetMapping("/tenants")
     public ResponseVO<PageResult<TenantVO>> tenants(@RequestParam(required = false) String keyword,
                                                     @RequestParam(defaultValue = "1") int pageNo,
@@ -55,6 +58,9 @@ public class IamAdminController {
         return ResponseVO.success(service.pageTenants(keyword, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建租户。
+     */
     @PostMapping("/tenants")
     public ResponseVO<TenantVO> createTenant(@Valid @RequestBody TenantRequest request,
                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -63,6 +69,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createTenant(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新租户。
+     */
     @PutMapping("/tenants/{id}")
     public ResponseVO<TenantVO> updateTenant(@PathVariable Long id,
                                              @Valid @RequestBody TenantRequest request,
@@ -72,6 +81,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updateTenant(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：调整租户状态。
+     */
     @PutMapping("/tenants/{id}/status")
     public ResponseVO<Void> updateTenantStatus(@PathVariable Long id,
                                                @RequestParam String status,
@@ -82,11 +94,17 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：查询组织树。
+     */
     @GetMapping("/orgs/tree")
     public ResponseVO<List<OrgTreeVO>> orgTree(@RequestParam Long tenantId) {
         return ResponseVO.success(service.orgTree(tenantId));
     }
 
+    /**
+     * 接口用途：创建组织。
+     */
     @PostMapping("/orgs")
     public ResponseVO<OrgTreeVO> createOrg(@Valid @RequestBody OrgRequest request,
                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -95,6 +113,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createOrg(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新组织。
+     */
     @PutMapping("/orgs/{id}")
     public ResponseVO<OrgTreeVO> updateOrg(@PathVariable Long id,
                                            @Valid @RequestBody OrgRequest request,
@@ -104,6 +125,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updateOrg(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除组织。
+     */
     @DeleteMapping("/orgs/{id}")
     public ResponseVO<Void> deleteOrg(@PathVariable Long id,
                                       @RequestParam Long tenantId,
@@ -114,6 +138,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：分页查询岗位。
+     */
     @GetMapping("/posts")
     public ResponseVO<PageResult<PostVO>> posts(@RequestParam Long tenantId,
                                                 @RequestParam(required = false) String keyword,
@@ -122,6 +149,9 @@ public class IamAdminController {
         return ResponseVO.success(service.pagePosts(tenantId, keyword, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建岗位。
+     */
     @PostMapping("/posts")
     public ResponseVO<PostVO> createPost(@Valid @RequestBody PostRequest request,
                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -130,6 +160,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createPost(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新岗位。
+     */
     @PutMapping("/posts/{id}")
     public ResponseVO<PostVO> updatePost(@PathVariable Long id,
                                          @Valid @RequestBody PostRequest request,
@@ -139,6 +172,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updatePost(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除岗位。
+     */
     @DeleteMapping("/posts/{id}")
     public ResponseVO<Void> deletePost(@PathVariable Long id,
                                        @RequestParam Long tenantId,
@@ -149,6 +185,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：分页查询用户。
+     */
     @GetMapping("/users")
     public ResponseVO<PageResult<IamUserVO>> users(@RequestParam Long tenantId,
                                                    @RequestParam(required = false) String keyword,
@@ -157,6 +196,9 @@ public class IamAdminController {
         return ResponseVO.success(service.pageUsers(tenantId, keyword, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建用户。
+     */
     @PostMapping("/users")
     public ResponseVO<IamUserVO> createUser(@Valid @RequestBody IamUserRequest request,
                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -165,6 +207,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createUser(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新用户。
+     */
     @PutMapping("/users/{id}")
     public ResponseVO<IamUserVO> updateUser(@PathVariable Long id,
                                             @Valid @RequestBody IamUserRequest request,
@@ -174,6 +219,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updateUser(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：调整用户状态。
+     */
     @PutMapping("/users/{id}/status")
     public ResponseVO<Void> updateUserStatus(@PathVariable Long id,
                                              @Valid @RequestBody UserStatusRequest request,
@@ -184,6 +232,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：分配用户角色。
+     */
     @PutMapping("/users/{id}/roles")
     public ResponseVO<Void> assignUserRoles(@PathVariable Long id,
                                             @Valid @RequestBody AssignUserRoleRequest request,
@@ -194,6 +245,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：查询用户权限集合。
+     */
     @GetMapping("/users/{id}/permissions")
     public ResponseVO<UserPermissionSummaryVO> userPermissions(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(service.userPermissions(tenantId, id));
@@ -215,6 +269,9 @@ public class IamAdminController {
         return ResponseVO.success(service.userPermissionsForPrincipal(resolvedTenantId, resolvedAuthUserId, username));
     }
 
+    /**
+     * 接口用途：分页查询角色。
+     */
     @GetMapping("/roles")
     public ResponseVO<PageResult<RoleVO>> roles(@RequestParam Long tenantId,
                                                 @RequestParam(required = false) String keyword,
@@ -223,6 +280,9 @@ public class IamAdminController {
         return ResponseVO.success(service.pageRoles(tenantId, keyword, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建角色。
+     */
     @PostMapping("/roles")
     public ResponseVO<RoleVO> createRole(@Valid @RequestBody RoleRequest request,
                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -231,6 +291,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createRole(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新角色。
+     */
     @PutMapping("/roles/{id}")
     public ResponseVO<RoleVO> updateRole(@PathVariable Long id,
                                          @Valid @RequestBody RoleRequest request,
@@ -240,6 +303,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updateRole(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除角色。
+     */
     @DeleteMapping("/roles/{id}")
     public ResponseVO<Void> deleteRole(@PathVariable Long id,
                                        @RequestParam Long tenantId,
@@ -250,6 +316,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：分配角色权限。
+     */
     @PutMapping("/roles/{id}/permissions")
     public ResponseVO<Void> assignRolePermissions(@PathVariable Long id,
                                                   @Valid @RequestBody AssignRolePermissionRequest request,
@@ -260,6 +329,9 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：分配角色数据范围。
+     */
     @PutMapping("/roles/{id}/data-scopes")
     public ResponseVO<Void> assignDataScope(@PathVariable Long id,
                                             @Valid @RequestBody AssignDataScopeRequest request,
@@ -270,11 +342,17 @@ public class IamAdminController {
         return ResponseVO.success();
     }
 
+    /**
+     * 接口用途：查询菜单树。
+     */
     @GetMapping("/menus/tree")
     public ResponseVO<List<MenuTreeVO>> menuTree(@RequestParam(defaultValue = "0") Long tenantId) {
         return ResponseVO.success(service.menuTree(tenantId));
     }
 
+    /**
+     * 接口用途：创建菜单资源。
+     */
     @PostMapping("/menus")
     public ResponseVO<MenuTreeVO> createMenu(@Valid @RequestBody MenuResourceRequest request,
                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -283,6 +361,9 @@ public class IamAdminController {
         return ResponseVO.success(service.createMenu(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：更新菜单资源。
+     */
     @PutMapping("/menus/{id}")
     public ResponseVO<MenuTreeVO> updateMenu(@PathVariable Long id,
                                              @Valid @RequestBody MenuResourceRequest request,
@@ -292,6 +373,9 @@ public class IamAdminController {
         return ResponseVO.success(service.updateMenu(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除菜单资源。
+     */
     @DeleteMapping("/menus/{id}")
     public ResponseVO<Void> deleteMenu(@PathVariable Long id,
                                        @RequestParam(defaultValue = "0") Long tenantId,

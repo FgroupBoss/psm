@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.List;
 
 @Slf4j
+/**
+ * 实现方式：承载报警升级业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class AlarmEscalationServiceImpl implements AlarmEscalationService {
@@ -34,6 +37,9 @@ public class AlarmEscalationServiceImpl implements AlarmEscalationService {
     private final AlarmEscalationRecordMapper escalationRecordMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：扫描并处理报警升级，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public int processEscalations() {

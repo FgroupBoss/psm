@@ -42,6 +42,9 @@ public class BaseDataServiceImpl implements BaseDataService {
     private final AuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public BaseDataRecordVO create(BaseDataType type, BaseDataRequest request, String operator) {
@@ -53,6 +56,9 @@ public class BaseDataServiceImpl implements BaseDataService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public BaseDataRecordVO update(BaseDataType type, Long id, BaseDataRequest request, String operator) {
@@ -68,18 +74,27 @@ public class BaseDataServiceImpl implements BaseDataService {
         return after;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void enable(BaseDataType type, Long tenantId, Long id, String operator) {
         changeStatus(type, tenantId, id, "ENABLED", "ENABLE", operator);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void disable(BaseDataType type, Long tenantId, Long id, String operator) {
         changeStatus(type, tenantId, id, "DISABLED", "DISABLE", operator);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void delete(BaseDataType type, Long tenantId, Long id, String operator) {
@@ -91,6 +106,9 @@ public class BaseDataServiceImpl implements BaseDataService {
         writeAudit(tenantId, operator, "DELETE", type, id, before, null);
     }
 
+    /**
+     * 实现方式：查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public BaseDataRecordVO get(BaseDataType type, Long tenantId, Long id) {
         validateTenant(tenantId);
@@ -101,6 +119,9 @@ public class BaseDataServiceImpl implements BaseDataService {
         return record;
     }
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<BaseDataRecordVO> page(BaseDataType type, Long tenantId, String keyword, String status, int pageNo, int pageSize) {
         validateTenant(tenantId);
@@ -114,6 +135,9 @@ public class BaseDataServiceImpl implements BaseDataService {
         return new PageResult<BaseDataRecordVO>(total, normalizedPageNo, normalizedPageSize, records);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<BaseDataRecordVO> tree(BaseDataType type, Long tenantId) {
         validateTenant(tenantId);

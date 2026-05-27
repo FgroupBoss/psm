@@ -18,6 +18,9 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载危险源附件业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class MajorHazardAttachmentServiceImpl implements MajorHazardAttachmentService {
@@ -26,6 +29,9 @@ public class MajorHazardAttachmentServiceImpl implements MajorHazardAttachmentSe
     private final MajorHazardAttachmentMapper attachmentMapper;
     private final MajorHazardAuditSupport auditSupport;
 
+    /**
+     * 实现方式：查询附件列表，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<HazardAttachmentVO> listAttachments(Long tenantId, Long hazardId) {
         requireHazard(tenantId, hazardId);
@@ -37,6 +43,9 @@ public class MajorHazardAttachmentServiceImpl implements MajorHazardAttachmentSe
         return records;
     }
 
+    /**
+     * 实现方式：新增附件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public HazardAttachmentVO createAttachment(Long tenantId, Long hazardId, HazardAttachmentRequest request,
@@ -58,6 +67,9 @@ public class MajorHazardAttachmentServiceImpl implements MajorHazardAttachmentSe
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：删除附件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void deleteAttachment(Long tenantId, Long hazardId, Long attachmentId, String operator) {

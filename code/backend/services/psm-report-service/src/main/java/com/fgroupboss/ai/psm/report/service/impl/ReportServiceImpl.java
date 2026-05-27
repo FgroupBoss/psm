@@ -57,6 +57,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * 实现方式：承载报表业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
@@ -80,6 +83,9 @@ public class ReportServiceImpl implements ReportService {
     @Value("${psm.report.critical-operation-baseline:100}")
     private long criticalOperationBaseline;
 
+    /**
+     * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ReportHealthVO health() {
         ReportHealthVO health = new ReportHealthVO();
@@ -92,6 +98,9 @@ public class ReportServiceImpl implements ReportService {
         return health;
     }
 
+    /**
+     * 实现方式：统计作业票报表汇总，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkPermitReportSummaryVO workPermitSummary(Long tenantId) {
         Date refreshedAt = new Date();
@@ -101,12 +110,18 @@ public class ReportServiceImpl implements ReportService {
                 refreshedAt, DATA_SOURCE);
     }
 
+    /**
+     * 实现方式：查询作业票报表明细，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkPermitReportDetailVO> workPermitDetails(Long tenantId, String status, String workType) {
         List<RemoteWorkPermitVO> permits = workPermitReportClient.listPermits(tenantId);
         return buildWorkPermitDetails(tenantId, permits, status, workType);
     }
 
+    /**
+     * 实现方式：统计报警报表汇总，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AlarmReportSummaryVO alarmSummary(Long tenantId) {
         Date refreshedAt = new Date();
@@ -115,18 +130,27 @@ public class ReportServiceImpl implements ReportService {
         return ReportMetricsSupport.buildAlarmSummary(alarms, details, refreshedAt, DATA_SOURCE);
     }
 
+    /**
+     * 实现方式：查询报警报表明细，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<AlarmReportDetailVO> alarmDetails(Long tenantId, String status, String alarmLevel) {
         List<RemoteAlarmEventVO> alarms = alarmReportClient.listAlarms(tenantId);
         return buildAlarmDetails(tenantId, alarms, status, alarmLevel);
     }
 
+    /**
+     * 实现方式：统计重大危险源报表汇总，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public MajorHazardReportSummaryVO majorHazardSummary(Long tenantId) {
         List<RemoteMajorHazardVO> hazards = majorHazardReportClient.listHazards(tenantId);
         return ReportMetricsSupport.buildMajorHazardSummary(hazards, new Date(), DATA_SOURCE);
     }
 
+    /**
+     * 实现方式：统计承包商报表汇总，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ContractorReportSummaryVO contractorSummary(Long tenantId) {
         List<RemoteContractorCompanyVO> companies = contractorReportClient.listCompanies(tenantId);
@@ -134,12 +158,18 @@ public class ReportServiceImpl implements ReportService {
         return ReportMetricsSupport.buildContractorSummary(companies, workers, new Date(), DATA_SOURCE);
     }
 
+    /**
+     * 实现方式：统计审计报表汇总，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AuditReportSummaryVO auditSummary(Long tenantId) {
         List<RemoteAuditLogVO> logs = auditReportClient.listLogs(tenantId);
         return ReportMetricsSupport.buildAuditSummary(logs, criticalOperationBaseline, new Date(), DATA_SOURCE);
     }
 
+    /**
+     * 实现方式：查询驾驶舱总览，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public DashboardOverviewVO dashboardOverview(Long tenantId) {
         DashboardOverviewVO overview = new DashboardOverviewVO();
@@ -153,6 +183,9 @@ public class ReportServiceImpl implements ReportService {
         return overview;
     }
 
+    /**
+     * 实现方式：查询作业票趋势，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public TrendSeriesVO workPermitTrend(Long tenantId, int days) {
         List<RemoteWorkPermitVO> permits = workPermitReportClient.listPermits(tenantId);
@@ -169,6 +202,9 @@ public class ReportServiceImpl implements ReportService {
         return series;
     }
 
+    /**
+     * 实现方式：查询报警趋势，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public TrendSeriesVO alarmTrend(Long tenantId, int days) {
         List<RemoteAlarmEventVO> alarms = alarmReportClient.listAlarms(tenantId);
@@ -185,6 +221,9 @@ public class ReportServiceImpl implements ReportService {
         return series;
     }
 
+    /**
+     * 实现方式：创建报表导出任务，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public ReportExportTaskVO createExport(ReportExportRequest request) {
@@ -223,11 +262,17 @@ public class ReportServiceImpl implements ReportService {
         return toExportTaskVO(entity);
     }
 
+    /**
+     * 实现方式：查询报表导出任务，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public ReportExportTaskVO getExportTask(Long tenantId, Long taskId) {
         return toExportTaskVO(requireExportTask(tenantId, taskId));
     }
 
+    /**
+     * 实现方式：加载导出文件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public Resource loadExportFile(Long tenantId, Long taskId) {
         ReportExportTaskEntity entity = requireExportTask(tenantId, taskId);
@@ -237,6 +282,9 @@ public class ReportServiceImpl implements ReportService {
         return new FileSystemResource(csvExportSupport.resolve(entity.getFilePath()).toFile());
     }
 
+    /**
+     * 实现方式：生成导出文件名，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public String exportDownloadFileName(Long tenantId, Long taskId) {
         ReportExportTaskEntity entity = requireExportTask(tenantId, taskId);
@@ -283,6 +331,9 @@ public class ReportServiceImpl implements ReportService {
         return entity;
     }
 
+    /**
+     * 实现方式：分页查询验收用例，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<AcceptanceTestCaseVO> pageTestCases(Long tenantId, String module, String status,
                                                           int pageNo, int pageSize) {
@@ -299,6 +350,9 @@ public class ReportServiceImpl implements ReportService {
         return new PageResult<AcceptanceTestCaseVO>(page.getTotal(), pageNo, pageSize, records);
     }
 
+    /**
+     * 实现方式：创建验收用例，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AcceptanceTestCaseVO createTestCase(AcceptanceTestCaseRequest request) {
@@ -318,6 +372,9 @@ public class ReportServiceImpl implements ReportService {
         return toTestCaseVO(entity);
     }
 
+    /**
+     * 实现方式：分页查询验收执行记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<AcceptanceTestRunVO> pageTestRuns(Long tenantId, Long caseId, int pageNo, int pageSize) {
         LambdaQueryWrapper<AcceptanceTestRunEntity> wrapper = new LambdaQueryWrapper<AcceptanceTestRunEntity>()
@@ -332,6 +389,9 @@ public class ReportServiceImpl implements ReportService {
         return new PageResult<AcceptanceTestRunVO>(page.getTotal(), pageNo, pageSize, records);
     }
 
+    /**
+     * 实现方式：创建验收执行记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public AcceptanceTestRunVO createTestRun(AcceptanceTestRunRequest request) {

@@ -27,6 +27,9 @@ public class AcceptanceController {
 
     private final ReportService reportService;
 
+    /**
+     * 接口用途：分页查询验收用例。
+     */
     @GetMapping("/test-cases")
     public ResponseVO<PageResult<AcceptanceTestCaseVO>> pageTestCases(@RequestParam Long tenantId,
                                                                       @RequestParam(required = false) String module,
@@ -36,11 +39,17 @@ public class AcceptanceController {
         return ResponseVO.success(reportService.pageTestCases(tenantId, module, status, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建验收用例。
+     */
     @PostMapping("/test-cases")
     public ResponseVO<AcceptanceTestCaseVO> createTestCase(@Valid @RequestBody AcceptanceTestCaseRequest request) {
         return ResponseVO.success(reportService.createTestCase(request));
     }
 
+    /**
+     * 接口用途：分页查询验收执行记录。
+     */
     @GetMapping("/test-runs")
     public ResponseVO<PageResult<AcceptanceTestRunVO>> pageTestRuns(@RequestParam Long tenantId,
                                                                     @RequestParam(required = false) Long caseId,
@@ -49,6 +58,9 @@ public class AcceptanceController {
         return ResponseVO.success(reportService.pageTestRuns(tenantId, caseId, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建验收执行记录。
+     */
     @PostMapping("/test-runs")
     public ResponseVO<AcceptanceTestRunVO> createTestRun(@Valid @RequestBody AcceptanceTestRunRequest request) {
         return ResponseVO.success(reportService.createTestRun(request));

@@ -37,12 +37,18 @@ public class AuthController {
     private final AuthService authService;
 
     /** Creates a local tenant user account. */
+    /**
+     * 接口用途：注册本地账号。
+     */
     @PostMapping("/register")
     public ResponseVO<AuthUserVO> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseVO.success(authService.register(request));
     }
 
     /** Authenticates a local account and returns a new token session. */
+    /**
+     * 接口用途：完成账号登录并签发令牌。
+     */
     @PostMapping("/login")
     public ResponseVO<AuthTokenResponse> login(@Valid @RequestBody LoginRequest request,
                                                HttpServletRequest servletRequest) {
@@ -51,6 +57,9 @@ public class AuthController {
     }
 
     /** Revokes the active token session. */
+    /**
+     * 接口用途：注销当前令牌会话。
+     */
     @PostMapping("/logout")
     public ResponseVO<Void> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
         authService.logout(authorization);
@@ -58,24 +67,36 @@ public class AuthController {
     }
 
     /** Replaces a valid refresh-token session with a new token session. */
+    /**
+     * 接口用途：刷新令牌会话。
+     */
     @PostMapping("/token/refresh")
     public ResponseVO<AuthTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseVO.success(authService.refresh(request));
     }
 
     /** Returns the authenticated user without stored credentials. */
+    /**
+     * 接口用途：查询当前登录用户信息。
+     */
     @GetMapping("/me")
     public ResponseVO<AuthUserVO> me(@RequestHeader(value = "Authorization", required = false) String authorization) {
         return ResponseVO.success(authService.me(authorization));
     }
 
     /** Lists tenant identity providers without provider secrets. */
+    /**
+     * 接口用途：查询租户可用身份提供方。
+     */
     @GetMapping("/sso/providers")
     public ResponseVO<List<IdentityProviderVO>> providers(@RequestParam Long tenantId) {
         return ResponseVO.success(authService.providers(tenantId));
     }
 
     /** Creates the state value and redirect URL for an SSO login. */
+    /**
+     * 接口用途：生成单点登录跳转地址。
+     */
     @GetMapping("/sso/{providerCode}/login")
     public ResponseVO<SsoLoginResponse> ssoLogin(@PathVariable String providerCode,
                                                  @RequestParam Long tenantId,
@@ -84,6 +105,9 @@ public class AuthController {
     }
 
     /** Handles SSO callbacks supplied as a JSON body. */
+    /**
+     * 接口用途：处理单点登录回调。
+     */
     @PostMapping("/sso/{providerCode}/callback")
     public ResponseVO<AuthTokenResponse> ssoCallback(@PathVariable String providerCode,
                                                      @Valid @RequestBody SsoCallbackRequest request,
@@ -93,6 +117,9 @@ public class AuthController {
     }
 
     /** Handles redirect-style SSO callbacks supplied as query parameters. */
+    /**
+     * 接口用途：处理重定向形式的单点登录回调。
+     */
     @GetMapping("/sso/{providerCode}/callback")
     public ResponseVO<AuthTokenResponse> ssoCallbackGet(@PathVariable String providerCode,
                                                         @RequestParam Long tenantId,

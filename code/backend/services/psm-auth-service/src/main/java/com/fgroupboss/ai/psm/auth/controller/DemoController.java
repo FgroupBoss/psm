@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
 
     @CrossOrigin
+    /**
+     * 接口用途：处理接口请求。
+     */
     @GetMapping("/demo")
     public ResponseVO<DemoInfo> demo() {
         DemoInfo info = new DemoInfo("psm-auth-service", "auth-demo", "1.0.0-SNAPSHOT");

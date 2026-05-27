@@ -53,16 +53,25 @@ public class MajorHazardController {
     private final RiskContextService riskContextService;
     private final HazardAlarmQueryService hazardAlarmQueryService;
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<DemoInfo> health() {
         return ResponseVO.success(new DemoInfo("psm-major-hazard-service", "major-hazard", "1.0.0-batch5"));
     }
 
+    /**
+     * 接口用途：查询风险上下文。
+     */
     @PostMapping("/risk-context")
     public ResponseVO<RiskContextVO> riskContext(@Valid @RequestBody RiskContextRequest request) {
         return ResponseVO.success(riskContextService.query(request));
     }
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping
     public ResponseVO<PageResult<MajorHazardVO>> page(@RequestParam Long tenantId,
                                                       @RequestParam(required = false) String keyword,
@@ -73,6 +82,9 @@ public class MajorHazardController {
         return ResponseVO.success(hazardService.page(tenantId, keyword, status, level, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：创建业务数据。
+     */
     @PostMapping
     public ResponseVO<MajorHazardVO> create(@Valid @RequestBody MajorHazardRequest request,
                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -81,11 +93,17 @@ public class MajorHazardController {
         return ResponseVO.success(hazardService.create(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{id}")
     public ResponseVO<MajorHazardVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(hazardService.getById(tenantId, id));
     }
 
+    /**
+     * 接口用途：更新业务数据。
+     */
     @PutMapping("/{id}")
     public ResponseVO<MajorHazardVO> update(@PathVariable Long id,
                                             @Valid @RequestBody MajorHazardRequest request,
@@ -95,6 +113,9 @@ public class MajorHazardController {
         return ResponseVO.success(hazardService.update(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：发布业务数据。
+     */
     @PostMapping("/{id}/publish")
     public ResponseVO<MajorHazardVO> publish(@PathVariable Long id,
                                              @RequestParam Long tenantId,
@@ -104,6 +125,9 @@ public class MajorHazardController {
         return ResponseVO.success(hazardService.publish(tenantId, id, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：变更业务状态。
+     */
     @PostMapping("/{id}/status")
     public ResponseVO<MajorHazardVO> changeStatus(@PathVariable Long id,
                                                   @RequestParam Long tenantId,
@@ -114,12 +138,18 @@ public class MajorHazardController {
         return ResponseVO.success(hazardService.changeStatus(tenantId, id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询责任人配置。
+     */
     @GetMapping("/{id}/responsibilities")
     public ResponseVO<List<MajorHazardResponsibilityVO>> listResponsibilities(@PathVariable Long id,
                                                                                 @RequestParam Long tenantId) {
         return ResponseVO.success(hazardService.listResponsibilities(tenantId, id));
     }
 
+    /**
+     * 接口用途：替换责任人配置。
+     */
     @PutMapping("/{id}/responsibilities")
     public ResponseVO<List<MajorHazardResponsibilityVO>> replaceResponsibilities(
             @PathVariable Long id,
@@ -132,11 +162,17 @@ public class MajorHazardController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：查询关联点位。
+     */
     @GetMapping("/{id}/points")
     public ResponseVO<List<HazardPointVO>> listPoints(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(pointService.listPoints(tenantId, id));
     }
 
+    /**
+     * 接口用途：绑定点位。
+     */
     @PostMapping("/{id}/points")
     public ResponseVO<HazardPointVO> bindPoint(@PathVariable Long id,
                                                @RequestParam Long tenantId,
@@ -147,6 +183,9 @@ public class MajorHazardController {
         return ResponseVO.success(pointService.bindPoint(tenantId, id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：解绑点位。
+     */
     @DeleteMapping("/{id}/points/{relId}")
     public ResponseVO<Void> unbindPoint(@PathVariable Long id,
                                         @PathVariable Long relId,
@@ -158,11 +197,17 @@ public class MajorHazardController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 接口用途：查询附件列表。
+     */
     @GetMapping("/{id}/attachments")
     public ResponseVO<List<HazardAttachmentVO>> listAttachments(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(attachmentService.listAttachments(tenantId, id));
     }
 
+    /**
+     * 接口用途：新增附件。
+     */
     @PostMapping("/{id}/attachments")
     public ResponseVO<HazardAttachmentVO> createAttachment(@PathVariable Long id,
                                                            @RequestParam Long tenantId,
@@ -174,6 +219,9 @@ public class MajorHazardController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：删除附件。
+     */
     @DeleteMapping("/{id}/attachments/{attachmentId}")
     public ResponseVO<Void> deleteAttachment(@PathVariable Long id,
                                              @PathVariable Long attachmentId,
@@ -185,11 +233,17 @@ public class MajorHazardController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 接口用途：查询关联报警。
+     */
     @GetMapping("/{id}/alarms")
     public ResponseVO<List<HazardAlarmSummaryVO>> listAlarms(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(hazardAlarmQueryService.listByHazard(tenantId, id));
     }
 
+    /**
+     * 接口用途：查询关联作业票。
+     */
     @GetMapping("/{id}/permits")
     public ResponseVO<List<Map<String, Object>>> listPermits(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(Collections.<Map<String, Object>>emptyList());

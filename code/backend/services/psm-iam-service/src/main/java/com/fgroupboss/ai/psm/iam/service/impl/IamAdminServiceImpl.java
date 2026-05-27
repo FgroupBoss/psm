@@ -84,6 +84,9 @@ public class IamAdminServiceImpl implements IamAdminService {
     private final AuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：创建租户，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public TenantVO createTenant(TenantRequest request, String operator) {
@@ -97,6 +100,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新租户，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public TenantVO updateTenant(Long id, TenantRequest request, String operator) {
@@ -112,6 +118,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<TenantVO> pageTenants(String keyword, int pageNo, int pageSize) {
         Page page = page(pageNo, pageSize);
@@ -124,6 +133,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return new PageResult<TenantVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：调整租户状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void updateTenantStatus(Long id, String status, String operator) {
@@ -135,6 +147,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(id, operator, "UPDATE_STATUS", "TENANT", id, before, after);
     }
 
+    /**
+     * 实现方式：创建组织，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public OrgTreeVO createOrg(OrgRequest request, String operator) {
@@ -149,6 +164,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新组织，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public OrgTreeVO updateOrg(Long id, OrgRequest request, String operator) {
@@ -163,6 +181,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：删除组织，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void deleteOrg(Long tenantId, Long id, String operator) {
@@ -173,6 +194,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(tenantId, operator, "DELETE", "ORG", id, before, null);
     }
 
+    /**
+     * 实现方式：查询组织树，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<OrgTreeVO> orgTree(Long tenantId) {
         validateTenant(tenantId);
@@ -183,6 +207,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return buildOrgTree(nodes);
     }
 
+    /**
+     * 实现方式：创建岗位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public PostVO createPost(PostRequest request, String operator) {
@@ -197,6 +224,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新岗位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public PostVO updatePost(Long id, PostRequest request, String operator) {
@@ -211,6 +241,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：删除岗位，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void deletePost(Long tenantId, Long id, String operator) {
@@ -221,6 +254,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(tenantId, operator, "DELETE", "POST", id, before, null);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<PostVO> pagePosts(Long tenantId, String keyword, int pageNo, int pageSize) {
         validateTenant(tenantId);
@@ -234,6 +270,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return new PageResult<PostVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：创建用户，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public IamUserVO createUser(IamUserRequest request, String operator) {
@@ -249,6 +288,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新用户，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public IamUserVO updateUser(Long id, IamUserRequest request, String operator) {
@@ -264,6 +306,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：调整用户状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void updateUserStatus(Long id, UserStatusRequest request, String operator) {
@@ -276,6 +321,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(request.getTenantId(), operator, "UPDATE_STATUS", "USER", id, before, after);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<IamUserVO> pageUsers(Long tenantId, String keyword, int pageNo, int pageSize) {
         validateTenant(tenantId);
@@ -289,6 +337,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return new PageResult<IamUserVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：分配用户角色，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void assignUserRoles(Long userId, AssignUserRoleRequest request, String operator) {
@@ -306,6 +357,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(request.getTenantId(), operator, "ASSIGN_ROLES", "USER", userId, before, request.getRoleIds());
     }
 
+    /**
+     * 实现方式：创建角色，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public RoleVO createRole(RoleRequest request, String operator) {
@@ -320,6 +374,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新角色，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public RoleVO updateRole(Long id, RoleRequest request, String operator) {
@@ -335,6 +392,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：删除角色，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void deleteRole(Long tenantId, Long id, String operator) {
@@ -346,6 +406,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(tenantId, operator, "DELETE", "ROLE", id, before, null);
     }
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<RoleVO> pageRoles(Long tenantId, String keyword, int pageNo, int pageSize) {
         validateTenant(tenantId);
@@ -359,6 +422,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return new PageResult<RoleVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：分配角色权限，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void assignRolePermissions(Long roleId, AssignRolePermissionRequest request, String operator) {
@@ -377,6 +443,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(request.getTenantId(), operator, "ASSIGN_PERMISSIONS", "ROLE", roleId, null, request.getResourceIds());
     }
 
+    /**
+     * 实现方式：分配角色数据范围，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void assignDataScope(Long roleId, AssignDataScopeRequest request, String operator) {
@@ -395,6 +464,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(request.getTenantId(), operator, "ASSIGN_DATA_SCOPE", "ROLE", roleId, null, request);
     }
 
+    /**
+     * 实现方式：创建菜单资源，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MenuTreeVO createMenu(MenuResourceRequest request, String operator) {
@@ -410,6 +482,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return saved;
     }
 
+    /**
+     * 实现方式：更新菜单资源，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MenuTreeVO updateMenu(Long id, MenuResourceRequest request, String operator) {
@@ -426,6 +501,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return after;
     }
 
+    /**
+     * 实现方式：删除菜单资源，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public void deleteMenu(Long tenantId, Long id, String operator) {
@@ -437,6 +515,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         writeAudit(normalizedTenantId, operator, "DELETE", "MENU", id, before, null);
     }
 
+    /**
+     * 实现方式：查询菜单树，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<MenuTreeVO> menuTree(Long tenantId) {
         Long normalizedTenantId = menuTenantId(tenantId);
@@ -447,6 +528,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return buildMenuTree(nodes);
     }
 
+    /**
+     * 实现方式：查询用户权限集合，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public UserPermissionSummaryVO userPermissions(Long tenantId, Long userId) {
         IamUserVO user = user(tenantId, userId);
@@ -461,6 +545,9 @@ public class IamAdminServiceImpl implements IamAdminService {
         return summary;
     }
 
+    /**
+     * 实现方式：按登录主体查询权限集合，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public UserPermissionSummaryVO userPermissionsForPrincipal(Long tenantId, Long authUserId, String username) {
         IamUserEntity iamUser = resolveIamUser(tenantId, authUserId, username);

@@ -60,6 +60,9 @@ public class MobileController {
     private final AlarmClient alarmClient;
     private final FileClient fileClient;
 
+    /**
+     * 接口用途：查询移动端任务。
+     */
     @GetMapping("/tasks")
     public ResponseVO<List<MobileTaskVO>> tasks(@RequestParam Long tenantId,
                                                 @RequestParam(required = false) String role,
@@ -68,11 +71,17 @@ public class MobileController {
         return ResponseVO.success(mobileTaskService.listTasks(tenantId, userId, MobileRole.from(role)));
     }
 
+    /**
+     * 接口用途：查询移动端作业票详情。
+     */
     @GetMapping("/work-permits/{id}")
     public ResponseVO<WorkPermitDetailVO> workPermitDetail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(mobileWorkPermitService.getDetail(tenantId, id));
     }
 
+    /**
+     * 接口用途：提交现场签到。
+     */
     @PostMapping("/work-permits/{id}/check-in")
     public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
                                              @Valid @RequestBody CheckInRequest request,
@@ -82,6 +91,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.checkIn(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：提交气体检测。
+     */
     @PostMapping("/work-permits/{id}/gas-tests")
     public ResponseVO<GasTestVO> gasTest(@PathVariable Long id,
                                          @Valid @RequestBody GasTestRequest request,
@@ -91,6 +103,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.addGasTest(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：确认安全措施。
+     */
     @PostMapping("/work-permits/{id}/measures/confirm")
     public ResponseVO<SafetyMeasureVO> confirmMeasure(@PathVariable Long id,
                                                       @Valid @RequestBody MeasureConfirmRequest request,
@@ -100,6 +115,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.confirmMeasure(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：提交现场许可。
+     */
     @PostMapping("/work-permits/{id}/site-permit")
     public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
                                                @Valid @RequestBody SitePermitRequest request,
@@ -109,6 +127,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.sitePermit(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：新增监护记录。
+     */
     @PostMapping("/work-permits/{id}/monitor-records")
     public ResponseVO<MonitorRecordVO> monitorRecord(@PathVariable Long id,
                                                      @Valid @RequestBody MonitorRecordRequest request,
@@ -118,6 +139,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.addMonitorRecord(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：挂起业务数据。
+     */
     @PostMapping("/work-permits/{id}/suspend")
     public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
                                             @RequestParam Long tenantId,
@@ -129,6 +153,9 @@ public class MobileController {
                 contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：恢复业务数据。
+     */
     @PostMapping("/work-permits/{id}/resume")
     public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
                                            @RequestParam Long tenantId,
@@ -140,6 +167,9 @@ public class MobileController {
                 contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：提交验收。
+     */
     @PostMapping("/work-permits/{id}/acceptance")
     public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
                                                @Valid @RequestBody AcceptanceRequest request,
@@ -149,6 +179,9 @@ public class MobileController {
         return ResponseVO.success(mobileWorkPermitService.acceptance(id, request, contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/alarms/{id}/feedback")
     public ResponseVO<AlarmEventVO> alarmFeedback(@PathVariable Long id,
                                                   @RequestParam Long tenantId,
@@ -161,6 +194,9 @@ public class MobileController {
         return ResponseVO.success(alarmClient.feedback(tenantId, id, defaultAlarmAction(request), headers));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/files/upload")
     public ResponseVO<FileUploadVO> uploadFile(@RequestParam Long tenantId,
                                                @RequestParam("file") MultipartFile file,
@@ -173,6 +209,9 @@ public class MobileController {
                 contextHeaders(userId, username, tenantIdHeader)));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/drafts/sync")
     public ResponseVO<MobileDraftSyncResultVO> syncDraft(@Valid @RequestBody MobileDraftSyncRequest request,
                                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,

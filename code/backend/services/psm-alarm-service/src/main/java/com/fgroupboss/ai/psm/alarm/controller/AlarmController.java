@@ -37,21 +37,33 @@ public class AlarmController {
 
     private final AlarmService alarmService;
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<AlarmHealthVO> health() {
         return ResponseVO.success(alarmService.health());
     }
 
+    /**
+     * 接口用途：接入报警事件。
+     */
     @PostMapping("/ingest")
     public ResponseVO<AlarmEventVO> ingest(@Valid @RequestBody AlarmIngestRequest request) {
         return ResponseVO.success(alarmService.ingest(request));
     }
 
+    /**
+     * 接口用途：检查区域活跃报警。
+     */
     @PostMapping("/area-active-check")
     public ResponseVO<AlarmAreaActiveCheckVO> areaActiveCheck(@Valid @RequestBody AlarmAreaActiveCheckRequest request) {
         return ResponseVO.success(alarmService.areaActiveCheck(request));
     }
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping
     public ResponseVO<PageResult<AlarmEventVO>> page(@RequestParam Long tenantId,
                                                      @RequestParam(required = false) String keyword,
@@ -68,11 +80,17 @@ public class AlarmController {
                 occurredFrom, occurredTo, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：查询详情。
+     */
     @GetMapping("/{id}")
     public ResponseVO<AlarmDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(alarmService.getDetail(tenantId, id));
     }
 
+    /**
+     * 接口用途：确认报警。
+     */
     @PostMapping("/{id}/confirm")
     public ResponseVO<AlarmEventVO> confirm(@PathVariable Long id,
                                            @RequestParam Long tenantId,
@@ -83,6 +101,9 @@ public class AlarmController {
         return ResponseVO.success(alarmService.confirm(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：派发报警。
+     */
     @PostMapping("/{id}/dispatch")
     public ResponseVO<AlarmEventVO> dispatch(@PathVariable Long id,
                                              @RequestParam Long tenantId,
@@ -93,6 +114,9 @@ public class AlarmController {
         return ResponseVO.success(alarmService.dispatch(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：反馈报警处理结果。
+     */
     @PostMapping("/{id}/feedback")
     public ResponseVO<AlarmEventVO> feedback(@PathVariable Long id,
                                              @RequestParam Long tenantId,
@@ -103,6 +127,9 @@ public class AlarmController {
         return ResponseVO.success(alarmService.feedback(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：关闭报警。
+     */
     @PostMapping("/{id}/close")
     public ResponseVO<AlarmEventVO> close(@PathVariable Long id,
                                          @RequestParam Long tenantId,
@@ -113,6 +140,9 @@ public class AlarmController {
         return ResponseVO.success(alarmService.close(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
 
+    /**
+     * 接口用途：误报关闭报警。
+     */
     @PostMapping("/{id}/false-close")
     public ResponseVO<AlarmEventVO> falseClose(@PathVariable Long id,
                                                @RequestParam Long tenantId,

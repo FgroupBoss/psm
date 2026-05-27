@@ -39,16 +39,25 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<ReportHealthVO> health() {
         return ResponseVO.success(reportService.health());
     }
 
+    /**
+     * 接口用途：统计作业票报表汇总。
+     */
     @GetMapping("/work-permits/summary")
     public ResponseVO<WorkPermitReportSummaryVO> workPermitSummary(@RequestParam Long tenantId) {
         return ResponseVO.success(reportService.workPermitSummary(tenantId));
     }
 
+    /**
+     * 接口用途：查询作业票报表明细。
+     */
     @GetMapping("/work-permits/details")
     public ResponseVO<List<WorkPermitReportDetailVO>> workPermitDetails(@RequestParam Long tenantId,
                                                                         @RequestParam(required = false) String status,
@@ -56,11 +65,17 @@ public class ReportController {
         return ResponseVO.success(reportService.workPermitDetails(tenantId, status, workType));
     }
 
+    /**
+     * 接口用途：统计报警报表汇总。
+     */
     @GetMapping("/alarms/summary")
     public ResponseVO<AlarmReportSummaryVO> alarmSummary(@RequestParam Long tenantId) {
         return ResponseVO.success(reportService.alarmSummary(tenantId));
     }
 
+    /**
+     * 接口用途：查询报警报表明细。
+     */
     @GetMapping("/alarms/details")
     public ResponseVO<List<AlarmReportDetailVO>> alarmDetails(@RequestParam Long tenantId,
                                                               @RequestParam(required = false) String status,
@@ -68,31 +83,49 @@ public class ReportController {
         return ResponseVO.success(reportService.alarmDetails(tenantId, status, alarmLevel));
     }
 
+    /**
+     * 接口用途：统计重大危险源报表汇总。
+     */
     @GetMapping("/major-hazards/summary")
     public ResponseVO<MajorHazardReportSummaryVO> majorHazardSummary(@RequestParam Long tenantId) {
         return ResponseVO.success(reportService.majorHazardSummary(tenantId));
     }
 
+    /**
+     * 接口用途：统计承包商报表汇总。
+     */
     @GetMapping("/contractors/summary")
     public ResponseVO<ContractorReportSummaryVO> contractorSummary(@RequestParam Long tenantId) {
         return ResponseVO.success(reportService.contractorSummary(tenantId));
     }
 
+    /**
+     * 接口用途：统计审计报表汇总。
+     */
     @GetMapping("/audit/summary")
     public ResponseVO<AuditReportSummaryVO> auditSummary(@RequestParam Long tenantId) {
         return ResponseVO.success(reportService.auditSummary(tenantId));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/export")
     public ResponseVO<ReportExportTaskVO> exportReport(@Valid @RequestBody ReportExportRequest request) {
         return ResponseVO.success(reportService.createExport(request));
     }
 
+    /**
+     * 接口用途：查询报表导出任务。
+     */
     @GetMapping("/export/{taskId}")
     public ResponseVO<ReportExportTaskVO> getExportTask(@PathVariable Long taskId, @RequestParam Long tenantId) {
         return ResponseVO.success(reportService.getExportTask(tenantId, taskId));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @GetMapping("/export/{taskId}/download")
     public ResponseEntity<Resource> downloadExport(@PathVariable Long taskId, @RequestParam Long tenantId) {
         Resource resource = reportService.loadExportFile(tenantId, taskId);

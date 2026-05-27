@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/contractors")
 public class ContractorController {
 
+    /**
+     * 接口用途：查询服务健康状态。
+     */
     @GetMapping("/health")
     public ResponseVO<DemoInfo> health() {
         return ResponseVO.success(new DemoInfo("psm-contractor-service", "contractor", "1.0.0-batch3"));

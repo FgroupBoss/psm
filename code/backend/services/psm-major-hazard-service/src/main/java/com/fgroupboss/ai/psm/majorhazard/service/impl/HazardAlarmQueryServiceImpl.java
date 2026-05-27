@@ -12,12 +12,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 实现方式：承载危险源报警查询业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class HazardAlarmQueryServiceImpl implements HazardAlarmQueryService {
 
     private final AlarmServiceClient alarmServiceClient;
 
+    /**
+     * 实现方式：按重大危险源查询关联报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<HazardAlarmSummaryVO> listByHazard(Long tenantId, Long hazardId) {
         List<AlarmEventSummary> events = alarmServiceClient.listByHazard(tenantId, hazardId);

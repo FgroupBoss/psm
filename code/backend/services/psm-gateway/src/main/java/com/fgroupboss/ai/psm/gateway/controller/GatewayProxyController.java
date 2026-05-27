@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
 
+/**
+ * 接口用途：提供网关代理相关 HTTP API，统一封装请求校验、服务调用与响应返回。
+ */
 @RestController
 @RequiredArgsConstructor
 public class GatewayProxyController {
@@ -32,11 +35,17 @@ public class GatewayProxyController {
     private final GatewayAuthService authService;
     private final RestTemplate restTemplate;
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/auth/**")
     public ResponseEntity<byte[]> proxyAuth(HttpServletRequest request) throws IOException {
         return proxy(properties.getAuthServiceUrl(), request, null);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/iam/**")
     public ResponseEntity<byte[]> proxyIam(HttpServletRequest request,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -44,6 +53,9 @@ public class GatewayProxyController {
         return proxy(properties.getIamServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/config/**")
     public ResponseEntity<byte[]> proxyConfigRule(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -51,6 +63,9 @@ public class GatewayProxyController {
         return proxy(properties.getConfigRuleServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/master-data/**")
     public ResponseEntity<byte[]> proxyMasterData(HttpServletRequest request,
                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -66,6 +81,9 @@ public class GatewayProxyController {
         return proxy(properties.getMasterDataServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping({"/api/audit/**", "/api/audit"})
     public ResponseEntity<byte[]> proxyAudit(HttpServletRequest request,
                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -73,6 +91,9 @@ public class GatewayProxyController {
         return proxy(properties.getAuditServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/contractors/**")
     public ResponseEntity<byte[]> proxyContractor(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -80,6 +101,9 @@ public class GatewayProxyController {
         return proxy(properties.getContractorServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/major-hazards/**")
     public ResponseEntity<byte[]> proxyMajorHazard(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -87,6 +111,9 @@ public class GatewayProxyController {
         return proxy(properties.getMajorHazardServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/alarms/**")
     public ResponseEntity<byte[]> proxyAlarm(HttpServletRequest request,
                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -94,6 +121,9 @@ public class GatewayProxyController {
         return proxy(properties.getAlarmServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/work-permits/**")
     public ResponseEntity<byte[]> proxyWorkPermit(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -101,6 +131,9 @@ public class GatewayProxyController {
         return proxy(properties.getWorkPermitServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/mobile/**")
     public ResponseEntity<byte[]> proxyMobile(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -108,6 +141,9 @@ public class GatewayProxyController {
         return proxy(properties.getMobileBffUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
     public ResponseEntity<byte[]> proxyReport(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -115,6 +151,9 @@ public class GatewayProxyController {
         return proxy(properties.getReportServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @RequestMapping("/api/files/**")
     public ResponseEntity<byte[]> proxyFile(HttpServletRequest request,
                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {

@@ -32,6 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 实现方式：承载重大危险源业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class MajorHazardServiceImpl implements MajorHazardService {
@@ -42,6 +45,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
     private final MajorHazardAuditRecordMapper auditRecordMapper;
     private final CentralAuditClient centralAuditClient;
 
+    /**
+     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public PageResult<MajorHazardVO> page(Long tenantId, String keyword, String status, String level,
                                           int pageNo, int pageSize) {
@@ -62,11 +68,17 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return new PageResult<MajorHazardVO>(total, page.pageNo, page.pageSize, records);
     }
 
+    /**
+     * 实现方式：按 ID 查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public MajorHazardVO getById(Long tenantId, Long id) {
         return toVO(requireHazard(tenantId, id));
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MajorHazardVO create(MajorHazardRequest request, String operator) {
@@ -83,6 +95,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MajorHazardVO update(Long id, MajorHazardRequest request, String operator) {
@@ -97,6 +112,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：发布业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MajorHazardVO publish(Long tenantId, Long id, String operator) {
@@ -114,6 +132,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：变更业务状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public MajorHazardVO changeStatus(Long tenantId, Long id, HazardStatusRequest request, String operator) {
@@ -129,6 +150,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：查询责任人配置，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<MajorHazardResponsibilityVO> listResponsibilities(Long tenantId, Long hazardId) {
         requireHazard(tenantId, hazardId);
@@ -140,6 +164,9 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return records;
     }
 
+    /**
+     * 实现方式：替换责任人配置，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     @Transactional
     public List<MajorHazardResponsibilityVO> replaceResponsibilities(Long tenantId, Long hazardId,

@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 
+/**
+ * 接口用途：提供审计日志相关 HTTP API，统一封装请求校验、服务调用与响应返回。
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/audit")
@@ -24,6 +27,9 @@ public class AuditLogController {
 
     private final AuditLogService service;
 
+    /**
+     * 接口用途：分页查询业务数据。
+     */
     @GetMapping("/logs")
     public ResponseVO<PageResult<AuditLogRecordVO>> page(@RequestParam Long tenantId,
                                                          @RequestParam(required = false) String bizType,
@@ -43,6 +49,9 @@ public class AuditLogController {
                 startTime, endTime, pageNo, pageSize));
     }
 
+    /**
+     * 接口用途：处理接口请求。
+     */
     @PostMapping("/logs")
     public ResponseVO<Void> append(@Valid @RequestBody AuditLogIngestRequest request) {
         service.append(request);

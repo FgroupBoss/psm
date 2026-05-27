@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实现方式：承载人员培训业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class WorkerTrainingServiceImpl implements WorkerTrainingService {
@@ -24,6 +27,9 @@ public class WorkerTrainingServiceImpl implements WorkerTrainingService {
     private final ContractorWorkerMapper workerMapper;
     private final ContractorWorkerService workerService;
 
+    /**
+     * 实现方式：按承包商人员查询培训记录，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public List<WorkerTrainingVO> listByWorker(Long tenantId, Long workerId) {
         requireWorker(tenantId, workerId);
@@ -35,6 +41,9 @@ public class WorkerTrainingServiceImpl implements WorkerTrainingService {
         return records;
     }
 
+    /**
+     * 实现方式：创建业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkerTrainingVO create(Long workerId, WorkerTrainingRequest request, String operator) {
         requireWorker(request.getTenantId(), workerId);
@@ -48,6 +57,9 @@ public class WorkerTrainingServiceImpl implements WorkerTrainingService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：更新业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public WorkerTrainingVO update(Long workerId, Long trainingId, WorkerTrainingRequest request, String operator) {
         WorkerTrainingRecordEntity entity = requireTraining(request.getTenantId(), workerId, trainingId);
@@ -57,6 +69,9 @@ public class WorkerTrainingServiceImpl implements WorkerTrainingService {
         return toVO(entity);
     }
 
+    /**
+     * 实现方式：删除业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public void delete(Long tenantId, Long workerId, Long trainingId, String operator) {
         WorkerTrainingRecordEntity entity = requireTraining(tenantId, workerId, trainingId);

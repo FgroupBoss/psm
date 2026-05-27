@@ -22,6 +22,9 @@ import java.util.Date;
  * 文件元数据与本地存储编排。
  */
 @Slf4j
+/**
+ * 实现方式：承载文件业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
@@ -29,6 +32,9 @@ public class FileServiceImpl implements FileService {
     private final FileObjectMapper fileObjectMapper;
     private final LocalFileStorageSupport storageSupport;
 
+    /**
+     * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public FileHealthVO health() {
         FileHealthVO vo = new FileHealthVO();
@@ -39,6 +45,9 @@ public class FileServiceImpl implements FileService {
         return vo;
     }
 
+    /**
+     * 实现方式：上传文件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public FileObjectVO upload(Long tenantId, MultipartFile file, String bizType, Long bizId, String operator) {
         if (file == null || file.isEmpty()) {
@@ -73,11 +82,17 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    /**
+     * 实现方式：查询详情，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public FileObjectVO get(Long tenantId, Long id) {
         return toVo(requireEntity(tenantId, id));
     }
 
+    /**
+     * 实现方式：加载文件资源，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public Resource loadAsResource(Long tenantId, Long id) {
         FileObjectEntity entity = requireEntity(tenantId, id);

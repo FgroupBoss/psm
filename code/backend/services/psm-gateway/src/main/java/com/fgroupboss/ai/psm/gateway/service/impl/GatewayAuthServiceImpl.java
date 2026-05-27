@@ -17,6 +17,9 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * 实现方式：承载网关鉴权业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ */
 @Service
 @RequiredArgsConstructor
 public class GatewayAuthServiceImpl implements GatewayAuthService {
@@ -25,6 +28,9 @@ public class GatewayAuthServiceImpl implements GatewayAuthService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     */
     @Override
     public AuthPrincipal authenticate(String authorization) {
         if (!StringUtils.hasText(authorization)) {
