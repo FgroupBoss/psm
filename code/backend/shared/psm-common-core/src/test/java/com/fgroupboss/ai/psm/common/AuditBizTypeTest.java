@@ -24,4 +24,10 @@ class AuditBizTypeTest {
         assertEquals("ALARM", AuditBizType.ALARM.code());
         assertTrue(AuditBizType.ALARM_ACTION.name().startsWith("ALARM_"));
     }
+
+    @Test
+    void dualPreventionTypesShouldBeDefined() {
+        assertEquals("DUAL_PREVENTION_HAZARD", AuditBizType.DUAL_PREVENTION_HAZARD.code());
+        assertEquals("INSPECTION_TASK", AuditBizType.INSPECTION_TASK.code());
+    }
 }

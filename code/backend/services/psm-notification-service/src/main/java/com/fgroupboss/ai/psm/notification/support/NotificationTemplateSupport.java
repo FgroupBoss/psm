@@ -36,6 +36,18 @@ public final class NotificationTemplateSupport {
                     format("作业票【{{permitNo}}】已超过计划结束时间，当前状态{{status}}，请核实是否延期或关闭。",
                             variables));
         }
+        if ("HAZARD_OVERDUE".equals(code)) {
+            return new RenderedTemplate(
+                    "隐患逾期提醒",
+                    format("隐患【{{hazardNo}}】已逾期，当前状态{{status}}，请尽快处理。",
+                            variables));
+        }
+        if ("HAZARD_ESCALATION".equals(code)) {
+            return new RenderedTemplate(
+                    "隐患升级提醒",
+                    format("隐患【{{hazardNo}}】已升级至{{level}}，原因：{{reason}}，请及时跟进。",
+                            variables));
+        }
         throw new BusinessException(400, "unknown notification template: " + templateCode);
     }
 

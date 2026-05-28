@@ -27,4 +27,6 @@ public interface MajorHazardService {
 
     List<MajorHazardResponsibilityVO> replaceResponsibilities(Long tenantId, Long hazardId,
                                                               ResponsibilityReplaceRequest request, String operator);
+
+    MajorHazardVO bindInspectionPlan(Long tenantId, Long hazardId, Long inspectionPlanId, String operator);
 }

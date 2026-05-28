@@ -4,7 +4,9 @@ import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
+import com.fgroupboss.ai.psm.alarm.model.dto.AlarmToHazardRequest;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
+import com.fgroupboss.ai.psm.alarm.client.RemoteHazardReportVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmDetailVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmHealthVO;
@@ -35,4 +37,6 @@ public interface AlarmService {
     AlarmEventVO falseClose(Long tenantId, Long id, AlarmFalseCloseRequest request, String operator);
 
     AlarmAreaActiveCheckVO areaActiveCheck(AlarmAreaActiveCheckRequest request);
+
+    RemoteHazardReportVO toHazard(Long tenantId, Long id, AlarmToHazardRequest request);
 }

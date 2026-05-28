@@ -20,6 +20,11 @@ public class GatewayProperties {
     private String reportServiceUrl = "http://localhost:18090";
     private String fileServiceUrl = "http://localhost:18092";
     private String notificationServiceUrl = "http://localhost:18093";
+    private String inspectionServiceUrl = "http://localhost:18102";
+    private String dualPreventionServiceUrl = "http://localhost:18101";
+    private String locationServiceUrl = "http://localhost:18103";
+    private String videoServiceUrl = "http://localhost:18104";
+    private String integrationServiceUrl = "http://localhost:18091";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -123,6 +128,46 @@ public class GatewayProperties {
 
     public void setNotificationServiceUrl(String notificationServiceUrl) {
         this.notificationServiceUrl = trimTrailingSlash(notificationServiceUrl);
+    }
+
+    public String getInspectionServiceUrl() {
+        return inspectionServiceUrl;
+    }
+
+    public void setInspectionServiceUrl(String inspectionServiceUrl) {
+        this.inspectionServiceUrl = trimTrailingSlash(inspectionServiceUrl);
+    }
+
+    public String getDualPreventionServiceUrl() {
+        return dualPreventionServiceUrl;
+    }
+
+    public void setDualPreventionServiceUrl(String dualPreventionServiceUrl) {
+        this.dualPreventionServiceUrl = trimTrailingSlash(dualPreventionServiceUrl);
+    }
+
+    public String getLocationServiceUrl() {
+        return locationServiceUrl;
+    }
+
+    public void setLocationServiceUrl(String locationServiceUrl) {
+        this.locationServiceUrl = trimTrailingSlash(locationServiceUrl);
+    }
+
+    public String getVideoServiceUrl() {
+        return videoServiceUrl;
+    }
+
+    public void setVideoServiceUrl(String videoServiceUrl) {
+        this.videoServiceUrl = trimTrailingSlash(videoServiceUrl);
+    }
+
+    public String getIntegrationServiceUrl() {
+        return integrationServiceUrl;
+    }
+
+    public void setIntegrationServiceUrl(String integrationServiceUrl) {
+        this.integrationServiceUrl = trimTrailingSlash(integrationServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

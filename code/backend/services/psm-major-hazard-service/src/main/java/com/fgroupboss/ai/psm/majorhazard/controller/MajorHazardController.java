@@ -7,6 +7,7 @@ import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.HazardAttachmentRequest;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.HazardPointRequest;
+import com.fgroupboss.ai.psm.majorhazard.model.dto.HazardInspectionPlanBindRequest;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.HazardStatusRequest;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.MajorHazardRequest;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.ResponsibilityReplaceRequest;
@@ -239,6 +240,20 @@ public class MajorHazardController {
     @GetMapping("/{id}/alarms")
     public ResponseVO<List<HazardAlarmSummaryVO>> listAlarms(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(hazardAlarmQueryService.listByHazard(tenantId, id));
+    }
+
+    /**
+     * 接口用途：绑定默认巡检计划。
+     */
+    @PostMapping("/{id}/inspection-plan/bind")
+    public ResponseVO<MajorHazardVO> bindInspectionPlan(@PathVariable Long id,
+                                                        @Valid @RequestBody HazardInspectionPlanBindRequest request,
+                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
+                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
+                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(hazardService.bindInspectionPlan(
+                request.getTenantId(), id, request.getInspectionPlanId(),
+                operator(userId, username, operator)));
     }
 
     /**

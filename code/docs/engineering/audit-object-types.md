@@ -31,6 +31,18 @@
 | `ALARM_ACTION` | 确认、派发、反馈、关闭等处置动作 |
 | `ALARM_RULE` | 报警规则配置变更 |
 
+## 二期（DUAL_PREVENTION_* / INSPECTION_* / LOCATION_* / VIDEO_* / SIMOPS_* / REG_*）
+
+| biz_type | 说明 |
+| --- | --- |
+| `DUAL_PREVENTION_RISK_UNIT` | 风险单元变更 |
+| `DUAL_PREVENTION_HAZARD` | 隐患上报与处置 |
+| `INSPECTION_TASK` | 巡检任务完成、异常登记 |
+| `LOCATION_EVENT` | 定位事件接入 |
+| `VIDEO_AI_EVENT` | 视频 AI 事件接入与处置 |
+| `SIMOPS_CONFLICT` | SIMOPS 冲突检测与协调 |
+| `REG_REPORT_TASK` | 监管上报任务 |
+
 ## 使用说明
 
 - 各业务服务写入审计时使用 {@link AuditBizType#code()}，禁止随意新增字符串。

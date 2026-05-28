@@ -12,6 +12,7 @@ create table if not exists major_hazard (
   actual_capacity varchar(64) null comment '实际容量',
   critical_quantity varchar(64) null comment '临界量',
   emergency_plan_id bigint null comment '应急预案ID',
+  default_inspection_plan_id bigint null comment '默认巡检计划ID',
   status varchar(32) not null default 'DRAFT' comment '状态',
   published_at datetime null comment '发布时间',
   created_at datetime not null default current_timestamp comment '创建时间',

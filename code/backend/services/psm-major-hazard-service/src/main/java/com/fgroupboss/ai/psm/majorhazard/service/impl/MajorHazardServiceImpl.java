@@ -182,6 +182,18 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         return listResponsibilities(tenantId, hazardId);
     }
 
+    @Override
+    @Transactional
+    public MajorHazardVO bindInspectionPlan(Long tenantId, Long hazardId, Long inspectionPlanId, String operator) {
+        MajorHazardEntity entity = requireHazard(tenantId, hazardId);
+        entity.setDefaultInspectionPlanId(inspectionPlanId);
+        hazardMapper.updateById(entity);
+        writeAudit(tenantId, hazardId, AuditBizType.MAJOR_HAZARD.name(),
+                "BIND_INSPECTION_PLAN", null, String.valueOf(inspectionPlanId),
+                "bind default inspection plan", operator);
+        return toVO(entity);
+    }
+
     private void upsertResponsibility(Long tenantId, Long hazardId, ResponsibilityRequest item) {
         ResponsibilityType.assertValid(item.getResponsibilityType());
         MajorHazardResponsibilityEntity existing = responsibilityMapper.findByType(
@@ -320,6 +332,7 @@ public class MajorHazardServiceImpl implements MajorHazardService {
         vo.setActualCapacity(entity.getActualCapacity());
         vo.setCriticalQuantity(entity.getCriticalQuantity());
         vo.setEmergencyPlanId(entity.getEmergencyPlanId());
+        vo.setDefaultInspectionPlanId(entity.getDefaultInspectionPlanId());
         vo.setStatus(entity.getStatus());
         vo.setPublishedAt(entity.getPublishedAt());
         return vo;

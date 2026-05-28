@@ -20,6 +20,7 @@ public class MajorHazardVO {
     private String actualCapacity;
     private String criticalQuantity;
     private Long emergencyPlanId;
+    private Long defaultInspectionPlanId;
     private String status;
     private LocalDateTime publishedAt;
 }

@@ -11,7 +11,11 @@ import com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
+import com.fgroupboss.ai.psm.alarm.client.DualPreventionClient;
+import com.fgroupboss.ai.psm.alarm.client.RemoteHazardCreateRequest;
+import com.fgroupboss.ai.psm.alarm.client.RemoteHazardReportVO;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
+import com.fgroupboss.ai.psm.alarm.model.dto.AlarmToHazardRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmActionRecordEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmOccurrenceEntity;
@@ -50,6 +54,7 @@ public class AlarmServiceImpl implements AlarmService {
     private final AlarmActionRecordMapper actionRecordMapper;
     private final AlarmAuditSupport auditSupport;
     private final AlarmDedupSupport dedupSupport;
+    private final DualPreventionClient dualPreventionClient;
 
     /**
      * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
@@ -210,6 +215,51 @@ public class AlarmServiceImpl implements AlarmService {
         result.setCount(result.getAlarms().size());
         result.setHasBlocking(result.getCount() > 0);
         return result;
+    }
+
+    @Override
+    public RemoteHazardReportVO toHazard(Long tenantId, Long id, AlarmToHazardRequest request) {
+        requireTenantId(tenantId);
+        if (request == null || !tenantId.equals(request.getTenantId())) {
+            throw new BusinessException(400, "tenantId mismatch");
+        }
+        AlarmEventEntity entity = requireEvent(tenantId, id);
+
+        RemoteHazardCreateRequest createRequest = new RemoteHazardCreateRequest();
+        createRequest.setTenantId(tenantId);
+        createRequest.setSourceType("ALARM");
+        createRequest.setSourceBizId(id);
+        createRequest.setAreaId(entity.getAreaId());
+        createRequest.setRiskUnitId(entity.getUnitId());
+        createRequest.setHazardLevel(StringUtils.hasText(request.getHazardLevel())
+                ? request.getHazardLevel().trim() : "MAJOR");
+        createRequest.setDescription(resolveHazardDescription(entity, request.getDescription()));
+
+        try {
+            return dualPreventionClient.createHazard(createRequest);
+        } catch (RuntimeException ex) {
+            throw new BusinessException(502, "failed to create hazard from alarm: " + ex.getMessage());
+        }
+    }
+
+    private String resolveHazardDescription(AlarmEventEntity entity, String override) {
+        if (StringUtils.hasText(override)) {
+            return override.trim();
+        }
+        StringBuilder builder = new StringBuilder();
+        if (StringUtils.hasText(entity.getTitle())) {
+            builder.append(entity.getTitle().trim());
+        }
+        if (StringUtils.hasText(entity.getContent())) {
+            if (builder.length() > 0) {
+                builder.append(" - ");
+            }
+            builder.append(entity.getContent().trim());
+        }
+        if (builder.length() == 0) {
+            return "alarm " + (entity.getAlarmNo() == null ? entity.getId() : entity.getAlarmNo());
+        }
+        return builder.toString();
     }
 
     private AlarmEventVO mergeOccurrence(AlarmEventEntity existing, AlarmIngestRequest request, Date occurredAt) {

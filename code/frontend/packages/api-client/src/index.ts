@@ -1,5 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -89,7 +89,24 @@ import type {
   TrendSeriesRecord,
   MobileTaskRecord,
   MobileFileUploadRecord,
-  TimelineItemRecord
+  TimelineItemRecord,
+  RiskUnitRecord,
+  RiskUnitTreeNode,
+  HazardReportRecord,
+  HazardStatisticsRecord,
+  InspectionPlanRecord,
+  InspectionTaskRecord,
+  InspectionStatisticsRecord,
+  LocTagRecord,
+  LocEventRecord,
+  VisitorAccessRecord,
+  VideoCameraRecord,
+  VideoAiEventRecord,
+  SimopsConflictRuleRecord,
+  SimopsScanResultRecord,
+  SimopsStatisticsRecord,
+  RegReportTaskRecord,
+  Phase2ReportSummaryRecord
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -1355,4 +1372,205 @@ async function resolveErrorMessage(response: Response): Promise<string> {
   } catch {
     return `HTTP ${response.status}`;
   }
+}
+
+// --- Phase 2 APIs ---
+
+export async function fetchRiskUnits(params: {
+  tenantId: number;
+  keyword?: string;
+  status?: string;
+  pageNo?: number;
+  pageSize?: number;
+}): Promise<PageResult<RiskUnitRecord>> {
+  const q = new URLSearchParams({ tenantId: String(params.tenantId), pageNo: String(params.pageNo || 1), pageSize: String(params.pageSize || 20) });
+  if (params.keyword) q.set('keyword', params.keyword);
+  if (params.status) q.set('status', params.status);
+  return request<PageResult<RiskUnitRecord>>(`${DUAL_PREVENTION_API.riskUnits}?${q}`);
+}
+
+export async function fetchRiskUnitTree(tenantId: number, areaId?: number): Promise<RiskUnitTreeNode[]> {
+  const q = new URLSearchParams({ tenantId: String(tenantId) });
+  if (areaId) q.set('areaId', String(areaId));
+  return request<RiskUnitTreeNode[]>(`${DUAL_PREVENTION_API.riskUnits}/tree?${q}`);
+}
+
+export async function fetchRiskColorMap(tenantId: number, areaId?: number): Promise<Record<string, number>> {
+  const q = new URLSearchParams({ tenantId: String(tenantId) });
+  if (areaId) q.set('areaId', String(areaId));
+  return request<Record<string, number>>(`${DUAL_PREVENTION_API.riskUnits}/color-map?${q}`);
+}
+
+export async function fetchHazards(params: {
+  tenantId: number;
+  keyword?: string;
+  status?: string;
+  overdueFlag?: number;
+  pageNo?: number;
+  pageSize?: number;
+}): Promise<PageResult<HazardReportRecord>> {
+  const q = new URLSearchParams({ tenantId: String(params.tenantId), pageNo: String(params.pageNo || 1), pageSize: String(params.pageSize || 20) });
+  if (params.keyword) q.set('keyword', params.keyword);
+  if (params.status) q.set('status', params.status);
+  if (params.overdueFlag != null) q.set('overdueFlag', String(params.overdueFlag));
+  return request<PageResult<HazardReportRecord>>(`${DUAL_PREVENTION_API.hazards}?${q}`);
+}
+
+export async function fetchHazardDetail(id: number, tenantId: number): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}?tenantId=${tenantId}`);
+}
+
+export async function fetchHazardStatistics(tenantId: number, areaId?: number): Promise<HazardStatisticsRecord> {
+  const q = new URLSearchParams({ tenantId: String(tenantId) });
+  if (areaId) q.set('areaId', String(areaId));
+  return request<HazardStatisticsRecord>(`${DUAL_PREVENTION_API.hazards}/statistics?${q}`);
+}
+
+export async function createHazard(payload: {
+  tenantId: number;
+  hazardLevel: string;
+  sourceType: string;
+  description: string;
+  areaId?: number;
+  riskUnitId?: number;
+  sourceBizId?: number;
+}): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(DUAL_PREVENTION_API.hazards, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function confirmHazard(id: number, payload: { tenantId: number; assigneeUserId?: number; hazardLevel?: string; content?: string }): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}/confirm`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function rectifyHazard(id: number, payload: { tenantId: number; content: string }): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}/rectify`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function reviewHazard(id: number, payload: { tenantId: number; passed: boolean; content?: string }): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}/review`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function escalateHazard(id: number, payload: { tenantId: number; reason?: string; notifyUserId?: number }): Promise<HazardReportRecord> {
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}/escalate`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function fetchInspectionPlans(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<InspectionPlanRecord>> {
+  return request<PageResult<InspectionPlanRecord>>(`${INSPECTION_API.plans}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchInspectionTasks(params: {
+  tenantId: number;
+  status?: string;
+  executorId?: number;
+  pageNo?: number;
+  pageSize?: number;
+}): Promise<PageResult<InspectionTaskRecord>> {
+  const q = new URLSearchParams({ tenantId: String(params.tenantId), pageNo: String(params.pageNo || 1), pageSize: String(params.pageSize || 20) });
+  if (params.status) q.set('status', params.status);
+  if (params.executorId) q.set('executorId', String(params.executorId));
+  return request<PageResult<InspectionTaskRecord>>(`${INSPECTION_API.tasks}?${q}`);
+}
+
+export async function fetchInspectionTaskDetail(id: number, tenantId: number): Promise<InspectionTaskRecord> {
+  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}?tenantId=${tenantId}`);
+}
+
+export async function startInspectionTask(id: number, payload: { tenantId: number; executorId?: number }): Promise<InspectionTaskRecord> {
+  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}/start`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function signInInspectionTask(id: number, payload: { tenantId: number; routePointId: number; signType: string; signCode?: string }): Promise<unknown> {
+  return request(`${INSPECTION_API.tasks}/${id}/sign-in`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function completeInspectionTask(id: number, tenantId: number): Promise<InspectionTaskRecord> {
+  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}/complete?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function registerInspectionAbnormal(id: number, payload: {
+  tenantId: number;
+  abnormalDesc: string;
+  photoUrls: string;
+  createHazard?: boolean;
+  severity?: string;
+  routePointId?: number;
+}): Promise<unknown> {
+  return request(`${INSPECTION_API.tasks}/${id}/abnormals`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function fetchInspectionStatistics(tenantId: number): Promise<InspectionStatisticsRecord> {
+  return request<InspectionStatisticsRecord>(`${INSPECTION_API.statistics}?tenantId=${tenantId}`);
+}
+
+export async function syncInspectionDraft(payload: { tenantId: number; taskId?: number; clientDraftId: string; payloadJson: string }): Promise<unknown> {
+  return request(`${INSPECTION_API.tasks}/draft-sync`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function fetchLocTags(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<LocTagRecord>> {
+  return request<PageResult<LocTagRecord>>(`${LOCATION_API.tags}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchLocEvents(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<LocEventRecord>> {
+  return request<PageResult<LocEventRecord>>(`${LOCATION_API.events}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchVisitorRecords(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<VisitorAccessRecord>> {
+  return request<PageResult<VisitorAccessRecord>>(`${LOCATION_API.visitors}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchAreaHeadcount(tenantId: number, areaId: number): Promise<{ areaId: number; headcount: number }> {
+  return request<{ areaId: number; headcount: number }>(`${LOCATION_API.headcount}/${areaId}/headcount?tenantId=${tenantId}`);
+}
+
+export async function fetchVideoCameras(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<VideoCameraRecord>> {
+  return request<PageResult<VideoCameraRecord>>(`${VIDEO_API.cameras}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchVideoAiEvents(tenantId: number, pageNo = 1, pageSize = 20, status?: string): Promise<PageResult<VideoAiEventRecord>> {
+  const q = new URLSearchParams({ tenantId: String(tenantId), pageNo: String(pageNo), pageSize: String(pageSize) });
+  if (status) q.set('status', status);
+  return request<PageResult<VideoAiEventRecord>>(`${VIDEO_API.aiEvents}?${q}`);
+}
+
+export async function videoAiEventToAlarm(id: number, tenantId: number): Promise<VideoAiEventRecord> {
+  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/to-alarm?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function ignoreVideoAiEvent(id: number, tenantId: number, reason: string): Promise<VideoAiEventRecord> {
+  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/ignore?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+export async function fetchSimopsRules(tenantId: number): Promise<SimopsConflictRuleRecord[]> {
+  return request<SimopsConflictRuleRecord[]>(`${SIMOPS_API.rules}?tenantId=${tenantId}`);
+}
+
+export async function fetchSimopsConflicts(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<SimopsScanResultRecord>> {
+  return request<PageResult<SimopsScanResultRecord>>(`${SIMOPS_API.conflicts}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function fetchSimopsStatistics(tenantId: number): Promise<SimopsStatisticsRecord> {
+  return request<SimopsStatisticsRecord>(`${SIMOPS_API.statistics}?tenantId=${tenantId}`);
+}
+
+export async function coordinateSimopsConflict(id: number, payload: { tenantId: number; decision: string; opinion?: string }): Promise<unknown> {
+  return request(`${SIMOPS_API.base}/conflicts/${id}/coordinate`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function fetchRegReportTasks(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<RegReportTaskRecord>> {
+  return request<PageResult<RegReportTaskRecord>>(`${INTEGRATION_REG_API.tasks}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+}
+
+export async function triggerRegReport(payload: { tenantId: number; platformCode: string; dataDomain: string }): Promise<RegReportTaskRecord> {
+  return request<RegReportTaskRecord>(`${INTEGRATION_REG_API.tasks}/trigger`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function retryRegReportTask(id: number, tenantId: number): Promise<RegReportTaskRecord> {
+  return request<RegReportTaskRecord>(`${INTEGRATION_REG_API.tasks}/${id}/retry?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchPhase2ReportSummary(tenantId: number): Promise<Phase2ReportSummaryRecord> {
+  return request<Phase2ReportSummaryRecord>(`${REPORT_API.phase2Summary}?tenantId=${tenantId}`);
 }

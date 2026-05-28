@@ -20,3 +20,8 @@ psm:
     report-service-url: ${PSM_REPORT_SERVICE_URL:http://localhost:18090}
     file-service-url: ${PSM_FILE_SERVICE_URL:http://localhost:18092}
     notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
+    inspection-service-url: ${PSM_INSPECTION_SERVICE_URL:http://localhost:18102}
+    dual-prevention-service-url: ${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}
+    location-service-url: ${PSM_LOCATION_SERVICE_URL:http://localhost:18103}
+    video-service-url: ${PSM_VIDEO_SERVICE_URL:http://localhost:18104}
+    integration-service-url: ${PSM_INTEGRATION_SERVICE_URL:http://localhost:18091}

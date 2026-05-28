@@ -737,7 +737,8 @@ export const REPORT_API = {
   export: '/api/reports/export',
   exportDownload: '/api/reports/export',
   acceptanceCases: '/api/acceptance/test-cases',
-  acceptanceRuns: '/api/acceptance/test-runs'
+  acceptanceRuns: '/api/acceptance/test-runs',
+  phase2Summary: '/api/reports/phase2/summary'
 } as const;
 
 export const MOBILE_API = {
@@ -1024,4 +1025,231 @@ export interface AcceptanceTestRunRequest {
   runStatus: string;
   evidenceRef?: string;
   remark?: string;
+}
+
+/** 二期 API 路径常量。 */
+export const DUAL_PREVENTION_API = {
+  base: '/api/dual-prevention',
+  riskUnits: '/api/dual-prevention/risk-units',
+  hazards: '/api/dual-prevention/hazards'
+} as const;
+
+export const INSPECTION_API = {
+  base: '/api/inspection',
+  plans: '/api/inspection/plans',
+  tasks: '/api/inspection/tasks',
+  statistics: '/api/inspection/tasks/statistics'
+} as const;
+
+export const LOCATION_API = {
+  base: '/api/location',
+  tags: '/api/location/tags',
+  events: '/api/location/events',
+  geofences: '/api/location/geofences',
+  visitors: '/api/location/visitors/records',
+  headcount: '/api/location/areas'
+} as const;
+
+export const VIDEO_API = {
+  base: '/api/video',
+  cameras: '/api/video/cameras',
+  aiEvents: '/api/video/ai-events'
+} as const;
+
+export const SIMOPS_API = {
+  base: '/api/simops',
+  rules: '/api/simops/rules',
+  conflicts: '/api/simops/conflicts',
+  statistics: '/api/simops/statistics'
+} as const;
+
+export const INTEGRATION_REG_API = {
+  base: '/api/integration/reg',
+  tasks: '/api/integration/reg/tasks',
+  platforms: '/api/integration/reg/platforms'
+} as const;
+
+export interface RiskUnitRecord {
+  id: number;
+  tenantId: number;
+  unitCode?: string;
+  unitName: string;
+  areaId?: number;
+  parentId?: number;
+  riskLevel?: string;
+  status?: string;
+}
+
+export interface RiskUnitTreeNode {
+  id: number;
+  unitName: string;
+  riskLevel?: string;
+  children?: RiskUnitTreeNode[];
+}
+
+export interface HazardReportRecord {
+  id: number;
+  tenantId: number;
+  hazardNo?: string;
+  hazardLevel: string;
+  sourceType?: string;
+  sourceBizId?: number;
+  riskUnitId?: number;
+  areaId?: number;
+  description: string;
+  foundAt?: string;
+  rectificationDeadline?: string;
+  status: string;
+  overdueFlag?: number;
+  assigneeUserId?: number;
+}
+
+export interface HazardStatisticsRecord {
+  totalCount?: number;
+  openCount?: number;
+  overdueCount?: number;
+  closedCount?: number;
+}
+
+export interface InspectionPlanRecord {
+  id: number;
+  tenantId: number;
+  planCode: string;
+  planName: string;
+  routeId?: number;
+  cycleType?: string;
+  majorHazardId?: number;
+  enabled?: number;
+}
+
+export interface InspectionTaskRecord {
+  id: number;
+  tenantId: number;
+  taskNo?: string;
+  planId?: number;
+  routeId?: number;
+  scheduledStart?: string;
+  scheduledEnd?: string;
+  actualStart?: string;
+  actualEnd?: string;
+  executorId?: number;
+  status: string;
+  completionRate?: number;
+  abnormalCount?: number;
+}
+
+export interface InspectionStatisticsRecord {
+  totalCount?: number;
+  pendingCount?: number;
+  inProgressCount?: number;
+  completedCount?: number;
+  missedCount?: number;
+  abnormalItemCount?: number;
+  completionRate?: number;
+  missedRate?: number;
+  abnormalRate?: number;
+}
+
+export interface LocTagRecord {
+  id: number;
+  tenantId: number;
+  tagNo: string;
+  tagType?: string;
+  status?: string;
+  batteryLevel?: number;
+}
+
+export interface LocEventRecord {
+  id: number;
+  tenantId: number;
+  eventType: string;
+  tagNo?: string;
+  personId?: number;
+  areaId?: number;
+  eventTime?: string;
+  alarmId?: number;
+}
+
+export interface VisitorAccessRecord {
+  id: number;
+  tenantId: number;
+  visitorName?: string;
+  idNoMasked?: string;
+  visitPurpose?: string;
+  accessType?: string;
+  gateName?: string;
+  accessTime?: string;
+}
+
+export interface VideoCameraRecord {
+  id: number;
+  tenantId: number;
+  cameraCode?: string;
+  cameraName: string;
+  areaId?: number;
+  status?: string;
+}
+
+export interface VideoAiEventRecord {
+  id: number;
+  tenantId: number;
+  eventNo?: string;
+  eventType: string;
+  eventTime?: string;
+  cameraId?: number;
+  severity?: string;
+  status: string;
+  title?: string;
+  alarmId?: number;
+}
+
+export interface SimopsConflictRuleRecord {
+  id: number;
+  tenantId: number;
+  ruleCode?: string;
+  ruleName?: string;
+  workTypeA?: string;
+  workTypeB?: string;
+  conflictAction?: string;
+  enabled?: boolean;
+}
+
+export interface SimopsScanResultRecord {
+  id: number;
+  tenantId: number;
+  workPermitId?: number;
+  scanStage?: string;
+  finalAction?: string;
+  conflictCount?: number;
+  scannedAt?: string;
+}
+
+export interface SimopsStatisticsRecord {
+  totalScans?: number;
+  totalConflicts?: number;
+  blockCount?: number;
+  coordinateCount?: number;
+  warnCount?: number;
+}
+
+export interface RegReportTaskRecord {
+  id: number;
+  tenantId: number;
+  taskNo?: string;
+  platformCode?: string;
+  dataDomain?: string;
+  status: string;
+  scheduledAt?: string;
+  completedAt?: string;
+}
+
+export interface Phase2ReportSummaryRecord {
+  tenantId?: number;
+  generatedAt?: string;
+  dataSource?: string;
+  dualPrevention?: { totalCount?: number; overdueCount?: number; closedCount?: number };
+  inspection?: { totalCount?: number; completedCount?: number; missedCount?: number; abnormalItemCount?: number };
+  location?: { eventCount?: number };
+  video?: { aiEventCount?: number };
+  simops?: { totalScans?: number; totalConflicts?: number; blockCount?: number; coordinateCount?: number; warnCount?: number };
 }

@@ -20,3 +20,4 @@ psm:
   central-audit-enabled: ${PSM_CENTRAL_AUDIT_ENABLED:true}
   notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
   central-notification-enabled: ${PSM_CENTRAL_NOTIFICATION_ENABLED:true}
+  dual-prevention-service-url: ${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}

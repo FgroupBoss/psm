@@ -29,6 +29,10 @@
         <module>services/psm-file-service</module>
         <module>services/psm-notification-service</module>
         <module>services/psm-audit-service</module>
+        <module>services/psm-dual-prevention-service</module>
+        <module>services/psm-video-service</module>
+        <module>services/psm-location-service</module>
+        <module>services/psm-inspection-service</module>
     </modules>
 
     <properties>

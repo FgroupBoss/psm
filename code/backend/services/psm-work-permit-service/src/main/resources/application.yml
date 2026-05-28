@@ -19,6 +19,9 @@ psm:
   central-audit-enabled: ${PSM_CENTRAL_AUDIT_ENABLED:true}
   contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
   alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}
+  dual-prevention-service-url: ${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}
+  location-service-url: ${PSM_LOCATION_SERVICE_URL:http://localhost:18103}
+  area-max-headcount: ${PSM_AREA_MAX_HEADCOUNT:50}
   gas-test-valid-minutes: ${PSM_GAS_TEST_VALID_MINUTES:30}
   notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
   central-notification-enabled: ${PSM_CENTRAL_NOTIFICATION_ENABLED:true}

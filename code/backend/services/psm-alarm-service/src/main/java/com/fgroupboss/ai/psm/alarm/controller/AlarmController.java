@@ -4,6 +4,8 @@ import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
+import com.fgroupboss.ai.psm.alarm.model.dto.AlarmToHazardRequest;
+import com.fgroupboss.ai.psm.alarm.client.RemoteHazardReportVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmDetailVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
@@ -151,6 +153,15 @@ public class AlarmController {
                                                @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.falseClose(tenantId, id, request, operator(userId, username, operator)));
+    }
+
+    /**
+     * 接口用途：报警一键转隐患。
+     */
+    @PostMapping("/{id}/to-hazard")
+    public ResponseVO<RemoteHazardReportVO> toHazard(@PathVariable Long id,
+                                                     @Valid @RequestBody AlarmToHazardRequest request) {
+        return ResponseVO.success(alarmService.toHazard(request.getTenantId(), id, request));
     }
 
     private AlarmActionRequest defaultRequest(AlarmActionRequest request) {

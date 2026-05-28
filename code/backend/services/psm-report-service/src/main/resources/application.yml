@@ -22,6 +22,10 @@ psm:
   alarm-service-url: ${PSM_ALARM_SERVICE_URL:http://localhost:18087}
   contractor-service-url: ${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}
   major-hazard-service-url: ${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}
+  dual-prevention-service-url: ${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}
+  inspection-service-url: ${PSM_INSPECTION_SERVICE_URL:http://localhost:18102}
+  location-service-url: ${PSM_LOCATION_SERVICE_URL:http://localhost:18103}
+  video-service-url: ${PSM_VIDEO_SERVICE_URL:http://localhost:18104}
   report:
     pilot-offline-work-count: ${PSM_REPORT_PILOT_OFFLINE_WORK_COUNT:0}
     critical-operation-baseline: ${PSM_REPORT_CRITICAL_OP_BASELINE:100}

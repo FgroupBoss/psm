@@ -39,6 +39,16 @@ import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, 
 import { AcceptancePanel, DashboardPanel, ReportOverviewPanel } from './report-panel';
 import { WorkPermitsPanel } from './work-permit-panel';
 import {
+  DualPreventionHazardsPanel,
+  DualPreventionRiskPanel,
+  InspectionPanel,
+  IntegrationRegPanel,
+  LocationPanel,
+  Phase2ReportPanel,
+  SimopsPanel,
+  VideoPanel
+} from './phase2-panels';
+import {
   confirmAction,
   errorMessage,
   formatTime,
@@ -223,6 +233,30 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     if (view === 'report:acceptance') {
       return <AcceptancePanel tenantId={user.tenantId} />;
     }
+    if (view === 'report:phase2') {
+      return <Phase2ReportPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'dual-prevention:risk') {
+      return <DualPreventionRiskPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'dual-prevention:hazards') {
+      return <DualPreventionHazardsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'inspection:tasks') {
+      return <InspectionPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'location:overview') {
+      return <LocationPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'video:events') {
+      return <VideoPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'simops:conflicts') {
+      return <SimopsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'integration:reg') {
+      return <IntegrationRegPanel tenantId={user.tenantId} />;
+    }
     if (view.startsWith('hazard:')) {
       return <ModulePlaceholderPanel title="重大危险源" hint="该视图尚未实现" />;
     }
@@ -253,7 +287,7 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">一期试点版</p>
+            <p className="eyebrow">一期 + 二期</p>
             <h1>{viewTitle(view)}</h1>
           </div>
           <div className="userbar">

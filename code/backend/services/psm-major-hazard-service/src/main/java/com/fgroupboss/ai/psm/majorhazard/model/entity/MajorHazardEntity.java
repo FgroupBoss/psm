@@ -25,6 +25,7 @@ public class MajorHazardEntity {
     private String actualCapacity;
     private String criticalQuantity;
     private Long emergencyPlanId;
+    private Long defaultInspectionPlanId;
     private String status;
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;

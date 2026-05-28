@@ -1,0 +1,22 @@
+server:
+  port: 18101
+
+spring:
+  application:
+    name: psm-dual-prevention-service
+  datasource:
+    url: ${PSM_DUAL_PREVENTION_DB_URL:jdbc:mysql://localhost:3306/psm_dual_prevention?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${PSM_DUAL_PREVENTION_DB_USERNAME:psm}
+    password: ${PSM_DUAL_PREVENTION_DB_PASSWORD:psm}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+psm:
+  audit-service-url: ${PSM_AUDIT_SERVICE_URL:http://localhost:18094}
+  central-audit-enabled: ${PSM_CENTRAL_AUDIT_ENABLED:true}
+  notification-service-url: ${PSM_NOTIFICATION_SERVICE_URL:http://localhost:18093}
+  central-notification-enabled: ${PSM_CENTRAL_NOTIFICATION_ENABLED:true}

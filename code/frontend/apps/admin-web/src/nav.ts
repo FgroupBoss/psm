@@ -19,7 +19,15 @@ export type AppView =
   | 'work-permit:list'
   | 'report:overview'
   | 'report:dashboard'
-  | 'report:acceptance';
+  | 'report:acceptance'
+  | 'report:phase2'
+  | 'dual-prevention:risk'
+  | 'dual-prevention:hazards'
+  | 'inspection:tasks'
+  | 'location:overview'
+  | 'video:events'
+  | 'simops:conflicts'
+  | 'integration:reg';
 
 export interface NavItem {
   view: AppView;
@@ -81,7 +89,31 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   MENU_RPT_DASHBOARD: 'report:dashboard',
   'report/acceptance': 'report:acceptance',
   'report:acceptance': 'report:acceptance',
-  MENU_RPT_ACCEPTANCE: 'report:acceptance'
+  MENU_RPT_ACCEPTANCE: 'report:acceptance',
+  'report/phase2': 'report:phase2',
+  'report:phase2': 'report:phase2',
+  MENU_RPT_PHASE2: 'report:phase2',
+  'dual-prevention/risk': 'dual-prevention:risk',
+  'dual-prevention:risk': 'dual-prevention:risk',
+  MENU_DP_RISK: 'dual-prevention:risk',
+  'dual-prevention/hazards': 'dual-prevention:hazards',
+  'dual-prevention:hazards': 'dual-prevention:hazards',
+  MENU_DP_HAZARDS: 'dual-prevention:hazards',
+  'inspection/tasks': 'inspection:tasks',
+  'inspection:tasks': 'inspection:tasks',
+  MENU_INSP_TASKS: 'inspection:tasks',
+  'location/overview': 'location:overview',
+  'location:overview': 'location:overview',
+  MENU_LOC_OVERVIEW: 'location:overview',
+  'video/events': 'video:events',
+  'video:events': 'video:events',
+  MENU_VIDEO_EVENTS: 'video:events',
+  'simops/conflicts': 'simops:conflicts',
+  'simops:conflicts': 'simops:conflicts',
+  MENU_SIMOPS: 'simops:conflicts',
+  'integration/reg': 'integration:reg',
+  'integration:reg': 'integration:reg',
+  MENU_REG: 'integration:reg'
 };
 
 /** 无 IAM 菜单数据时的默认可访问菜单（试点管理员）。 */
@@ -103,7 +135,15 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'work-permit:list', label: '作业票列表', group: '危险工作票' },
   { view: 'report:overview', label: '报表总览', group: '报表大屏' },
   { view: 'report:dashboard', label: '态势大屏', group: '报表大屏' },
-  { view: 'report:acceptance', label: '上线验收', group: '报表大屏' }
+  { view: 'report:acceptance', label: '上线验收', group: '报表大屏' },
+  { view: 'report:phase2', label: '二期指标', group: '报表大屏' },
+  { view: 'dual-prevention:risk', label: '风险清单', group: '双重预防' },
+  { view: 'dual-prevention:hazards', label: '隐患台账', group: '双重预防' },
+  { view: 'inspection:tasks', label: '智能巡检', group: '智能巡检' },
+  { view: 'location:overview', label: '人员定位', group: '人员定位' },
+  { view: 'video:events', label: '视频 AI', group: '视频智能' },
+  { view: 'simops:conflicts', label: 'SIMOPS', group: 'SIMOPS' },
+  { view: 'integration:reg', label: '监管上报', group: '监管接口' }
 ];
 
 const VIEW_TITLES: Record<AppView, string> = {
@@ -124,7 +164,15 @@ const VIEW_TITLES: Record<AppView, string> = {
   'work-permit:list': '作业票列表',
   'report:overview': '报表总览',
   'report:dashboard': '态势大屏',
-  'report:acceptance': '上线验收'
+  'report:acceptance': '上线验收',
+  'report:phase2': '二期指标',
+  'dual-prevention:risk': '风险清单',
+  'dual-prevention:hazards': '隐患台账',
+  'inspection:tasks': '智能巡检',
+  'location:overview': '人员定位',
+  'video:events': '视频 AI',
+  'simops:conflicts': 'SIMOPS',
+  'integration:reg': '监管上报'
 };
 
 export function viewTitle(view: AppView): string {

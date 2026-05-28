@@ -192,3 +192,98 @@ create table if not exists mobile_draft_sync (
   primary key (id),
   unique key uk_mobile_draft (tenant_id, client_draft_id)
 ) engine=InnoDB default charset=utf8mb4 comment='移动弱网草稿';
+
+create table if not exists simops_conflict_rule (
+  id bigint not null auto_increment comment '主键',
+  tenant_id bigint not null default 0 comment '租户ID，0表示全局默认',
+  work_type_a varchar(64) not null comment '作业类型A',
+  work_type_b varchar(64) not null comment '作业类型B',
+  area_scope varchar(64) not null default 'ALL' comment '区域范围 ALL或区域ID',
+  overlap_minutes int not null default 0 comment '最小重叠分钟数',
+  action varchar(32) not null comment 'WARN/COORDINATE/BLOCK',
+  enabled tinyint not null default 1 comment '是否启用',
+  remark varchar(512) null comment '说明',
+  created_at datetime not null default current_timestamp comment '创建时间',
+  updated_at datetime not null default current_timestamp on update current_timestamp comment '更新时间',
+  deleted tinyint not null default 0 comment '删除标识',
+  primary key (id),
+  key idx_simops_rule_tenant (tenant_id, enabled, deleted),
+  key idx_simops_rule_types (work_type_a, work_type_b)
+) engine=InnoDB default charset=utf8mb4 comment='SIMOPS冲突矩阵规则';
+
+create table if not exists simops_scan_result (
+  id bigint not null auto_increment comment '主键',
+  tenant_id bigint not null comment '租户ID',
+  work_permit_id bigint not null comment '当前作业票',
+  scan_stage varchar(32) not null comment 'SUBMIT/APPROVE/PERMIT',
+  conflict_count int not null default 0 comment '冲突数量',
+  max_severity varchar(32) null comment '最高严重级别 WARN/COORDINATE/BLOCK',
+  final_action varchar(32) not null default 'PASS' comment 'PASS/WARN/COORDINATE/BLOCK',
+  passed tinyint not null default 1 comment '是否通过',
+  suggestion varchar(512) null comment '处置建议',
+  scanned_at datetime not null default current_timestamp comment '扫描时间',
+  primary key (id),
+  key idx_simops_scan_permit (tenant_id, work_permit_id, scanned_at),
+  key idx_simops_scan_stage (tenant_id, scan_stage, scanned_at)
+) engine=InnoDB default charset=utf8mb4 comment='SIMOPS扫描结果';
+
+create table if not exists simops_conflict_item (
+  id bigint not null auto_increment comment '主键',
+  tenant_id bigint not null comment '租户ID',
+  scan_result_id bigint not null comment '扫描结果ID',
+  work_permit_id bigint not null comment '当前作业票',
+  related_work_permit_id bigint not null comment '冲突作业票',
+  rule_id bigint null comment '命中规则ID',
+  work_type_a varchar(64) not null comment '作业类型A',
+  work_type_b varchar(64) not null comment '作业类型B',
+  action varchar(32) not null comment 'WARN/COORDINATE/BLOCK',
+  overlap_minutes int not null default 0 comment '重叠分钟数',
+  message varchar(512) not null comment '冲突描述',
+  created_at datetime not null default current_timestamp comment '创建时间',
+  primary key (id),
+  key idx_simops_item_scan (tenant_id, scan_result_id),
+  key idx_simops_item_related (related_work_permit_id)
+) engine=InnoDB default charset=utf8mb4 comment='SIMOPS冲突明细';
+
+create table if not exists simops_coordination_record (
+  id bigint not null auto_increment comment '主键',
+  tenant_id bigint not null comment '租户ID',
+  scan_result_id bigint not null comment '扫描结果ID',
+  work_permit_id bigint not null comment '作业票ID',
+  decision varchar(32) not null comment 'APPROVED/REJECTED',
+  opinion varchar(1024) null comment '协调意见',
+  conditions_text varchar(1024) null comment '条件许可说明',
+  coordinator_name varchar(128) null comment '协调人',
+  coordinated_at datetime not null default current_timestamp comment '协调时间',
+  primary key (id),
+  key idx_simops_coord_scan (tenant_id, scan_result_id),
+  key idx_simops_coord_permit (tenant_id, work_permit_id, coordinated_at)
+) engine=InnoDB default charset=utf8mb4 comment='SIMOPS协调审批记录';
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'HOT_WORK', 'CONFINED_SPACE', 'ALL', 0, 'BLOCK', 1, '动火与受限空间经典SIMOPS硬阻断'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'HOT_WORK' and work_type_b = 'CONFINED_SPACE' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'HOT_WORK', 'LIFTING', 'ALL', 0, 'COORDINATE', 1, '动火与吊装需安全协调'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'HOT_WORK' and work_type_b = 'LIFTING' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'HOT_WORK', 'TEMPORARY_ELECTRIC', 'ALL', 0, 'WARN', 1, '动火与临时用电检查隔离防火'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'HOT_WORK' and work_type_b = 'TEMPORARY_ELECTRIC' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'CONFINED_SPACE', 'BLIND_PLATE', 'ALL', 0, 'COORDINATE', 1, '受限空间与盲板抽堵需确认隔离'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'CONFINED_SPACE' and work_type_b = 'BLIND_PLATE' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'EXCAVATION', 'UNDERGROUND_PIPE', 'ALL', 0, 'BLOCK', 1, '动土与地下管线检修防止误挖'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'EXCAVATION' and work_type_b = 'UNDERGROUND_PIPE' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'ROAD_BREAK', 'HOT_WORK', 'ALL', 0, 'WARN', 1, '断路影响区域作业'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'ROAD_BREAK' and work_type_b = 'HOT_WORK' and deleted = 0);
+
+insert into simops_conflict_rule (tenant_id, work_type_a, work_type_b, area_scope, overlap_minutes, action, enabled, remark)
+select 0, 'ROAD_BREAK', 'CONFINED_SPACE', 'ALL', 0, 'WARN', 1, '断路影响区域作业'
+where not exists (select 1 from simops_conflict_rule where tenant_id = 0 and work_type_a = 'ROAD_BREAK' and work_type_b = 'CONFINED_SPACE' and deleted = 0);

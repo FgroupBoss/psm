@@ -1,6 +1,6 @@
 # 本地联调启动说明
 
-> 适用：一期全量联调；当前覆盖承包商、危险源、报警、作业票、移动现场、报表大屏、文件与通知服务。
+> 适用：一期全量联调 + **二期 API 闭环**（不含多服务 E2E 签收）；当前覆盖承包商、危险源、报警、作业票、移动现场、报表大屏、文件与通知服务，以及双重预防、巡检、定位、视频、SIMOPS、监管扩展。
 
 ## 前置条件
 
@@ -25,6 +25,11 @@
 | `psm_file` | file |
 | `psm_work_permit` | work-permit |
 | `psm_report` | report |
+| `psm_dual_prevention` | dual-prevention |
+| `psm_inspection` | inspection |
+| `psm_location` | location |
+| `psm_video` | video |
+| `psm_integration` | integration（监管上报） |
 
 ## 服务端口
 
@@ -44,6 +49,11 @@
 | `psm-notification-service` | 18093 | 消息中心（站内信） |
 | `psm-file-service` | 18092 | 文件中心 |
 | `psm-audit-service` | 18094 | 中央审计查询 |
+| `psm-dual-prevention-service` | 18101 | 双重预防与隐患 |
+| `psm-inspection-service` | 18102 | 智能巡检 |
+| `psm-location-service` | 18103 | 人员定位与封闭化 |
+| `psm-video-service` | 18104 | 视频 AI 与过程监护 |
+| `psm-integration-service` | 18091 | 监管园区接口 |
 
 ## 启动顺序（建议）
 
@@ -63,6 +73,11 @@ mvn -pl services/psm-mobile-bff -am spring-boot:run
 mvn -pl services/psm-report-service -am spring-boot:run
 mvn -pl services/psm-file-service -am spring-boot:run
 mvn -pl services/psm-notification-service -am spring-boot:run
+mvn -pl services/psm-dual-prevention-service -am spring-boot:run
+mvn -pl services/psm-inspection-service -am spring-boot:run
+mvn -pl services/psm-location-service -am spring-boot:run
+mvn -pl services/psm-video-service -am spring-boot:run
+mvn -pl services/psm-integration-service -am spring-boot:run
 mvn -pl services/psm-gateway -am spring-boot:run
 ```
 
@@ -92,7 +107,7 @@ npm run dev:dashboard
 1. 写各自库本地流水（`contractor_audit_record` / `major_hazard_audit_record`）
 2. **best-effort** 上报 `psm-audit-service` 的 `audit_change_log`（`psm.central-audit-enabled=true`）
 
-管理端「审计日志」页按 `bizTypePrefix` 筛选 `CONTRACTOR_*`、`MAJOR_HAZARD*`、`ALARM*`。
+- 管理端「审计日志」页按 `bizTypePrefix` 筛选 `CONTRACTOR_*`、`MAJOR_HAZARD*`、`ALARM*` 及二期 `DUAL_PREVENTION_*`、`INSPECTION_*`、`LOCATION_*`、`VIDEO_*`、`SIMOPS_*`、`REG_*`。
 
 报警处置（confirm/dispatch/close 等）会双写 `alarm_action_record` 与中央审计 `ALARM_ACTION` / `ALARM`。
 
@@ -103,6 +118,14 @@ npm run dev:dashboard
 - 区域阻断：`POST /api/alarms/area-active-check`；major-hazard `risk-context` 默认查询并设置 `blockingAlarm`。
 - 危险源 Tab：`GET /api/major-hazards/{id}/alarms` 代理 alarm 列表（按 hazardId 筛选）。
 
+## 二期 API 闭环要点（不含 E2E 签收）
+
+- 网关 `18080` 已转发 `/api/dual-prevention`、`/api/inspection`、`/api/location`、`/api/video`、`/api/simops`、`/api/integration/reg/*`。
+- 重大危险源绑定巡检：`POST /api/major-hazards/{id}/inspection-plan/bind`；查询计划 `GET /api/inspection/plans/by-major-hazard`；最近任务 `GET /api/inspection/tasks/by-major-hazard`。
+- 隐患逾期/升级通知模板：`HAZARD_OVERDUE`、`HAZARD_ESCALATION`（`psm-notification-service` 内置）。
+- 二期业务操作 best-effort 双写中央审计（见 [audit-object-types.md](./audit-object-types.md) 二期 biz_type）。
+- 监管对外 HTTP 回执仍为 mock；真实业务数据已由 `RegBusinessDataExtractor` 抽取。
+
 ## M06～M08 联调要点
 
 - 作业票：动火/受限空间创建、审批、许可、暂停恢复、验收、归档全流程已完成 AC-M06 验收。
@@ -112,4 +135,4 @@ npm run dev:dashboard
 ## 验收脚本
 
 - 构建：`mvn -DskipTests=false test`；`npm run typecheck && npm run build`
-- 用例清单见 [模块功能闭环索引](../../../design/10_一期落地设计/00_开发总览/迭代/00_模块功能闭环索引.md)
+- 用例清单见 [模块功能闭环索引](../../../design/01_一期落地设计/00_开发总览/迭代/00_模块功能闭环索引.md)

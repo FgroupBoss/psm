@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.location.mapper.LocRealtimeMapper">
+
+    <select id="listByQuery" resultType="com.fgroupboss.ai.psm.location.model.entity.LocRealtimeEntity">
+        select * from loc_realtime
+        where tenant_id = #{tenantId}
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+        <if test="personId != null">
+            and person_id = #{personId}
+        </if>
+        <if test="tagNo != null and tagNo != ''">
+            and tag_no = #{tagNo}
+        </if>
+        <if test="onlineStatus != null and onlineStatus != ''">
+            and online_status = #{onlineStatus}
+        </if>
+        order by last_seen_at desc
+        limit 500
+    </select>
+
+    <select id="findByTagNo" resultType="com.fgroupboss.ai.psm.location.model.entity.LocRealtimeEntity">
+        select * from loc_realtime
+        where tenant_id = #{tenantId}
+          and tag_no = #{tagNo}
+        limit 1
+    </select>
+
+    <select id="countHeadcount" resultType="int">
+        select count(1) from loc_realtime
+        where tenant_id = #{tenantId}
+          and area_id = #{areaId}
+        <if test="onlineStatus != null and onlineStatus != ''">
+            and online_status = #{onlineStatus}
+        </if>
+    </select>
+</mapper>

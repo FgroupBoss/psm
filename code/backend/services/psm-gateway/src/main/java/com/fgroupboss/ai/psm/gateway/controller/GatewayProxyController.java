@@ -171,6 +171,66 @@ public class GatewayProxyController {
         return proxy(properties.getNotificationServiceUrl(), request, principal);
     }
 
+    /**
+     * 接口用途：转发智能巡检请求。
+     */
+    @RequestMapping("/api/inspection/**")
+    public ResponseEntity<byte[]> proxyInspection(HttpServletRequest request,
+                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getInspectionServiceUrl(), request, principal);
+    }
+
+    /**
+     * 接口用途：转发双重预防请求。
+     */
+    @RequestMapping("/api/dual-prevention/**")
+    public ResponseEntity<byte[]> proxyDualPrevention(HttpServletRequest request,
+                                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getDualPreventionServiceUrl(), request, principal);
+    }
+
+    /**
+     * 接口用途：转发人员定位请求。
+     */
+    @RequestMapping("/api/location/**")
+    public ResponseEntity<byte[]> proxyLocation(HttpServletRequest request,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getLocationServiceUrl(), request, principal);
+    }
+
+    /**
+     * 接口用途：转发视频智能请求。
+     */
+    @RequestMapping("/api/video/**")
+    public ResponseEntity<byte[]> proxyVideo(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getVideoServiceUrl(), request, principal);
+    }
+
+    /**
+     * 接口用途：转发 SIMOPS 交叉作业请求。
+     */
+    @RequestMapping("/api/simops/**")
+    public ResponseEntity<byte[]> proxySimops(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getWorkPermitServiceUrl(), request, principal);
+    }
+
+    /**
+     * 接口用途：转发集成与监管接口请求。
+     */
+    @RequestMapping("/api/integration/**")
+    public ResponseEntity<byte[]> proxyIntegration(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getIntegrationServiceUrl(), request, principal);
+    }
+
     private ResponseEntity<byte[]> proxy(String serviceUrl, HttpServletRequest request, AuthPrincipal principal) throws IOException {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

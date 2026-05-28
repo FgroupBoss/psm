@@ -5,8 +5,13 @@ import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.workpermit.client.AlarmAreaActiveClient;
 import com.fgroupboss.ai.psm.workpermit.client.ContractorEligibilityClient;
+import com.fgroupboss.ai.psm.workpermit.client.DualPreventionAreaHazardClient;
+import com.fgroupboss.ai.psm.workpermit.client.LocationHeadcountClient;
 import com.fgroupboss.ai.psm.workpermit.client.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.workpermit.client.dto.AlarmAreaActiveCheckResult;
+import com.fgroupboss.ai.psm.workpermit.client.dto.DualPreventionAreaOpenCheckRequest;
+import com.fgroupboss.ai.psm.workpermit.client.dto.DualPreventionAreaOpenCheckResult;
+import com.fgroupboss.ai.psm.workpermit.client.dto.LocationAreaHeadcountResult;
 import com.fgroupboss.ai.psm.workpermit.client.dto.ContractorEligibilityReason;
 import com.fgroupboss.ai.psm.workpermit.client.dto.ContractorEligibilityRequest;
 import com.fgroupboss.ai.psm.workpermit.client.dto.ContractorEligibilityResult;
@@ -63,6 +68,7 @@ import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitDetailVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitHealthVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitWorkerVO;
+import com.fgroupboss.ai.psm.workpermit.service.SimopsService;
 import com.fgroupboss.ai.psm.workpermit.service.WorkPermitService;
 import com.fgroupboss.ai.psm.workpermit.support.DefaultSafetyMeasuresSupport;
 import com.fgroupboss.ai.psm.workpermit.support.WorkPermitAuditSupport;
@@ -93,6 +99,7 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     private static final String WORKER_TYPE_CONTRACTOR = "CONTRACTOR";
     private static final String DEFAULT_MIN_ALARM_LEVEL = "LEVEL_2";
     private static final String UPSTREAM_UNAVAILABLE = "UPSTREAM_UNAVAILABLE";
+    private static final String WARN_REASON_PREFIX = "[提示]";
 
     private final WorkPermitMapper workPermitMapper;
     private final WorkPermitWorkerMapper workerMapper;
@@ -110,9 +117,15 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     private final DefaultSafetyMeasuresSupport defaultSafetyMeasuresSupport;
     private final ContractorEligibilityClient eligibilityClient;
     private final AlarmAreaActiveClient alarmAreaActiveClient;
+    private final DualPreventionAreaHazardClient dualPreventionAreaHazardClient;
+    private final LocationHeadcountClient locationHeadcountClient;
+    private final SimopsService simopsService;
 
     @Value("${psm.gas-test-valid-minutes:30}")
     private int gasTestValidMinutes;
+
+    @Value("${psm.area-max-headcount:50}")
+    private int areaMaxHeadcount;
 
     /**
      * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
@@ -663,12 +676,28 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         result.setPassed(true);
         checkRequiredMeasures(permit, result);
         checkEligibility(permit, checkPoint, throwOnUpstreamFailure, result);
+        simopsService.applyPreCheck(permit, checkPoint, result);
+        checkAreaOpenHazards(permit, throwOnUpstreamFailure, result);
         if (checkPoint == PermitCheckPoint.SITE_PERMIT) {
             checkAreaAlarm(permit, throwOnUpstreamFailure, result);
             checkGasTest(permit, result);
+            checkAreaHeadcount(permit, result);
         }
-        result.setPassed(result.getReasons().isEmpty());
+        result.setPassed(computePassed(result.getReasons()));
         return result;
+    }
+
+    private boolean computePassed(List<String> reasons) {
+        for (String reason : reasons) {
+            if (!isInformationalReason(reason)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInformationalReason(String reason) {
+        return reason != null && reason.startsWith(WARN_REASON_PREFIX);
     }
 
     private void checkRequiredMeasures(WorkPermitEntity permit, PreCheckResultVO result) {
@@ -710,6 +739,42 @@ public class WorkPermitServiceImpl implements WorkPermitService {
                 throw new BusinessException(503, UPSTREAM_UNAVAILABLE);
             }
             result.getReasons().add("承包商准入服务不可用");
+        }
+    }
+
+    private void checkAreaOpenHazards(WorkPermitEntity permit, boolean throwOnUpstreamFailure, PreCheckResultVO result) {
+        if (permit.getAreaId() == null) {
+            return;
+        }
+        try {
+            DualPreventionAreaOpenCheckRequest request = new DualPreventionAreaOpenCheckRequest();
+            request.setTenantId(permit.getTenantId());
+            request.setAreaId(permit.getAreaId());
+            DualPreventionAreaOpenCheckResult open = dualPreventionAreaHazardClient.areaOpenCheck(request);
+            if (open != null && open.isHasBlocking()) {
+                result.getReasons().add("作业区域存在未销项重大隐患(" + open.getCount() + "条)");
+            }
+        } catch (RestClientException ex) {
+            log.warn("area-open-check failed permitId={} reason={}", permit.getId(), ex.getMessage());
+            if (throwOnUpstreamFailure) {
+                throw new BusinessException(503, UPSTREAM_UNAVAILABLE);
+            }
+            result.getReasons().add("双重预防服务不可用");
+        }
+    }
+
+    private void checkAreaHeadcount(WorkPermitEntity permit, PreCheckResultVO result) {
+        if (permit.getAreaId() == null) {
+            return;
+        }
+        LocationAreaHeadcountResult headcount = locationHeadcountClient.headcountOptional(
+                permit.getTenantId(), permit.getAreaId());
+        if (headcount == null) {
+            return;
+        }
+        if (headcount.getHeadcount() > areaMaxHeadcount) {
+            result.getReasons().add(WARN_REASON_PREFIX + "作业区域当前人数(" + headcount.getHeadcount()
+                    + ")超过建议上限(" + areaMaxHeadcount + ")");
         }
     }
 

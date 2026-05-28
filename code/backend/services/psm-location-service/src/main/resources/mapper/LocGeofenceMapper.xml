@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.location.mapper.LocGeofenceMapper">
+
+    <sql id="fenceWhere">
+        tenant_id = #{tenantId}
+        and deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (fence_code like concat('%', #{keyword}, '%')
+            or fence_name like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="fenceType != null and fenceType != ''">
+            and fence_type = #{fenceType}
+        </if>
+    </sql>
+
+    <select id="countByTenant" resultType="long">
+        select count(1) from loc_geofence
+        <where>
+            <include refid="fenceWhere"/>
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.location.model.entity.LocGeofenceEntity">
+        select * from loc_geofence
+        <where>
+            <include refid="fenceWhere"/>
+        </where>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="findByCode" resultType="com.fgroupboss.ai.psm.location.model.entity.LocGeofenceEntity">
+        select * from loc_geofence
+        where tenant_id = #{tenantId}
+          and fence_code = #{fenceCode}
+          and deleted = 0
+        limit 1
+    </select>
+</mapper>

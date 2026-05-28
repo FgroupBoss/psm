@@ -4,8 +4,8 @@
 
 | 应用 | 说明 |
 | --- | --- |
-| `apps/admin-web` | PC 管理端，覆盖系统管理、作业票、报警、承包商、重大危险源、报表 |
-| `apps/mobile-site` | 移动端现场作业，覆盖待办、签到、检测、确认、拍照、签名、监护 |
+| `apps/admin-web` | PC 管理端：一期 + **二期**（双重预防、巡检、定位、视频、SIMOPS、监管、二期报表） |
+| `apps/mobile-site` | 移动端：**待办/作业票** + **智能巡检** + **隐患上报** |
 | `apps/dashboard-web` | 中控大屏，覆盖风险态势、作业态势、报警态势、承包商态势 |
 
 ## 共享包
@@ -34,4 +34,4 @@ npm run typecheck
 npm run dev:admin
 ```
 
-`admin-web` 默认端口为 `5173`，并将 `/api` 代理到 `http://localhost:18081`。
+`admin-web` / `mobile-site` 默认端口 `5173` / `5174`，并将 `/api`、`/auth` 代理到网关 `http://localhost:18080`。

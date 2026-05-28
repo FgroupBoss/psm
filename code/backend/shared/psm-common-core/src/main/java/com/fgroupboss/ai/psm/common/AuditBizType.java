@@ -22,7 +22,15 @@ public enum AuditBizType {
 
     ALARM,
     ALARM_ACTION,
-    ALARM_RULE;
+    ALARM_RULE,
+
+    DUAL_PREVENTION_RISK_UNIT,
+    DUAL_PREVENTION_HAZARD,
+    INSPECTION_TASK,
+    LOCATION_EVENT,
+    VIDEO_AI_EVENT,
+    SIMOPS_CONFLICT,
+    REG_REPORT_TASK;
 
     public String code() {
         return name();

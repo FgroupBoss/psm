@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 远程服务调用公共辅助（best-effort，失败返回空集合）。
  */
-final class RemoteClientSupport {
+public final class RemoteClientSupport {
 
     private static final int MAX_PAGES = 50;
     private static final int PAGE_SIZE = 200;
@@ -19,7 +19,7 @@ final class RemoteClientSupport {
     private RemoteClientSupport() {
     }
 
-    static String trimTrailingSlash(String url, String defaultUrl) {
+    public static String trimTrailingSlash(String url, String defaultUrl) {
         if (!StringUtils.hasText(url)) {
             return defaultUrl;
         }
@@ -30,7 +30,7 @@ final class RemoteClientSupport {
         return normalized;
     }
 
-    static <T> T unwrap(ResponseVO<T> body) {
+    public static <T> T unwrap(ResponseVO<T> body) {
         if (body == null || body.getCode() != 0) {
             return null;
         }
