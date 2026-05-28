@@ -1,6 +1,7 @@
 package com.fgroupboss.ai.psm.alarm.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fgroupboss.ai.psm.alarm.client.DualPreventionClient;
 import com.fgroupboss.ai.psm.alarm.config.AlarmStatus;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEscalationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
@@ -59,7 +60,8 @@ class AlarmEscalationAndAreaCheckTest {
                 mock(com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper.class),
                 mock(com.fgroupboss.ai.psm.alarm.mapper.AlarmActionRecordMapper.class),
                 mock(AlarmAuditSupport.class),
-                mock(AlarmDedupSupport.class));
+                mock(AlarmDedupSupport.class),
+                mock(DualPreventionClient.class));
     }
 
     @Test

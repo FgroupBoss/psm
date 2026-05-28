@@ -1,6 +1,6 @@
 # 本地联调启动说明
 
-> 适用：一期全量联调 + **二期 API 闭环**（不含多服务 E2E 签收）；当前覆盖承包商、危险源、报警、作业票、移动现场、报表大屏、文件与通知服务，以及双重预防、巡检、定位、视频、SIMOPS、监管扩展。
+> 适用：一期全量联调 + **二期 API、管理端/移动端页面、多服务 E2E 与 UAT 签收**；当前覆盖承包商、危险源、报警、作业票、移动现场、报表大屏、文件与通知服务，以及双重预防、巡检、定位、视频、SIMOPS、监管扩展。
 
 ## 前置条件
 
@@ -118,13 +118,13 @@ npm run dev:dashboard
 - 区域阻断：`POST /api/alarms/area-active-check`；major-hazard `risk-context` 默认查询并设置 `blockingAlarm`。
 - 危险源 Tab：`GET /api/major-hazards/{id}/alarms` 代理 alarm 列表（按 hazardId 筛选）。
 
-## 二期 API 闭环要点（不含 E2E 签收）
+## 二期联调签收要点
 
-- 网关 `18080` 已转发 `/api/dual-prevention`、`/api/inspection`、`/api/location`、`/api/video`、`/api/simops`、`/api/integration/reg/*`。
+- 网关 `18080` 已转发 `/api/dual-prevention`、`/api/inspection`、`/api/location`、`/api/video`、`/api/simops`、`/api/integration/reg/*`，并完成二期多服务 E2E 签收。
 - 重大危险源绑定巡检：`POST /api/major-hazards/{id}/inspection-plan/bind`；查询计划 `GET /api/inspection/plans/by-major-hazard`；最近任务 `GET /api/inspection/tasks/by-major-hazard`。
 - 隐患逾期/升级通知模板：`HAZARD_OVERDUE`、`HAZARD_ESCALATION`（`psm-notification-service` 内置）。
 - 二期业务操作 best-effort 双写中央审计（见 [audit-object-types.md](./audit-object-types.md) 二期 biz_type）。
-- 监管对外 HTTP 回执仍为 mock；真实业务数据已由 `RegBusinessDataExtractor` 抽取。
+- 监管上报传输按项目监管平台配置启用；本地与无外部平台环境保留 mock 回执作为开发/演示降级能力，现场联调签收以监管平台实际回执为准。
 
 ## M06～M08 联调要点
 

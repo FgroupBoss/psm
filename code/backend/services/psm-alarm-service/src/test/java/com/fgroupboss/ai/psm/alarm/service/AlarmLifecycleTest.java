@@ -1,5 +1,6 @@
 package com.fgroupboss.ai.psm.alarm.service;
 
+import com.fgroupboss.ai.psm.alarm.client.DualPreventionClient;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmActionRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper;
@@ -38,7 +39,8 @@ class AlarmLifecycleTest {
         actionRecordMapper = mock(AlarmActionRecordMapper.class);
         auditSupport = mock(AlarmAuditSupport.class);
         AlarmDedupSupport dedupSupport = mock(AlarmDedupSupport.class);
-        service = new AlarmServiceImpl(alarmEventMapper, occurrenceMapper, actionRecordMapper, auditSupport, dedupSupport);
+        service = new AlarmServiceImpl(alarmEventMapper, occurrenceMapper, actionRecordMapper,
+                auditSupport, dedupSupport, mock(DualPreventionClient.class));
     }
 
     @Test
