@@ -2,7 +2,6 @@ package com.fgroupboss.ai.psm.majorhazard.service.impl;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.majorhazard.client.AlarmServiceClient;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmAreaActiveCheckResult;
 import com.fgroupboss.ai.psm.majorhazard.config.HazardLevel;
 import com.fgroupboss.ai.psm.majorhazard.mapper.MajorHazardMapper;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.RiskContextRequest;
@@ -10,6 +9,7 @@ import com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardEntity;
 import com.fgroupboss.ai.psm.majorhazard.model.vo.RiskContextHazardVO;
 import com.fgroupboss.ai.psm.majorhazard.model.vo.RiskContextVO;
 import com.fgroupboss.ai.psm.majorhazard.service.RiskContextService;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 实现方式：承载风险上下文业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ * 瀹炵幇鏂瑰紡锛氭壙杞介闄╀笂涓嬫枃涓氬姟瀹炵幇锛屽熀浜?Mapper銆佽繙绋嬪鎴风鎴栨敮鎾戠粍浠跺畬鎴愭牎楠屻€佺姸鎬佹祦杞拰缁撴灉缁勮銆?
  */
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class RiskContextServiceImpl implements RiskContextService {
     private boolean blockingAlarmEnabled;
 
     /**
-     * 实现方式：查询业务上下文，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭煡璇笟鍔′笂涓嬫枃锛屽厛瀹屾垚蹇呰鐨勫弬鏁般€佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     public RiskContextVO query(RiskContextRequest request) {
@@ -115,3 +115,4 @@ public class RiskContextServiceImpl implements RiskContextService {
         }
     }
 }
+

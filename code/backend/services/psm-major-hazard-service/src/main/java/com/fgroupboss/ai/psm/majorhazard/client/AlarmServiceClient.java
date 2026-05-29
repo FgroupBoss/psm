@@ -2,9 +2,9 @@ package com.fgroupboss.ai.psm.majorhazard.client;
 
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmAreaActiveCheckRequest;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmAreaActiveCheckResult;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmEventSummary;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckResult;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventSummary;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 调用 psm-alarm-service（best-effort，失败时返回空结果不阻断主流程）。
- */
+ * 璋冪敤 psm-alarm-service锛坆est-effort锛屽け璐ユ椂杩斿洖绌虹粨鏋滀笉闃绘柇涓绘祦绋嬶級銆? */
 @Slf4j
 @Component
 public class AlarmServiceClient {
@@ -100,3 +99,4 @@ public class AlarmServiceClient {
         return normalized;
     }
 }
+

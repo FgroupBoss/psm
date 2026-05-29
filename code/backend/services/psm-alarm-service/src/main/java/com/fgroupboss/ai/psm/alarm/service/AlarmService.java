@@ -1,14 +1,14 @@
 package com.fgroupboss.ai.psm.alarm.service;
 
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmActionRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmToHazardRequest;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckVO;
 import com.fgroupboss.ai.psm.alarm.client.RemoteHazardReportVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmDetailVO;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmHealthVO;
 import com.fgroupboss.ai.psm.common.PageResult;
 
@@ -40,3 +40,4 @@ public interface AlarmService {
 
     RemoteHazardReportVO toHazard(Long tenantId, Long id, AlarmToHazardRequest request);
 }
+

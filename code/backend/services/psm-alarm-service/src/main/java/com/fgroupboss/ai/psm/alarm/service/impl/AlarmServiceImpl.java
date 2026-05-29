@@ -8,8 +8,8 @@ import com.fgroupboss.ai.psm.alarm.config.AlarmStatusTransition;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmActionRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmActionRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.client.DualPreventionClient;
 import com.fgroupboss.ai.psm.alarm.client.RemoteHazardCreateRequest;
@@ -20,9 +20,9 @@ import com.fgroupboss.ai.psm.alarm.model.entity.AlarmActionRecordEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmOccurrenceEntity;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmActionSummaryVO;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmDetailVO;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmHealthVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmOccurrenceVO;
 import com.fgroupboss.ai.psm.alarm.service.AlarmService;
@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 实现方式：承载报警业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ * 瀹炵幇鏂瑰紡锛氭壙杞芥姤璀︿笟鍔″疄鐜帮紝鍩轰簬 Mapper銆佽繙绋嬪鎴风鎴栨敮鎾戠粍浠跺畬鎴愭牎楠屻€佺姸鎬佹祦杞拰缁撴灉缁勮銆?
  */
 @Service
 @RequiredArgsConstructor
@@ -57,7 +57,7 @@ public class AlarmServiceImpl implements AlarmService {
     private final DualPreventionClient dualPreventionClient;
 
     /**
-     * 实现方式：查询服务健康状态，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭煡璇㈡湇鍔″仴搴风姸鎬侊紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     public AlarmHealthVO health() {
@@ -68,7 +68,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：接入报警事件，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭帴鍏ユ姤璀︿簨浠讹紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -95,7 +95,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氬垎椤垫煡璇笟鍔℃暟鎹紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     public PageResult<AlarmEventVO> page(Long tenantId, String keyword, String status, String alarmLevel,
@@ -123,7 +123,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：执行业务实现，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭墽琛屼笟鍔″疄鐜帮紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     public AlarmDetailVO getDetail(Long tenantId, Long id) {
@@ -136,7 +136,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：确认报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氱‘璁ゆ姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -146,7 +146,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：派发报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭淳鍙戞姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -156,7 +156,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：反馈报警处理结果，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氬弽棣堟姤璀﹀鐞嗙粨鏋滐紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -166,7 +166,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：关闭报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氬叧闂姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -176,7 +176,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：误报关闭报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氳鎶ュ叧闂姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     @Transactional
@@ -193,7 +193,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     /**
-     * 实现方式：检查区域活跃报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
+     * 瀹炵幇鏂瑰紡锛氭鏌ュ尯鍩熸椿璺冩姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?
      */
     @Override
     public AlarmAreaActiveCheckVO areaActiveCheck(AlarmAreaActiveCheckRequest request) {
@@ -446,3 +446,4 @@ public class AlarmServiceImpl implements AlarmService {
         }
     }
 }
+

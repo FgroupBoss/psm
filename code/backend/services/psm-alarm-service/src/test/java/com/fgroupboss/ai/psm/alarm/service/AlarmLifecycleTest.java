@@ -4,10 +4,10 @@ import com.fgroupboss.ai.psm.alarm.client.DualPreventionClient;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmActionRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmActionRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.service.impl.AlarmServiceImpl;
 import com.fgroupboss.ai.psm.alarm.support.AlarmAuditSupport;
 import com.fgroupboss.ai.psm.alarm.support.AlarmDedupSupport;
@@ -56,11 +56,11 @@ class AlarmLifecycleTest {
         stubEvent(2L, "NEW");
         service.confirm(1L, 2L, new AlarmActionRequest(), "admin");
         stubEvent(2L, "CONFIRMED");
-        service.dispatch(1L, 2L, assignRequest("张三"), "admin");
+        service.dispatch(1L, 2L, assignRequest("operator"), "admin");
         stubEvent(2L, "IN_PROGRESS");
-        service.feedback(1L, 2L, contentRequest("现场已处置"), "admin");
+        service.feedback(1L, 2L, contentRequest("handled"), "admin");
         stubEvent(2L, "PENDING_REVIEW");
-        AlarmEventVO closed = service.close(1L, 2L, contentRequest("复核通过"), "admin");
+        AlarmEventVO closed = service.close(1L, 2L, contentRequest("closed"), "admin");
         assertEquals("CLOSED", closed.getStatus());
     }
 
@@ -92,10 +92,10 @@ class AlarmLifecycleTest {
     void falseCloseShouldRequireReasonInControllerValidation() {
         stubEvent(7L, "NEW");
         AlarmFalseCloseRequest request = new AlarmFalseCloseRequest();
-        request.setReason("仪表误报");
+        request.setReason("reason");
         AlarmEventVO result = service.falseClose(1L, 7L, request, "admin");
         assertEquals("FALSE_CLOSED", result.getStatus());
-        verify(auditSupport).writeAction(eq(1L), eq(7L), eq("FALSE_CLOSE"), eq("仪表误报"),
+        verify(auditSupport).writeAction(eq(1L), eq(7L), eq("FALSE_CLOSE"), eq("reason"),
                 eq("admin"), eq("NEW"), eq("FALSE_CLOSED"));
     }
 
@@ -103,7 +103,7 @@ class AlarmLifecycleTest {
     void falseCloseShouldRejectClosedStatus() {
         stubEvent(8L, "CLOSED");
         AlarmFalseCloseRequest request = new AlarmFalseCloseRequest();
-        request.setReason("重复关闭");
+        request.setReason("reason");
         assertThrows(BusinessException.class, () -> service.falseClose(1L, 8L, request, "admin"));
     }
 
@@ -119,7 +119,7 @@ class AlarmLifecycleTest {
         entity.setTenantId(1L);
         entity.setAlarmNo("ALM-" + id);
         entity.setSourceType("GDS");
-        entity.setTitle("测试");
+        entity.setTitle("alarm title");
         entity.setAlarmLevel("LEVEL_1");
         entity.setStatus(status);
         entity.setDeleted(0);
@@ -143,3 +143,4 @@ class AlarmLifecycleTest {
         return request;
     }
 }
+

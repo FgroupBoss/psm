@@ -8,7 +8,7 @@ import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmDedupRuleEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmOccurrenceEntity;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.service.impl.AlarmServiceImpl;
 import com.fgroupboss.ai.psm.alarm.support.AlarmAuditSupport;
 import com.fgroupboss.ai.psm.alarm.support.AlarmDedupSupport;
@@ -56,7 +56,7 @@ class AlarmDedupTest {
         existing.setAlarmNo("ALM-001");
         existing.setSourceType("GDS");
         existing.setSourceCode("MP-020-H2");
-        existing.setTitle("测试报警");
+        existing.setTitle("娴嬭瘯鎶ヨ");
         existing.setAlarmLevel("LEVEL_1");
         existing.setStatus("NEW");
         existing.setAreaId(1L);
@@ -104,7 +104,7 @@ class AlarmDedupTest {
         request.setTenantId(1L);
         request.setSourceType("GDS");
         request.setSourceCode("MP-020-H2");
-        request.setTitle("测试报警");
+        request.setTitle("娴嬭瘯鎶ヨ");
         request.setAlarmLevel("LEVEL_1");
         request.setAreaId(1L);
         request.setRawValue("15.0");
@@ -112,3 +112,4 @@ class AlarmDedupTest {
         return request;
     }
 }
+

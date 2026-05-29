@@ -2,12 +2,12 @@ package com.fgroupboss.ai.psm.majorhazard.service;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.majorhazard.client.AlarmServiceClient;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmAreaActiveCheckResult;
 import com.fgroupboss.ai.psm.majorhazard.mapper.MajorHazardMapper;
 import com.fgroupboss.ai.psm.majorhazard.model.dto.RiskContextRequest;
 import com.fgroupboss.ai.psm.majorhazard.model.entity.MajorHazardEntity;
 import com.fgroupboss.ai.psm.majorhazard.model.vo.RiskContextVO;
 import com.fgroupboss.ai.psm.majorhazard.service.impl.RiskContextServiceImpl;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -50,7 +50,7 @@ class RiskContextServiceImplTest {
         request.setTenantId(1L);
         request.setAreaId(1L);
         when(hazardMapper.listForRiskContext(eq(1L), eq(1L), isNull(), isNull()))
-                .thenReturn(Arrays.asList(hazard(1L, "罐区A", "LEVEL_1"), hazard(2L, "罐区B", "LEVEL_2")));
+                .thenReturn(Arrays.asList(hazard(1L, "缂冩劕灏疉", "LEVEL_1"), hazard(2L, "缂冩劕灏疊", "LEVEL_2")));
 
         RiskContextVO result = service.query(request);
 
@@ -66,7 +66,7 @@ class RiskContextServiceImplTest {
         request.setTenantId(1L);
         request.setAreaId(1L);
         when(hazardMapper.listForRiskContext(eq(1L), eq(1L), isNull(), isNull()))
-                .thenReturn(Collections.singletonList(hazard(1L, "罐区A", "LEVEL_1")));
+                .thenReturn(Collections.singletonList(hazard(1L, "缂冩劕灏疉", "LEVEL_1")));
         AlarmAreaActiveCheckResult check = new AlarmAreaActiveCheckResult();
         check.setHasBlocking(true);
         check.setCount(2);
@@ -103,3 +103,4 @@ class RiskContextServiceImplTest {
         return entity;
     }
 }
+

@@ -8,11 +8,11 @@ import com.fgroupboss.ai.psm.alarm.mapper.AlarmEventMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmNotificationRecordMapper;
 import com.fgroupboss.ai.psm.alarm.mapper.AlarmRuleMapper;
 import com.fgroupboss.ai.psm.common.notification.CentralNotificationClient;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEscalationRecordEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmRuleEntity;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckVO;
 import com.fgroupboss.ai.psm.alarm.service.impl.AlarmEscalationServiceImpl;
 import com.fgroupboss.ai.psm.alarm.service.impl.AlarmServiceImpl;
 import com.fgroupboss.ai.psm.alarm.support.AlarmAuditSupport;
@@ -117,7 +117,7 @@ class AlarmEscalationAndAreaCheckTest {
         entity.setTenantId(1L);
         entity.setAlarmNo("ALM-" + id);
         entity.setSourceType("GDS");
-        entity.setTitle("活跃报警");
+        entity.setTitle("娲昏穬鎶ヨ");
         entity.setAlarmLevel(level);
         entity.setStatus(AlarmStatus.NEW.name());
         entity.setAreaId(1L);
@@ -131,3 +131,4 @@ class AlarmEscalationAndAreaCheckTest {
         return calendar.getTime();
     }
 }
+

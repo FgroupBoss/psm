@@ -7,7 +7,7 @@ import com.fgroupboss.ai.psm.alarm.mapper.AlarmOccurrenceMapper;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmEventEntity;
 import com.fgroupboss.ai.psm.alarm.model.entity.AlarmOccurrenceEntity;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.service.impl.AlarmServiceImpl;
 import com.fgroupboss.ai.psm.alarm.support.AlarmAuditSupport;
 import com.fgroupboss.ai.psm.alarm.support.AlarmDedupSupport;
@@ -72,7 +72,7 @@ class AlarmServiceImplTest {
         request.setTenantId(1L);
         request.setSourceType("GDS");
         request.setSourceCode("MP-020-H2");
-        request.setTitle("测试报警");
+        request.setTitle("娴嬭瘯鎶ヨ");
         request.setAlarmLevel("LEVEL_1");
         request.setAreaId(1L);
         request.setMonitorPointId(20L);
@@ -109,7 +109,7 @@ class AlarmServiceImplTest {
         entity.setTenantId(1L);
         entity.setAlarmNo("ALM-001");
         entity.setSourceType("GDS");
-        entity.setTitle("高报");
+        entity.setTitle("楂樻姤");
         entity.setAlarmLevel("LEVEL_1");
         entity.setStatus("NEW");
         entity.setOccurrenceCount(1);
@@ -135,7 +135,7 @@ class AlarmServiceImplTest {
         entity.setTenantId(1L);
         entity.setAlarmNo("ALM-002");
         entity.setSourceType("GDS");
-        entity.setTitle("详情测试");
+        entity.setTitle("璇︽儏娴嬭瘯");
         entity.setAlarmLevel("LEVEL_2");
         entity.setStatus("CONFIRMED");
         entity.setDeleted(0);
@@ -150,7 +150,7 @@ class AlarmServiceImplTest {
         when(actionRecordMapper.listByAlarmEventId(1L, 2L)).thenReturn(Collections.emptyList());
 
         assertEquals(1, service.getDetail(1L, 2L).getOccurrences().size());
-        assertEquals("详情测试", service.getDetail(1L, 2L).getEvent().getTitle());
+        assertEquals("璇︽儏娴嬭瘯", service.getDetail(1L, 2L).getEvent().getTitle());
     }
 
     @Test
@@ -159,3 +159,4 @@ class AlarmServiceImplTest {
         assertThrows(BusinessException.class, () -> service.getDetail(1L, 99L));
     }
 }
+

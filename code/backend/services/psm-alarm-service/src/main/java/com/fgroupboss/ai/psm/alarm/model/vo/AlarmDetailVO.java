@@ -1,5 +1,6 @@
 package com.fgroupboss.ai.psm.alarm.model.vo;
 
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import lombok.Data;
 
 import java.util.List;

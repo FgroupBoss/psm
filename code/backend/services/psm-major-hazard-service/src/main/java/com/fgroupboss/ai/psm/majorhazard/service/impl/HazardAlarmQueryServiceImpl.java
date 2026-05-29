@@ -1,9 +1,9 @@
 package com.fgroupboss.ai.psm.majorhazard.service.impl;
 
 import com.fgroupboss.ai.psm.majorhazard.client.AlarmServiceClient;
-import com.fgroupboss.ai.psm.majorhazard.client.dto.AlarmEventSummary;
 import com.fgroupboss.ai.psm.majorhazard.model.vo.HazardAlarmSummaryVO;
 import com.fgroupboss.ai.psm.majorhazard.service.HazardAlarmQueryService;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 实现方式：承载危险源报警查询业务实现，基于 Mapper、远程客户端或支撑组件完成校验、状态流转和结果组装。
+ * 瀹炵幇鏂瑰紡锛氭壙杞藉嵄闄╂簮鎶ヨ鏌ヨ涓氬姟瀹炵幇锛屽熀浜?Mapper銆佽繙绋嬪鎴风鎴栨敮鎾戠粍浠跺畬鎴愭牎楠屻€佺姸鎬佹祦杞拰缁撴灉缁勮銆?
  */
 @Service
 @RequiredArgsConstructor
@@ -22,8 +22,7 @@ public class HazardAlarmQueryServiceImpl implements HazardAlarmQueryService {
     private final AlarmServiceClient alarmServiceClient;
 
     /**
-     * 实现方式：按重大危险源查询关联报警，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。
-     */
+     * 瀹炵幇鏂瑰紡锛氭寜閲嶅ぇ鍗遍櫓婧愭煡璇㈠叧鑱旀姤璀︼紝鍏堝畬鎴愬繀瑕佺殑鍙傛暟銆佺鎴锋垨鐘舵€佹牎楠岋紝鍐嶅鎵樻寔涔呭寲缁勪欢鎴栬繙绋嬪鎴风澶勭悊骞剁粍瑁呰繑鍥炵粨鏋溿€?     */
     @Override
     public List<HazardAlarmSummaryVO> listByHazard(Long tenantId, Long hazardId) {
         List<AlarmEventSummary> events = alarmServiceClient.listByHazard(tenantId, hazardId);
@@ -49,3 +48,4 @@ public class HazardAlarmQueryServiceImpl implements HazardAlarmQueryService {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(value);
     }
 }
+

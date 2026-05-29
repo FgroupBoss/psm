@@ -1,7 +1,7 @@
 package com.fgroupboss.ai.psm.mobile.service;
 
 import com.fgroupboss.ai.psm.mobile.client.WorkPermitClient;
-import com.fgroupboss.ai.psm.mobile.client.dto.MobileDraftSyncRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MobileDraftSyncRequest;
 import com.fgroupboss.ai.psm.mobile.client.vo.MobileDraftSyncResultVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

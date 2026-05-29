@@ -4,30 +4,30 @@ import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
-import com.fgroupboss.ai.psm.workpermit.model.dto.AcceptanceRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.CheckInRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.GasTestRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.MobileDraftSyncRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.MonitorRecordRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.PermitActionRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.AcceptanceRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.CheckInRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.GasTestRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MobileDraftSyncRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MonitorRecordRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.PermitActionRequest;
 import com.fgroupboss.ai.psm.workpermit.model.dto.PreCheckRequest;
 import com.fgroupboss.ai.psm.workpermit.model.dto.RiskAnalysisRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.SafetyMeasureRequest;
-import com.fgroupboss.ai.psm.workpermit.model.dto.SitePermitRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SafetyMeasureRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SitePermitRequest;
 import com.fgroupboss.ai.psm.workpermit.model.dto.WorkPermitRequest;
 import com.fgroupboss.ai.psm.workpermit.model.dto.WorkPermitWorkerRequest;
-import com.fgroupboss.ai.psm.workpermit.model.vo.GasTestVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.MobileDraftSyncResultVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.MonitorRecordVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.GasTestVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MonitorRecordVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.PreCheckResultVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.RiskAnalysisVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.SafetyMeasureVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.SiteConfirmVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.RiskAnalysisVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.SafetyMeasureVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.SiteConfirmVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.TimelineItemVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitDetailVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitDetailVO;
 import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitHealthVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitVO;
-import com.fgroupboss.ai.psm.workpermit.model.vo.WorkPermitWorkerVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitWorkerVO;
 import com.fgroupboss.ai.psm.workpermit.service.WorkPermitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,7 +45,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 危险工作票接口（M06 动火/受限空间闭环）。
+ * 鍗遍櫓宸ヤ綔绁ㄦ帴鍙ｏ紙M06 鍔ㄧ伀/鍙楅檺绌洪棿闂幆锛夈€?
  */
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +55,7 @@ public class WorkPermitController {
     private final WorkPermitService workPermitService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鏈嶅姟鍋ュ悍鐘舵€併€?
      */
     @GetMapping("/health")
     public ResponseVO<WorkPermitHealthVO> health() {
@@ -63,7 +63,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鍒嗛〉鏌ヨ涓氬姟鏁版嵁銆?
      */
     @GetMapping
     public ResponseVO<PageResult<WorkPermitVO>> page(@RequestParam Long tenantId,
@@ -78,15 +78,14 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：按重大危险源查询关联作业票。
-     */
+     * 鎺ュ彛鐢ㄩ€旓細鎸夐噸澶у嵄闄╂簮鏌ヨ鍏宠仈浣滀笟绁ㄣ€?     */
     @GetMapping("/by-hazard")
     public ResponseVO<List<WorkPermitVO>> listByHazard(@RequestParam Long tenantId, @RequestParam Long hazardId) {
         return ResponseVO.success(workPermitService.listByHazard(tenantId, hazardId));
     }
 
     /**
-     * 接口用途：查询详情。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ璇︽儏銆?
      */
     @GetMapping("/{id}")
     public ResponseVO<WorkPermitDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -94,7 +93,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：创建业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鍒涘缓涓氬姟鏁版嵁銆?
      */
     @PostMapping
     public ResponseVO<WorkPermitVO> create(@Valid @RequestBody WorkPermitRequest request,
@@ -105,7 +104,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鏇存柊涓氬姟鏁版嵁銆?
      */
     @PutMapping("/{id}")
     public ResponseVO<WorkPermitVO> update(@PathVariable Long id,
@@ -117,7 +116,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询作业人员。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ浣滀笟浜哄憳銆?
      */
     @GetMapping("/{id}/workers")
     public ResponseVO<List<WorkPermitWorkerVO>> listWorkers(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -125,7 +124,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：新增作业人员。
+     * 鎺ュ彛鐢ㄩ€旓細鏂板浣滀笟浜哄憳銆?
      */
     @PostMapping("/{id}/workers")
     public ResponseVO<WorkPermitWorkerVO> addWorker(@PathVariable Long id,
@@ -138,7 +137,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：移除作业人员。
+     * 鎺ュ彛鐢ㄩ€旓細绉婚櫎浣滀笟浜哄憳銆?
      */
     @DeleteMapping("/{id}/workers/{workerId}")
     public ResponseVO<Void> removeWorker(@PathVariable Long id,
@@ -152,7 +151,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：提交审批。
+     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦瀹℃壒銆?
      */
     @PostMapping("/{id}/submit")
     public ResponseVO<WorkPermitVO> submit(@PathVariable Long id,
@@ -164,7 +163,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：审批业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細瀹℃壒涓氬姟鏁版嵁銆?
      */
     @PostMapping("/{id}/approve")
     public ResponseVO<WorkPermitVO> approve(@PathVariable Long id,
@@ -178,7 +177,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
      */
     @PostMapping("/{id}/return")
     public ResponseVO<WorkPermitVO> returnPermit(@PathVariable Long id,
@@ -192,7 +191,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
      */
     @PostMapping("/{id}/reject")
     public ResponseVO<WorkPermitVO> reject(@PathVariable Long id,
@@ -206,15 +205,14 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询风险分析列表。
-     */
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ椋庨櫓鍒嗘瀽鍒楄〃銆?     */
     @GetMapping("/{id}/risk-analysis")
     public ResponseVO<List<RiskAnalysisVO>> listRiskAnalysis(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listRiskAnalysis(tenantId, id));
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
      */
     @PostMapping("/{id}/risk-analysis")
     public ResponseVO<RiskAnalysisVO> saveRiskAnalysis(@PathVariable Long id,
@@ -227,7 +225,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询安全措施。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ瀹夊叏鎺柦銆?
      */
     @GetMapping("/{id}/safety-measures")
     public ResponseVO<List<SafetyMeasureVO>> listSafetyMeasures(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -235,7 +233,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：确认安全措施。
+     * 鎺ュ彛鐢ㄩ€旓細纭瀹夊叏鎺柦銆?
      */
     @PostMapping("/{id}/safety-measures/{measureId}")
     public ResponseVO<SafetyMeasureVO> confirmSafetyMeasure(@PathVariable Long id,
@@ -249,7 +247,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询气体检测记录。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ姘斾綋妫€娴嬭褰曘€?
      */
     @GetMapping("/{id}/gas-tests")
     public ResponseVO<List<GasTestVO>> listGasTests(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -257,7 +255,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：新增气体检测记录。
+     * 鎺ュ彛鐢ㄩ€旓細鏂板姘斾綋妫€娴嬭褰曘€?
      */
     @PostMapping("/{id}/gas-tests")
     public ResponseVO<GasTestVO> addGasTest(@PathVariable Long id,
@@ -270,7 +268,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：执行作业前置校验。
+     * 鎺ュ彛鐢ㄩ€旓細鎵ц浣滀笟鍓嶇疆鏍￠獙銆?
      */
     @PostMapping("/{id}/pre-check")
     public ResponseVO<PreCheckResultVO> preCheck(@PathVariable Long id, @Valid @RequestBody PreCheckRequest request) {
@@ -278,7 +276,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：提交现场许可。
+     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦鐜板満璁稿彲銆?
      */
     @PostMapping("/{id}/site-permit")
     public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
@@ -291,7 +289,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：提交现场签到。
+     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦鐜板満绛惧埌銆?
      */
     @PostMapping("/{id}/check-in")
     public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
@@ -304,7 +302,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询监护记录。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鐩戞姢璁板綍銆?
      */
     @GetMapping("/{id}/monitor-records")
     public ResponseVO<List<MonitorRecordVO>> listMonitorRecords(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -312,7 +310,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：新增监护记录。
+     * 鎺ュ彛鐢ㄩ€旓細鏂板鐩戞姢璁板綍銆?
      */
     @PostMapping("/{id}/monitor-records")
     public ResponseVO<MonitorRecordVO> addMonitorRecord(@PathVariable Long id,
@@ -325,7 +323,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：挂起业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鎸傝捣涓氬姟鏁版嵁銆?
      */
     @PostMapping("/{id}/suspend")
     public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
@@ -339,7 +337,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：恢复业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鎭㈠涓氬姟鏁版嵁銆?
      */
     @PostMapping("/{id}/resume")
     public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
@@ -353,7 +351,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：终止作业票。
+     * 鎺ュ彛鐢ㄩ€旓細缁堟浣滀笟绁ㄣ€?
      */
     @PostMapping("/{id}/terminate")
     public ResponseVO<WorkPermitVO> terminate(@PathVariable Long id,
@@ -367,7 +365,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：提交验收。
+     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦楠屾敹銆?
      */
     @PostMapping("/{id}/acceptance")
     public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
@@ -380,7 +378,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：查询作业票时间线。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ浣滀笟绁ㄦ椂闂寸嚎銆?
      */
     @GetMapping("/{id}/timeline")
     public ResponseVO<List<TimelineItemVO>> timeline(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -388,7 +386,7 @@ public class WorkPermitController {
     }
 
     /**
-     * 接口用途：同步移动端草稿。
+     * 鎺ュ彛鐢ㄩ€旓細鍚屾绉诲姩绔崏绋裤€?
      */
     @PostMapping("/mobile/drafts/sync")
     public ResponseVO<MobileDraftSyncResultVO> syncMobileDraft(@Valid @RequestBody MobileDraftSyncRequest request) {
@@ -403,3 +401,4 @@ public class WorkPermitController {
         return UserContextResolver.operator(userId, username, fallback);
     }
 }
+

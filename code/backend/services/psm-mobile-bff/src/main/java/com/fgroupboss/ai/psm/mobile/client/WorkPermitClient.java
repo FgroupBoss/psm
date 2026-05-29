@@ -4,21 +4,21 @@ import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.common.UserContextHeaders;
-import com.fgroupboss.ai.psm.mobile.client.dto.AcceptanceRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.CheckInRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.GasTestRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.MobileDraftSyncRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.MonitorRecordRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.PermitActionRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.SafetyMeasureRequest;
-import com.fgroupboss.ai.psm.mobile.client.dto.SitePermitRequest;
-import com.fgroupboss.ai.psm.mobile.client.vo.GasTestVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.AcceptanceRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.CheckInRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.GasTestRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MobileDraftSyncRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MonitorRecordRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.PermitActionRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SafetyMeasureRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SitePermitRequest;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.GasTestVO;
 import com.fgroupboss.ai.psm.mobile.client.vo.MobileDraftSyncResultVO;
-import com.fgroupboss.ai.psm.mobile.client.vo.MonitorRecordVO;
-import com.fgroupboss.ai.psm.mobile.client.vo.SafetyMeasureVO;
-import com.fgroupboss.ai.psm.mobile.client.vo.SiteConfirmVO;
-import com.fgroupboss.ai.psm.mobile.client.vo.WorkPermitDetailVO;
-import com.fgroupboss.ai.psm.mobile.client.vo.WorkPermitVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MonitorRecordVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.SafetyMeasureVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.SiteConfirmVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitDetailVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -70,8 +70,8 @@ public class WorkPermitClient {
             new ParameterizedTypeReference<ResponseVO<MonitorRecordVO>>() {
             };
 
-    private static final ParameterizedTypeReference<ResponseVO<MobileDraftSyncResultVO>> DRAFT_TYPE =
-            new ParameterizedTypeReference<ResponseVO<MobileDraftSyncResultVO>>() {
+    private static final ParameterizedTypeReference<ResponseVO<com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO>> DRAFT_TYPE =
+            new ParameterizedTypeReference<ResponseVO<com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO>>() {
             };
 
     private final RestTemplate restTemplate;
@@ -158,10 +158,11 @@ public class WorkPermitClient {
         String url = workPermitServiceUrl + "/api/work-permits/mobile/drafts/sync";
         try {
             HttpEntity<MobileDraftSyncRequest> entity = new HttpEntity<MobileDraftSyncRequest>(request, contextHeaders);
-            ResponseEntity<ResponseVO<MobileDraftSyncResultVO>> response =
+            ResponseEntity<ResponseVO<com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO>> response =
                     restTemplate.exchange(url, HttpMethod.POST, entity, DRAFT_TYPE);
-            MobileDraftSyncResultVO result = requireData(response.getBody(), "draft sync");
-            return java.util.Optional.of(result);
+            com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO result =
+                    requireData(response.getBody(), "draft sync");
+            return java.util.Optional.of(toMobileDraftResult(result));
         } catch (HttpStatusCodeException ex) {
             if (ex.getRawStatusCode() == 404) {
                 log.debug("work-permit draft sync endpoint not found, fallback to local storage");
@@ -212,6 +213,18 @@ public class WorkPermitClient {
             throw new BusinessException(body.getCode(), body.getMessage());
         }
         return body.getData();
+    }
+
+    private MobileDraftSyncResultVO toMobileDraftResult(
+            com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO source) {
+        MobileDraftSyncResultVO target = new MobileDraftSyncResultVO();
+        if (source == null) {
+            return target;
+        }
+        target.setClientDraftId(source.getClientDraftId());
+        target.setSyncStatus(source.getSyncStatus());
+        target.setStorage(source.getStorage());
+        return target;
     }
 
     private String trimTrailingSlash(String url) {

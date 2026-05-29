@@ -2,7 +2,7 @@ package com.fgroupboss.ai.psm.mobile.service;
 
 import com.fgroupboss.ai.psm.mobile.client.AlarmClient;
 import com.fgroupboss.ai.psm.mobile.client.WorkPermitClient;
-import com.fgroupboss.ai.psm.mobile.client.vo.WorkPermitVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.mobile.config.MobileRole;
 import com.fgroupboss.ai.psm.mobile.model.vo.MobileTaskVO;
 import org.junit.jupiter.api.Test;

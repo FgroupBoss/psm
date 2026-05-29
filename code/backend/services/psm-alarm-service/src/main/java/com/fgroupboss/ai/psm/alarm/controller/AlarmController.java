@@ -1,14 +1,14 @@
 package com.fgroupboss.ai.psm.alarm.controller;
 
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmActionRequest;
-import com.fgroupboss.ai.psm.alarm.model.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmActionRequest;
+import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmFalseCloseRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmIngestRequest;
 import com.fgroupboss.ai.psm.alarm.model.dto.AlarmToHazardRequest;
 import com.fgroupboss.ai.psm.alarm.client.RemoteHazardReportVO;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmAreaActiveCheckVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmDetailVO;
-import com.fgroupboss.ai.psm.alarm.model.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.alarm.model.vo.AlarmHealthVO;
 import com.fgroupboss.ai.psm.alarm.service.AlarmService;
 import com.fgroupboss.ai.psm.common.PageResult;
@@ -30,7 +30,7 @@ import javax.validation.Valid;
 import java.util.Date;
 
 /**
- * 报警中心接口（批次 6：完整生命周期 + 区域活跃检查）。
+ * 鎶ヨ涓績鎺ュ彛锛堟壒娆?6锛氬畬鏁寸敓鍛藉懆鏈?+ 鍖哄煙娲昏穬妫€鏌ワ級銆?
  */
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class AlarmController {
     private final AlarmService alarmService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鏈嶅姟鍋ュ悍鐘舵€併€?
      */
     @GetMapping("/health")
     public ResponseVO<AlarmHealthVO> health() {
@@ -48,7 +48,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：接入报警事件。
+     * 鎺ュ彛鐢ㄩ€旓細鎺ュ叆鎶ヨ浜嬩欢銆?
      */
     @PostMapping("/ingest")
     public ResponseVO<AlarmEventVO> ingest(@Valid @RequestBody AlarmIngestRequest request) {
@@ -56,7 +56,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：检查区域活跃报警。
+     * 鎺ュ彛鐢ㄩ€旓細妫€鏌ュ尯鍩熸椿璺冩姤璀︺€?
      */
     @PostMapping("/area-active-check")
     public ResponseVO<AlarmAreaActiveCheckVO> areaActiveCheck(@Valid @RequestBody AlarmAreaActiveCheckRequest request) {
@@ -64,7 +64,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 鎺ュ彛鐢ㄩ€旓細鍒嗛〉鏌ヨ涓氬姟鏁版嵁銆?
      */
     @GetMapping
     public ResponseVO<PageResult<AlarmEventVO>> page(@RequestParam Long tenantId,
@@ -83,7 +83,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ璇︽儏銆?
      */
     @GetMapping("/{id}")
     public ResponseVO<AlarmDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -91,7 +91,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：确认报警。
+     * 鎺ュ彛鐢ㄩ€旓細纭鎶ヨ銆?
      */
     @PostMapping("/{id}/confirm")
     public ResponseVO<AlarmEventVO> confirm(@PathVariable Long id,
@@ -104,7 +104,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：派发报警。
+     * 鎺ュ彛鐢ㄩ€旓細娲惧彂鎶ヨ銆?
      */
     @PostMapping("/{id}/dispatch")
     public ResponseVO<AlarmEventVO> dispatch(@PathVariable Long id,
@@ -117,7 +117,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：反馈报警处理结果。
+     * 鎺ュ彛鐢ㄩ€旓細鍙嶉鎶ヨ澶勭悊缁撴灉銆?
      */
     @PostMapping("/{id}/feedback")
     public ResponseVO<AlarmEventVO> feedback(@PathVariable Long id,
@@ -130,7 +130,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：关闭报警。
+     * 鎺ュ彛鐢ㄩ€旓細鍏抽棴鎶ヨ銆?
      */
     @PostMapping("/{id}/close")
     public ResponseVO<AlarmEventVO> close(@PathVariable Long id,
@@ -143,7 +143,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：误报关闭报警。
+     * 鎺ュ彛鐢ㄩ€旓細璇姤鍏抽棴鎶ヨ銆?
      */
     @PostMapping("/{id}/false-close")
     public ResponseVO<AlarmEventVO> falseClose(@PathVariable Long id,
@@ -156,7 +156,7 @@ public class AlarmController {
     }
 
     /**
-     * 接口用途：报警一键转隐患。
+     * 鎺ュ彛鐢ㄩ€旓細鎶ヨ涓€閿浆闅愭偅銆?
      */
     @PostMapping("/{id}/to-hazard")
     public ResponseVO<RemoteHazardReportVO> toHazard(@PathVariable Long id,
@@ -172,3 +172,4 @@ public class AlarmController {
         return UserContextResolver.operator(userId, username, fallback);
     }
 }
+
