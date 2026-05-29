@@ -49,6 +49,18 @@ import {
   VideoPanel
 } from './phase2-panels';
 import {
+  BarriersPanel,
+  GovernanceDashboardPanel,
+  IncidentsPanel,
+  MocChangesPanel,
+  Phase3ReportPanel,
+  PhaProjectsPanel,
+  PhaRecommendationsPanel,
+  PhaLopaPanel,
+  MiEquipmentPanel,
+  PssrProjectsPanel
+} from './phase3-panels';
+import {
   confirmAction,
   errorMessage,
   formatTime,
@@ -256,6 +268,36 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     }
     if (view === 'integration:reg') {
       return <IntegrationRegPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'pha:projects') {
+      return <PhaProjectsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'pha:recommendations') {
+      return <PhaRecommendationsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'pha:lopa') {
+      return <PhaLopaPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'moc:changes') {
+      return <MocChangesPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'pssr:projects') {
+      return <PssrProjectsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'barrier:ledger') {
+      return <BarriersPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'barrier:mi') {
+      return <MiEquipmentPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'incident:list') {
+      return <IncidentsPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'governance:dashboard') {
+      return <GovernanceDashboardPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'report:phase3') {
+      return <Phase3ReportPanel tenantId={user.tenantId} />;
     }
     if (view.startsWith('hazard:')) {
       return <ModulePlaceholderPanel title="重大危险源" hint="该视图尚未实现" />;

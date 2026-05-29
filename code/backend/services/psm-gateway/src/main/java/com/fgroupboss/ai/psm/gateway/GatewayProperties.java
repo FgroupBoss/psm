@@ -25,6 +25,12 @@ public class GatewayProperties {
     private String locationServiceUrl = "http://localhost:18103";
     private String videoServiceUrl = "http://localhost:18104";
     private String integrationServiceUrl = "http://localhost:18091";
+    private String phaServiceUrl = "http://localhost:18111";
+    private String mocServiceUrl = "http://localhost:18112";
+    private String pssrServiceUrl = "http://localhost:18113";
+    private String barrierServiceUrl = "http://localhost:18114";
+    private String incidentServiceUrl = "http://localhost:18115";
+    private String governanceServiceUrl = "http://localhost:18116";
 
     public String getAuthServiceUrl() {
         return authServiceUrl;
@@ -168,6 +174,54 @@ public class GatewayProperties {
 
     public void setIntegrationServiceUrl(String integrationServiceUrl) {
         this.integrationServiceUrl = trimTrailingSlash(integrationServiceUrl);
+    }
+
+    public String getPhaServiceUrl() {
+        return phaServiceUrl;
+    }
+
+    public void setPhaServiceUrl(String phaServiceUrl) {
+        this.phaServiceUrl = trimTrailingSlash(phaServiceUrl);
+    }
+
+    public String getMocServiceUrl() {
+        return mocServiceUrl;
+    }
+
+    public void setMocServiceUrl(String mocServiceUrl) {
+        this.mocServiceUrl = trimTrailingSlash(mocServiceUrl);
+    }
+
+    public String getPssrServiceUrl() {
+        return pssrServiceUrl;
+    }
+
+    public void setPssrServiceUrl(String pssrServiceUrl) {
+        this.pssrServiceUrl = trimTrailingSlash(pssrServiceUrl);
+    }
+
+    public String getBarrierServiceUrl() {
+        return barrierServiceUrl;
+    }
+
+    public void setBarrierServiceUrl(String barrierServiceUrl) {
+        this.barrierServiceUrl = trimTrailingSlash(barrierServiceUrl);
+    }
+
+    public String getIncidentServiceUrl() {
+        return incidentServiceUrl;
+    }
+
+    public void setIncidentServiceUrl(String incidentServiceUrl) {
+        this.incidentServiceUrl = trimTrailingSlash(incidentServiceUrl);
+    }
+
+    public String getGovernanceServiceUrl() {
+        return governanceServiceUrl;
+    }
+
+    public void setGovernanceServiceUrl(String governanceServiceUrl) {
+        this.governanceServiceUrl = trimTrailingSlash(governanceServiceUrl);
     }
 
     private String trimTrailingSlash(String value) {

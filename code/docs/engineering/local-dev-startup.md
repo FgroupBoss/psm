@@ -30,6 +30,12 @@
 | `psm_location` | location |
 | `psm_video` | video |
 | `psm_integration` | integration（监管上报） |
+| `psm_pha` | pha（三期） |
+| `psm_moc` | moc（三期） |
+| `psm_pssr` | pssr（三期） |
+| `psm_barrier` | barrier（三期） |
+| `psm_incident` | incident（三期） |
+| `psm_governance` | governance（三期） |
 
 ## 服务端口
 
@@ -54,6 +60,12 @@
 | `psm-location-service` | 18103 | 人员定位与封闭化 |
 | `psm-video-service` | 18104 | 视频 AI 与过程监护 |
 | `psm-integration-service` | 18091 | 监管园区接口 |
+| `psm-pha-service` | 18111 | PHA/HAZOP 与 LOPA |
+| `psm-moc-service` | 18112 | MOC 变更管理 |
+| `psm-pssr-service` | 18113 | PSSR 开车前审查 |
+| `psm-barrier-service` | 18114 | 屏障与机械完整性 |
+| `psm-incident-service` | 18115 | 事故调查 |
+| `psm-governance-service` | 18116 | 集团治理 |
 
 ## 启动顺序（建议）
 
@@ -78,6 +90,12 @@ mvn -pl services/psm-inspection-service -am spring-boot:run
 mvn -pl services/psm-location-service -am spring-boot:run
 mvn -pl services/psm-video-service -am spring-boot:run
 mvn -pl services/psm-integration-service -am spring-boot:run
+mvn -pl services/psm-pha-service -am spring-boot:run
+mvn -pl services/psm-moc-service -am spring-boot:run
+mvn -pl services/psm-pssr-service -am spring-boot:run
+mvn -pl services/psm-barrier-service -am spring-boot:run
+mvn -pl services/psm-incident-service -am spring-boot:run
+mvn -pl services/psm-governance-service -am spring-boot:run
 mvn -pl services/psm-gateway -am spring-boot:run
 ```
 

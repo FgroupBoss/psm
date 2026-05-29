@@ -1,5 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API, PHA_API, MOC_API, PSSR_API, BARRIER_API, INCIDENT_API, GOVERNANCE_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -106,7 +106,17 @@ import type {
   SimopsScanResultRecord,
   SimopsStatisticsRecord,
   RegReportTaskRecord,
-  Phase2ReportSummaryRecord
+  Phase2ReportSummaryRecord,
+  PhaProjectRecord,
+  PhaRecommendationRecord,
+  LopaScenarioRecord,
+  MiEquipmentRecord,
+  MocChangeRecord,
+  PssrProjectRecord,
+  BarrierRecord,
+  IncidentRecord,
+  GovernanceDashboardRecord,
+  Phase3ReportSummaryRecord
 } from '@psm/domain-types';
 
 export async function fetchDemoInfo(): Promise<DemoInfo> {
@@ -1573,4 +1583,134 @@ export async function retryRegReportTask(id: number, tenantId: number): Promise<
 
 export async function fetchPhase2ReportSummary(tenantId: number): Promise<Phase2ReportSummaryRecord> {
   return request<Phase2ReportSummaryRecord>(`${REPORT_API.phase2Summary}?tenantId=${tenantId}`);
+}
+
+export async function fetchPhaProjects(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<PhaProjectRecord>> {
+  return request<PageResult<PhaProjectRecord>>(
+    `${PHA_API.projects}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function createPhaProject(payload: {
+  tenantId: number;
+  projectName: string;
+  method?: string;
+  unitId?: number;
+}): Promise<PhaProjectRecord> {
+  return request<PhaProjectRecord>(PHA_API.projects, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function submitPhaProject(id: number, tenantId: number): Promise<PhaProjectRecord> {
+  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function publishPhaProject(id: number, tenantId: number): Promise<PhaProjectRecord> {
+  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/publish?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchPhaRecommendations(
+  tenantId: number,
+  projectId?: number,
+  pageNo = 1,
+  pageSize = 20
+): Promise<PageResult<PhaRecommendationRecord>> {
+  const params = new URLSearchParams({ tenantId: String(tenantId), pageNo: String(pageNo), pageSize: String(pageSize) });
+  if (projectId != null) {
+    params.set('projectId', String(projectId));
+  }
+  return request<PageResult<PhaRecommendationRecord>>(`${PHA_API.recommendations}?${params.toString()}`);
+}
+
+export async function fetchLopaScenarios(
+  tenantId: number,
+  projectId?: number,
+  pageNo = 1,
+  pageSize = 20
+): Promise<PageResult<LopaScenarioRecord>> {
+  const params = new URLSearchParams({ tenantId: String(tenantId), pageNo: String(pageNo), pageSize: String(pageSize) });
+  if (projectId != null) {
+    params.set('projectId', String(projectId));
+  }
+  return request<PageResult<LopaScenarioRecord>>(`${PHA_API.lopaScenarios}?${params.toString()}`);
+}
+
+export async function calculateLopaScenario(id: number, tenantId: number): Promise<unknown> {
+  return request(`${PHA_API.lopaScenarios}/${id}/calculate?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchMiEquipment(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<MiEquipmentRecord>> {
+  return request<PageResult<MiEquipmentRecord>>(
+    `${BARRIER_API.mechanicalIntegrity}/equipment?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function closePhaRecommendation(id: number, tenantId: number): Promise<PhaRecommendationRecord> {
+  return request<PhaRecommendationRecord>(`${PHA_API.recommendations}/${id}/close?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, content: 'Web关闭' })
+  });
+}
+
+export async function fetchMocChanges(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<MocChangeRecord>> {
+  return request<PageResult<MocChangeRecord>>(
+    `${MOC_API.changes}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function createMocChange(payload: {
+  tenantId: number;
+  title: string;
+  changeType?: string;
+  changeLevel?: string;
+}): Promise<MocChangeRecord> {
+  return request<MocChangeRecord>(MOC_API.changes, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function submitMocChange(id: number, tenantId: number): Promise<MocChangeRecord> {
+  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function closeMocChange(id: number, tenantId: number): Promise<MocChangeRecord> {
+  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/close?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchPssrProjects(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<PssrProjectRecord>> {
+  return request<PageResult<PssrProjectRecord>>(
+    `${PSSR_API.projects}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function approvePssrStartup(id: number, tenantId: number): Promise<PssrProjectRecord> {
+  return request<PssrProjectRecord>(`${PSSR_API.projects}/${id}/approve-startup?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchBarriers(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<BarrierRecord>> {
+  return request<PageResult<BarrierRecord>>(
+    `${BARRIER_API.barriers}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function degradeBarrier(id: number, tenantId: number, reason?: string): Promise<BarrierRecord> {
+  return request<BarrierRecord>(`${BARRIER_API.barriers}/${id}/degrade?tenantId=${tenantId}`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, reason: reason || 'Web降级' })
+  });
+}
+
+export async function fetchIncidents(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<IncidentRecord>> {
+  return request<PageResult<IncidentRecord>>(
+    `${INCIDENT_API.base}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+  );
+}
+
+export async function startIncidentInvestigation(id: number, tenantId: number): Promise<IncidentRecord> {
+  return request<IncidentRecord>(`${INCIDENT_API.base}/${id}/start-investigation?tenantId=${tenantId}`, { method: 'POST' });
+}
+
+export async function fetchGovernanceDashboard(tenantId: number): Promise<GovernanceDashboardRecord> {
+  return request<GovernanceDashboardRecord>(`${GOVERNANCE_API.dashboard}?tenantId=${tenantId}`);
+}
+
+export async function fetchPhase3ReportSummary(tenantId: number): Promise<Phase3ReportSummaryRecord> {
+  return request<Phase3ReportSummaryRecord>(`${REPORT_API.phase3Summary}?tenantId=${tenantId}`);
 }

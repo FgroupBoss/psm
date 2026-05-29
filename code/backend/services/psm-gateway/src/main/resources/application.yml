@@ -25,3 +25,9 @@ psm:
     location-service-url: ${PSM_LOCATION_SERVICE_URL:http://localhost:18103}
     video-service-url: ${PSM_VIDEO_SERVICE_URL:http://localhost:18104}
     integration-service-url: ${PSM_INTEGRATION_SERVICE_URL:http://localhost:18091}
+    pha-service-url: ${PSM_PHA_SERVICE_URL:http://localhost:18111}
+    moc-service-url: ${PSM_MOC_SERVICE_URL:http://localhost:18112}
+    pssr-service-url: ${PSM_PSSR_SERVICE_URL:http://localhost:18113}
+    barrier-service-url: ${PSM_BARRIER_SERVICE_URL:http://localhost:18114}
+    incident-service-url: ${PSM_INCIDENT_SERVICE_URL:http://localhost:18115}
+    governance-service-url: ${PSM_GOVERNANCE_SERVICE_URL:http://localhost:18116}

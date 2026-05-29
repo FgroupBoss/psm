@@ -22,3 +22,16 @@
 | `psm-work-permit-service` | 18088 | SIMOPS 扩展（同实例） |
 
 部署时需为上述服务配置独立数据库（见各服务 `src/main/resources/db/schema.sql`）及 Nacos/环境变量中的下游服务 URL（audit、notification、alarm、dual-prevention 等）。
+
+## 三期服务清单
+
+| 服务 | 端口 | 说明 |
+| --- | --- | --- |
+| `psm-pha-service` | 18111 | PHA/HAZOP、LOPA、建议项 |
+| `psm-moc-service` | 18112 | MOC 变更闭环 |
+| `psm-pssr-service` | 18113 | PSSR 开车前安全审查 |
+| `psm-barrier-service` | 18114 | 屏障管理与机械完整性 |
+| `psm-incident-service` | 18115 | 事故调查与 CAPA |
+| `psm-governance-service` | 18116 | 集团治理与指标 |
+
+网关需配置 `PSM_PHA_SERVICE_URL` 等环境变量；`psm-report-service` 提供 `GET /api/reports/phase3/summary` 聚合指标。

@@ -231,6 +231,48 @@ public class GatewayProxyController {
         return proxy(properties.getIntegrationServiceUrl(), request, principal);
     }
 
+    @RequestMapping("/api/pha/**")
+    public ResponseEntity<byte[]> proxyPha(HttpServletRequest request,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getPhaServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/moc/**")
+    public ResponseEntity<byte[]> proxyMoc(HttpServletRequest request,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getMocServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/pssr/**")
+    public ResponseEntity<byte[]> proxyPssr(HttpServletRequest request,
+                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getPssrServiceUrl(), request, principal);
+    }
+
+    @RequestMapping({"/api/barriers/**", "/api/mechanical-integrity/**"})
+    public ResponseEntity<byte[]> proxyBarrier(HttpServletRequest request,
+                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getBarrierServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/incidents/**")
+    public ResponseEntity<byte[]> proxyIncident(HttpServletRequest request,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getIncidentServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/governance/**")
+    public ResponseEntity<byte[]> proxyGovernance(HttpServletRequest request,
+                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getGovernanceServiceUrl(), request, principal);
+    }
+
     private ResponseEntity<byte[]> proxy(String serviceUrl, HttpServletRequest request, AuthPrincipal principal) throws IOException {
         URI target = targetUri(serviceUrl, request);
         HttpHeaders headers = copyHeaders(request);

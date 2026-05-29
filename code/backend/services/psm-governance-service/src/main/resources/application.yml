@@ -1,0 +1,15 @@
+server:
+  port: 18116
+
+spring:
+  application:
+    name: psm-governance-service
+  datasource:
+    url: ${PSM_GOVERNANCE_SERVICE_DB_URL:jdbc:mysql://localhost:3306/psm_governance?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${PSM_GOVERNANCE_SERVICE_DB_USERNAME:psm}
+    password: ${PSM_GOVERNANCE_SERVICE_DB_PASSWORD:psm}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true

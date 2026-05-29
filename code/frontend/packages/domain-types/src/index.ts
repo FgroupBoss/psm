@@ -738,7 +738,8 @@ export const REPORT_API = {
   exportDownload: '/api/reports/export',
   acceptanceCases: '/api/acceptance/test-cases',
   acceptanceRuns: '/api/acceptance/test-runs',
-  phase2Summary: '/api/reports/phase2/summary'
+  phase2Summary: '/api/reports/phase2/summary',
+  phase3Summary: '/api/reports/phase3/summary'
 } as const;
 
 export const MOBILE_API = {
@@ -1252,4 +1253,153 @@ export interface Phase2ReportSummaryRecord {
   location?: { eventCount?: number };
   video?: { aiEventCount?: number };
   simops?: { totalScans?: number; totalConflicts?: number; blockCount?: number; coordinateCount?: number; warnCount?: number };
+}
+
+/** 三期 PHA/HAZOP API 路径。 */
+export const PHA_API = {
+  projects: '/api/pha/projects',
+  recommendations: '/api/pha/recommendations',
+  lopaScenarios: '/api/pha/lopa-scenarios'
+} as const;
+
+/** 三期 MOC API 路径。 */
+export const MOC_API = {
+  changes: '/api/moc/changes'
+} as const;
+
+/** 三期 PSSR API 路径。 */
+export const PSSR_API = {
+  projects: '/api/pssr/projects',
+  templates: '/api/pssr/templates',
+  issues: '/api/pssr/issues'
+} as const;
+
+/** 三期屏障与机械完整性 API 路径。 */
+export const BARRIER_API = {
+  barriers: '/api/barriers',
+  mechanicalIntegrity: '/api/mechanical-integrity'
+} as const;
+
+/** 三期事故调查 API 路径。 */
+export const INCIDENT_API = {
+  base: '/api/incidents'
+} as const;
+
+/** 三期集团治理 API 路径。 */
+export const GOVERNANCE_API = {
+  base: '/api/governance',
+  dashboard: '/api/governance/dashboard/overview',
+  benchmark: '/api/governance/benchmark'
+} as const;
+
+export interface PhaProjectRecord {
+  id: number;
+  tenantId: number;
+  projectNo?: string;
+  projectName?: string;
+  siteId?: number;
+  unitId?: number;
+  majorHazardId?: number;
+  method?: string;
+  version?: string;
+  reviewDueAt?: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LopaScenarioRecord {
+  id: number;
+  tenantId: number;
+  projectId?: number;
+  scenarioNo?: string;
+  initiatingEventFrequency?: number;
+  targetFrequency?: number;
+  mitigatedFrequency?: number;
+  silRecommendation?: string;
+  status?: string;
+}
+
+export interface MiEquipmentRecord {
+  id: number;
+  tenantId: number;
+  equipmentCode?: string;
+  equipmentName?: string;
+  criticality?: string;
+  status: string;
+}
+
+export interface PhaRecommendationRecord {
+  id: number;
+  tenantId: number;
+  projectId?: number;
+  recommendationNo?: string;
+  content?: string;
+  assigneeUserId?: number;
+  rectificationDeadline?: string;
+  status: string;
+  overdueFlag?: number;
+}
+
+export interface MocChangeRecord {
+  id: number;
+  tenantId: number;
+  changeNo?: string;
+  title?: string;
+  changeType?: string;
+  changeLevel?: string;
+  areaId?: number;
+  status: string;
+  emergencyFlag?: number;
+}
+
+export interface PssrProjectRecord {
+  id: number;
+  tenantId: number;
+  projectNo?: string;
+  projectName?: string;
+  mocId?: number;
+  status: string;
+  startupApproved?: number;
+}
+
+export interface BarrierRecord {
+  id: number;
+  tenantId: number;
+  barrierCode?: string;
+  barrierName?: string;
+  barrierType?: string;
+  healthStatus?: string;
+  status: string;
+}
+
+export interface IncidentRecord {
+  id: number;
+  tenantId: number;
+  incidentNo?: string;
+  title?: string;
+  severity?: string;
+  status: string;
+  sourceType?: string;
+}
+
+export interface GovernanceDashboardRecord {
+  tenantId?: number;
+  metricCount?: number;
+  openAuditIssues?: number;
+  siteCount?: number;
+  snapshotCount?: number;
+  [key: string]: unknown;
+}
+
+export interface Phase3ReportSummaryRecord {
+  tenantId?: number;
+  generatedAt?: string;
+  dataSource?: string;
+  governanceDashboard?: Record<string, unknown>;
+  pha?: Record<string, unknown>;
+  moc?: Record<string, unknown>;
+  pssr?: Record<string, unknown>;
+  barrier?: Record<string, unknown>;
+  incident?: Record<string, unknown>;
 }

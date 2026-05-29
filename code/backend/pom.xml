@@ -13,7 +13,19 @@
     <description>PSM safety management platform backend scaffold</description>
 
     <modules>
+        <module>shared/psm-common-bom</module>
         <module>shared/psm-common-core</module>
+        <module>shared/psm-common-data</module>
+        <module>shared/psm-common-web</module>
+        <module>shared/psm-common-feign</module>
+        <module>shared/psm-common-security</module>
+        <module>shared/psm-identity-api</module>
+        <module>shared/psm-platform-api</module>
+        <module>shared/psm-realtime-api</module>
+        <module>shared/psm-operation-api</module>
+        <module>shared/psm-risk-api</module>
+        <module>shared/psm-process-safety-api</module>
+        <module>shared/psm-incident-governance-api</module>
         <module>services/psm-gateway</module>
         <module>services/psm-auth-service</module>
         <module>services/psm-iam-service</module>
@@ -30,15 +42,22 @@
         <module>services/psm-notification-service</module>
         <module>services/psm-audit-service</module>
         <module>services/psm-dual-prevention-service</module>
+        <module>services/psm-pha-service</module>
+        <module>services/psm-moc-service</module>
+        <module>services/psm-pssr-service</module>
+        <module>services/psm-barrier-service</module>
         <module>services/psm-video-service</module>
         <module>services/psm-location-service</module>
         <module>services/psm-inspection-service</module>
+        <module>services/psm-incident-service</module>
+        <module>services/psm-governance-service</module>
     </modules>
 
     <properties>
         <java.version>1.8</java.version>
         <spring-boot.version>2.7.18</spring-boot.version>
         <mybatis-plus.version>3.5.7</mybatis-plus.version>
+        <psm.common.version>1.0.0-SNAPSHOT</psm.common.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>

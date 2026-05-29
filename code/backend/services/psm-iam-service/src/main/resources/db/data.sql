@@ -41,7 +41,22 @@ values
   (70, 0, null, 'MENU', 'MENU_ROOT_REPORT', '报表大屏', null, 90, 1, 'ENABLED'),
   (71, 0, 70, 'MENU', 'MENU_RPT_OVERVIEW', '报表总览', 'report:overview', 91, 1, 'ENABLED'),
   (72, 0, 70, 'MENU', 'MENU_RPT_DASHBOARD', '态势大屏', 'report:dashboard', 92, 1, 'ENABLED'),
-  (73, 0, 70, 'MENU', 'MENU_RPT_ACCEPTANCE', '上线验收', 'report:acceptance', 93, 1, 'ENABLED')
+  (73, 0, 70, 'MENU', 'MENU_RPT_ACCEPTANCE', '上线验收', 'report:acceptance', 93, 1, 'ENABLED'),
+  (74, 0, 70, 'MENU', 'MENU_RPT_PHASE2', '二期指标', 'report:phase2', 94, 1, 'ENABLED'),
+  (75, 0, 70, 'MENU', 'MENU_RPT_PHASE3', '三期指标', 'report:phase3', 95, 1, 'ENABLED'),
+  (80, 0, null, 'MENU', 'MENU_ROOT_DP', '双重预防', null, 100, 1, 'ENABLED'),
+  (81, 0, 80, 'MENU', 'MENU_DP_RISK', '风险清单', 'dual-prevention:risk', 101, 1, 'ENABLED'),
+  (82, 0, 80, 'MENU', 'MENU_DP_HAZARDS', '隐患台账', 'dual-prevention:hazards', 102, 1, 'ENABLED'),
+  (90, 0, null, 'MENU', 'MENU_ROOT_PHASE3', '三期 PSM', null, 110, 1, 'ENABLED'),
+  (91, 0, 90, 'MENU', 'MENU_PHA_PROJECTS', 'PHA 项目', 'pha:projects', 111, 1, 'ENABLED'),
+  (92, 0, 90, 'MENU', 'MENU_PHA_RECOMMENDATIONS', 'PHA 建议项', 'pha:recommendations', 112, 1, 'ENABLED'),
+  (93, 0, 90, 'MENU', 'MENU_PHA_LOPA', 'LOPA 场景', 'pha:lopa', 113, 1, 'ENABLED'),
+  (94, 0, 90, 'MENU', 'MENU_MOC_CHANGES', 'MOC 变更', 'moc:changes', 114, 1, 'ENABLED'),
+  (95, 0, 90, 'MENU', 'MENU_PSSR_PROJECTS', 'PSSR 审查', 'pssr:projects', 115, 1, 'ENABLED'),
+  (96, 0, 90, 'MENU', 'MENU_BARRIER_LEDGER', '屏障管理', 'barrier:ledger', 116, 1, 'ENABLED'),
+  (97, 0, 90, 'MENU', 'MENU_BARRIER_MI', '机械完整性', 'barrier:mi', 117, 1, 'ENABLED'),
+  (98, 0, 90, 'MENU', 'MENU_INCIDENT_LIST', '事故调查', 'incident:list', 118, 1, 'ENABLED'),
+  (99, 0, 90, 'MENU', 'MENU_GOV_DASHBOARD', '集团治理', 'governance:dashboard', 119, 1, 'ENABLED')
 on duplicate key update resource_name = values(resource_name), route_path = values(route_path), updated_at = now();
 
 insert into sys_role_permission (tenant_id, role_id, resource_id, permission_code)

@@ -26,6 +26,12 @@ psm:
   inspection-service-url: ${PSM_INSPECTION_SERVICE_URL:http://localhost:18102}
   location-service-url: ${PSM_LOCATION_SERVICE_URL:http://localhost:18103}
   video-service-url: ${PSM_VIDEO_SERVICE_URL:http://localhost:18104}
+  pha-service-url: ${PSM_PHA_SERVICE_URL:http://localhost:18111}
+  moc-service-url: ${PSM_MOC_SERVICE_URL:http://localhost:18112}
+  pssr-service-url: ${PSM_PSSR_SERVICE_URL:http://localhost:18113}
+  barrier-service-url: ${PSM_BARRIER_SERVICE_URL:http://localhost:18114}
+  incident-service-url: ${PSM_INCIDENT_SERVICE_URL:http://localhost:18115}
+  governance-service-url: ${PSM_GOVERNANCE_SERVICE_URL:http://localhost:18116}
   report:
     pilot-offline-work-count: ${PSM_REPORT_PILOT_OFFLINE_WORK_COUNT:0}
     critical-operation-baseline: ${PSM_REPORT_CRITICAL_OP_BASELINE:100}

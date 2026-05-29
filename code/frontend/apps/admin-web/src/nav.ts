@@ -27,7 +27,17 @@ export type AppView =
   | 'location:overview'
   | 'video:events'
   | 'simops:conflicts'
-  | 'integration:reg';
+  | 'integration:reg'
+  | 'pha:projects'
+  | 'pha:recommendations'
+  | 'pha:lopa'
+  | 'moc:changes'
+  | 'pssr:projects'
+  | 'barrier:ledger'
+  | 'barrier:mi'
+  | 'incident:list'
+  | 'governance:dashboard'
+  | 'report:phase3';
 
 export interface NavItem {
   view: AppView;
@@ -113,7 +123,37 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   MENU_SIMOPS: 'simops:conflicts',
   'integration/reg': 'integration:reg',
   'integration:reg': 'integration:reg',
-  MENU_REG: 'integration:reg'
+  MENU_REG: 'integration:reg',
+  'pha/projects': 'pha:projects',
+  'pha:projects': 'pha:projects',
+  MENU_PHA_PROJECTS: 'pha:projects',
+  'pha/recommendations': 'pha:recommendations',
+  'pha:recommendations': 'pha:recommendations',
+  MENU_PHA_RECOMMENDATIONS: 'pha:recommendations',
+  'pha/lopa': 'pha:lopa',
+  'pha:lopa': 'pha:lopa',
+  MENU_PHA_LOPA: 'pha:lopa',
+  'moc/changes': 'moc:changes',
+  'moc:changes': 'moc:changes',
+  MENU_MOC_CHANGES: 'moc:changes',
+  'pssr/projects': 'pssr:projects',
+  'pssr:projects': 'pssr:projects',
+  MENU_PSSR_PROJECTS: 'pssr:projects',
+  'barrier/ledger': 'barrier:ledger',
+  'barrier:ledger': 'barrier:ledger',
+  MENU_BARRIER_LEDGER: 'barrier:ledger',
+  'barrier/mi': 'barrier:mi',
+  'barrier:mi': 'barrier:mi',
+  MENU_BARRIER_MI: 'barrier:mi',
+  'incident/list': 'incident:list',
+  'incident:list': 'incident:list',
+  MENU_INCIDENT_LIST: 'incident:list',
+  'governance/dashboard': 'governance:dashboard',
+  'governance:dashboard': 'governance:dashboard',
+  MENU_GOV_DASHBOARD: 'governance:dashboard',
+  'report/phase3': 'report:phase3',
+  'report:phase3': 'report:phase3',
+  MENU_RPT_PHASE3: 'report:phase3'
 };
 
 /** 无 IAM 菜单数据时的默认可访问菜单（试点管理员）。 */
@@ -143,7 +183,17 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'location:overview', label: '人员定位', group: '人员定位' },
   { view: 'video:events', label: '视频 AI', group: '视频智能' },
   { view: 'simops:conflicts', label: 'SIMOPS', group: 'SIMOPS' },
-  { view: 'integration:reg', label: '监管上报', group: '监管接口' }
+  { view: 'integration:reg', label: '监管上报', group: '监管接口' },
+  { view: 'pha:projects', label: 'PHA 项目', group: '三期 PSM' },
+  { view: 'pha:recommendations', label: 'PHA 建议项', group: '三期 PSM' },
+  { view: 'pha:lopa', label: 'LOPA 场景', group: '三期 PSM' },
+  { view: 'moc:changes', label: 'MOC 变更', group: '三期 PSM' },
+  { view: 'pssr:projects', label: 'PSSR 审查', group: '三期 PSM' },
+  { view: 'barrier:ledger', label: '屏障管理', group: '三期 PSM' },
+  { view: 'barrier:mi', label: '机械完整性', group: '三期 PSM' },
+  { view: 'incident:list', label: '事故调查', group: '三期 PSM' },
+  { view: 'governance:dashboard', label: '集团治理', group: '三期 PSM' },
+  { view: 'report:phase3', label: '三期指标', group: '报表大屏' }
 ];
 
 const VIEW_TITLES: Record<AppView, string> = {
@@ -172,7 +222,17 @@ const VIEW_TITLES: Record<AppView, string> = {
   'location:overview': '人员定位',
   'video:events': '视频 AI',
   'simops:conflicts': 'SIMOPS',
-  'integration:reg': '监管上报'
+  'integration:reg': '监管上报',
+  'pha:projects': 'PHA 项目',
+  'pha:recommendations': 'PHA 建议项',
+  'pha:lopa': 'LOPA 场景',
+  'moc:changes': 'MOC 变更',
+  'pssr:projects': 'PSSR 审查',
+  'barrier:ledger': '屏障管理',
+  'barrier:mi': '机械完整性',
+  'incident:list': '事故调查',
+  'governance:dashboard': '集团治理',
+  'report:phase3': '三期指标'
 };
 
 export function viewTitle(view: AppView): string {
