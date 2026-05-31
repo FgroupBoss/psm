@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
-import com.fgroupboss.ai.psm.identity.iam.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.identity.iam.mapper.IamAuditChangeLogMapper;
 import com.fgroupboss.ai.psm.identity.iam.mapper.DataScopeMapper;
 import com.fgroupboss.ai.psm.identity.iam.mapper.IamUserMapper;
 import com.fgroupboss.ai.psm.identity.iam.mapper.MenuResourceMapper;
@@ -81,7 +81,7 @@ public class IamAdminServiceImpl implements IamAdminService {
     private final RolePermissionMapper rolePermissionMapper;
     private final DataScopeMapper dataScopeMapper;
     private final PermissionVersionMapper permissionVersionMapper;
-    private final AuditChangeLogMapper auditChangeLogMapper;
+    private final IamAuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
     /**

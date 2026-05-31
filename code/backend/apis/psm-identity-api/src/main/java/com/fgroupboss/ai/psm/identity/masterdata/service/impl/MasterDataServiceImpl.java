@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.identity.masterdata.config.MasterDataType;
-import com.fgroupboss.ai.psm.identity.masterdata.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.identity.masterdata.mapper.MdAuditChangeLogMapper;
 import com.fgroupboss.ai.psm.identity.masterdata.mapper.MasterDataItemMapper;
 import com.fgroupboss.ai.psm.identity.masterdata.model.dto.MasterDataRequest;
 import com.fgroupboss.ai.psm.identity.masterdata.model.entity.AuditChangeLogEntity;
@@ -36,7 +36,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     };
 
     private final MasterDataItemMapper masterDataItemMapper;
-    private final AuditChangeLogMapper auditChangeLogMapper;
+    private final MdAuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
     /**

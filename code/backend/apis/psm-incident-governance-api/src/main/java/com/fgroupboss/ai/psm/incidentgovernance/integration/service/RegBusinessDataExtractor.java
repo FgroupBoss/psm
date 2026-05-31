@@ -47,13 +47,13 @@ public class RegBusinessDataExtractor {
                                     String alarmServiceUrl) {
         this.restTemplate = restTemplate;
         this.dualPreventionServiceUrl = RegRemoteClientSupport.trimTrailingSlash(
-                dualPreventionServiceUrl, "http://localhost:18101");
+                dualPreventionServiceUrl, "http://psm-risk:18101");
         this.workPermitServiceUrl = RegRemoteClientSupport.trimTrailingSlash(
-                workPermitServiceUrl, "http://localhost:18088");
+                workPermitServiceUrl, "http://psm-operation:18088");
         this.majorHazardServiceUrl = RegRemoteClientSupport.trimTrailingSlash(
-                majorHazardServiceUrl, "http://localhost:18086");
+                majorHazardServiceUrl, "http://psm-risk:18101");
         this.alarmServiceUrl = RegRemoteClientSupport.trimTrailingSlash(
-                alarmServiceUrl, "http://localhost:18087");
+                alarmServiceUrl, "http://psm-realtime:18087");
     }
 
     /**

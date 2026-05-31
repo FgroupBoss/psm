@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.risk.inspection.mapper.InspectionPlanMapper">
+
+    <sql id="planWhere">
+        tenant_id = #{tenantId}
+        and deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (plan_code like concat('%', #{keyword}, '%')
+            or plan_name like concat('%', #{keyword}, '%'))
+        </if>
+    </sql>
+
+    <select id="countByTenant" resultType="long">
+        select count(1) from insp_plan
+        <where>
+            <include refid="planWhere"/>
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.risk.inspection.model.entity.InspectionPlanEntity">
+        select * from insp_plan
+        <where>
+            <include refid="planWhere"/>
+        </where>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="findByCode" resultType="com.fgroupboss.ai.psm.risk.inspection.model.entity.InspectionPlanEntity">
+        select * from insp_plan
+        where tenant_id = #{tenantId}
+          and plan_code = #{planCode}
+          and deleted = 0
+        limit 1
+    </select>
+
+    <select id="listEnabled" resultType="com.fgroupboss.ai.psm.risk.inspection.model.entity.InspectionPlanEntity">
+        select * from insp_plan
+        where deleted = 0
+          and enabled = 1
+          and cycle_type in ('DAILY', 'WEEKLY')
+        order by id asc
+    </select>
+</mapper>

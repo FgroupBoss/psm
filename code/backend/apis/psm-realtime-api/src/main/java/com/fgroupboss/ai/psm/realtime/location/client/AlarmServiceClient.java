@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
  * 调用 psm-alarm-service 事件接入（best-effort，失败不阻断定位事件落库）。
  */
 @Slf4j
-@Component
+@Component("locationAlarmServiceClient")
 public class AlarmServiceClient {
 
     private static final ParameterizedTypeReference<ResponseVO<AlarmEventSummary>> INGEST_TYPE =

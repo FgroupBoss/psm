@@ -33,7 +33,7 @@ public class AuditReportClient {
                              @Value("${psm.audit-service-url:${PSM_AUDIT_SERVICE_URL:http://localhost:18094}}")
                              String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://localhost:18094");
+        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://psm-identity:18080");
     }
 
     public List<RemoteAuditLogVO> listLogs(Long tenantId) {

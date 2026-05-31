@@ -7,38 +7,38 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "psm.gateway")
 public class GatewayProperties {
 
-    private String authServiceUrl = "http://localhost:18081";
-    private String iamServiceUrl = "http://localhost:18082";
-    private String masterDataServiceUrl = "http://localhost:18083";
-    private String configRuleServiceUrl = "http://localhost:18084";
-    private String auditServiceUrl = "http://localhost:18094";
-    private String contractorServiceUrl = "http://localhost:18085";
-    private String majorHazardServiceUrl = "http://localhost:18086";
-    private String alarmServiceUrl = "http://localhost:18087";
-    private String workPermitServiceUrl = "http://localhost:18088";
-    private String mobileBffUrl = "http://localhost:18089";
-    private String reportServiceUrl = "http://localhost:18090";
-    private String fileServiceUrl = "http://localhost:18092";
-    private String notificationServiceUrl = "http://localhost:18093";
-    private String inspectionServiceUrl = "http://localhost:18102";
-    private String dualPreventionServiceUrl = "http://localhost:18101";
-    private String locationServiceUrl = "http://localhost:18103";
-    private String videoServiceUrl = "http://localhost:18104";
-    private String integrationServiceUrl = "http://localhost:18091";
-    private String phaServiceUrl = "http://localhost:18111";
-    private String mocServiceUrl = "http://localhost:18112";
-    private String pssrServiceUrl = "http://localhost:18113";
-    private String barrierServiceUrl = "http://localhost:18114";
-    private String incidentServiceUrl = "http://localhost:18115";
-    private String governanceServiceUrl = "http://localhost:18116";
+    private String authServiceUrl = "http://127.0.0.1:18080";
+    private String iamServiceUrl = "http://127.0.0.1:18080";
+    private String masterDataServiceUrl = "http://127.0.0.1:18080";
+    private String configRuleServiceUrl = "http://psm-process-safety:18111";
+    private String auditServiceUrl = "http://127.0.0.1:18080";
+    private String contractorServiceUrl = "http://psm-operation:18088";
+    private String majorHazardServiceUrl = "http://psm-risk:18101";
+    private String alarmServiceUrl = "http://psm-realtime:18087";
+    private String workPermitServiceUrl = "http://psm-operation:18088";
+    private String mobileBffUrl = "http://psm-operation:18088";
+    private String reportServiceUrl = "http://psm-incident-governance:18115";
+    private String fileServiceUrl = "http://127.0.0.1:18080";
+    private String notificationServiceUrl = "http://127.0.0.1:18080";
+    private String inspectionServiceUrl = "http://psm-risk:18101";
+    private String dualPreventionServiceUrl = "http://psm-risk:18101";
+    private String locationServiceUrl = "http://psm-realtime:18087";
+    private String videoServiceUrl = "http://psm-realtime:18087";
+    private String integrationServiceUrl = "http://psm-incident-governance:18115";
+    private String phaServiceUrl = "http://psm-process-safety:18111";
+    private String mocServiceUrl = "http://psm-process-safety:18111";
+    private String pssrServiceUrl = "http://psm-process-safety:18111";
+    private String barrierServiceUrl = "http://psm-process-safety:18111";
+    private String incidentServiceUrl = "http://psm-incident-governance:18115";
+    private String governanceServiceUrl = "http://psm-incident-governance:18115";
 
     // === 微服务治理目标域服务 URL（灰度切换用） ===
-    private String identityServiceUrl = "http://localhost:18081";
-    private String operationControlServiceUrl = "http://localhost:18088";
-    private String realtimePerceptionServiceUrl = "http://localhost:18087";
-    private String riskControlServiceUrl = "http://localhost:18101";
-    private String processSafetyServiceUrl = "http://localhost:18111";
-    private String incidentGovernanceServiceUrl = "http://localhost:18115";
+    private String identityServiceUrl = "http://127.0.0.1:18080";
+    private String operationControlServiceUrl = "http://psm-operation:18088";
+    private String realtimePerceptionServiceUrl = "http://psm-realtime:18087";
+    private String riskControlServiceUrl = "http://psm-risk:18101";
+    private String processSafetyServiceUrl = "http://psm-process-safety:18111";
+    private String incidentGovernanceServiceUrl = "http://psm-incident-governance:18115";
 
     // === 灰度开关（true = 使用新目标服务, false = 使用原服务） ===
     private boolean useIdentityService = false;

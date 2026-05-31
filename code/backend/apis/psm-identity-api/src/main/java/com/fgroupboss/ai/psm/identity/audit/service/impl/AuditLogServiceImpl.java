@@ -1,6 +1,6 @@
 package com.fgroupboss.ai.psm.identity.audit.service.impl;
 
-import com.fgroupboss.ai.psm.identity.audit.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.identity.audit.mapper.AuditAuditChangeLogMapper;
 import com.fgroupboss.ai.psm.identity.audit.model.dto.AuditLogIngestRequest;
 import com.fgroupboss.ai.psm.identity.audit.model.entity.AuditChangeLogEntity;
 import com.fgroupboss.ai.psm.identity.audit.model.vo.AuditLogRecordVO;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuditLogServiceImpl implements AuditLogService {
 
-    private final AuditChangeLogMapper auditChangeLogMapper;
+    private final AuditAuditChangeLogMapper auditChangeLogMapper;
 
     /**
      * 实现方式：分页查询业务数据，先完成必要的参数、租户或状态校验，再委托持久化组件或远程客户端处理并组装返回结果。

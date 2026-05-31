@@ -29,7 +29,7 @@ public class DualPreventionAreaHazardClient {
     private final String dualPreventionServiceUrl;
 
     public DualPreventionAreaHazardClient(RestTemplate restTemplate,
-                                          @Value("${psm.dual-prevention-service-url:${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}}")
+                                          @Value("${psm.dual-prevention-service-url:${PSM_DUAL_PREVENTION_SERVICE_URL:http://psm-risk:18101}}")
                                           String dualPreventionServiceUrl) {
         this.restTemplate = restTemplate;
         this.dualPreventionServiceUrl = trimTrailingSlash(dualPreventionServiceUrl);
@@ -56,7 +56,7 @@ public class DualPreventionAreaHazardClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18101";
+            return "http://psm-risk:18101";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

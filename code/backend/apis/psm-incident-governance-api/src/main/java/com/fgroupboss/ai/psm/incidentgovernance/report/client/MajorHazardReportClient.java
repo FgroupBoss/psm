@@ -33,7 +33,7 @@ public class MajorHazardReportClient {
                                    @Value("${psm.major-hazard-service-url:${PSM_MAJOR_HAZARD_SERVICE_URL:http://localhost:18086}}")
                                    String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://localhost:18086");
+        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://psm-risk:18101");
     }
 
     public List<RemoteMajorHazardVO> listHazards(Long tenantId) {

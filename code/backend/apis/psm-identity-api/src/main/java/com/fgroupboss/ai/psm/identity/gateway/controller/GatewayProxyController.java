@@ -11,10 +11,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,7 +25,9 @@ import java.net.URI;
 import java.util.Enumeration;
 
 /**
- * 接口用途：提供网关代理相关 HTTP API，统一封装请求校验、服务调用与响应返回。
+ * 网关代理控制器 — 仅代理非 identity 域的 5 个外部域服务。
+ * identity 域自身的 auth/iam/master-data/audit/file/notification
+ * 路由由各自 Controller 直接处理；config 已合并至 process-safety 域，经代理转发。
  */
 @RestController
 @RequiredArgsConstructor
@@ -35,275 +37,162 @@ public class GatewayProxyController {
     private final GatewayAuthService authService;
     private final RestTemplate restTemplate;
 
-    /**
-     * 接口用途：处理接口请求。灰度期间可通过 useIdentityService 切到 psm-identity-service。
-     */
-    @RequestMapping("/auth/**")
-    public ResponseEntity<byte[]> proxyAuth(HttpServletRequest request) throws IOException {
-        String targetUrl = properties.isUseIdentityService()
-                ? properties.getIdentityServiceUrl() : properties.getAuthServiceUrl();
-        return proxy(targetUrl, request, null);
-    }
+    // ============================================================
+    // 作业管控域 (psm-operation:18088)
+    // ============================================================
 
-    /**
-     * 接口用途：处理接口请求。灰度期间可通过 useIdentityService 切到 psm-identity-service。
-     */
-    @RequestMapping("/api/iam/**")
-    public ResponseEntity<byte[]> proxyIam(HttpServletRequest request,
-                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseIdentityService()
-                ? properties.getIdentityServiceUrl() : properties.getIamServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping("/api/config/**")
-    public ResponseEntity<byte[]> proxyConfigRule(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getConfigRuleServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping("/api/master-data/**")
-    public ResponseEntity<byte[]> proxyMasterData(HttpServletRequest request,
-                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMasterDataServiceUrl(), request, principal);
-    }
-
-    @RequestMapping({"/api/areas/**", "/api/areas", "/api/units/**", "/api/units",
-            "/api/equipments/**", "/api/equipments", "/api/monitor-points/**", "/api/monitor-points"})
-    public ResponseEntity<byte[]> proxyBaseData(HttpServletRequest request,
-                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMasterDataServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping({"/api/audit/**", "/api/audit"})
-    public ResponseEntity<byte[]> proxyAudit(HttpServletRequest request,
-                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getAuditServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
     @RequestMapping("/api/contractors/**")
     public ResponseEntity<byte[]> proxyContractor(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseOperationControlService()
-                ? properties.getOperationControlServiceUrl() : properties.getContractorServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping("/api/major-hazards/**")
-    public ResponseEntity<byte[]> proxyMajorHazard(HttpServletRequest request,
-                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRiskControlService()
-                ? properties.getRiskControlServiceUrl() : properties.getMajorHazardServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping("/api/alarms/**")
-    public ResponseEntity<byte[]> proxyAlarm(HttpServletRequest request,
-                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRealtimePerceptionService()
-                ? properties.getRealtimePerceptionServiceUrl() : properties.getAlarmServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
     @RequestMapping("/api/work-permits/**")
     public ResponseEntity<byte[]> proxyWorkPermit(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseOperationControlService()
-                ? properties.getOperationControlServiceUrl() : properties.getWorkPermitServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
-    /**
-     * 接口用途：处理接口请求。
-     */
     @RequestMapping("/api/mobile/**")
     public ResponseEntity<byte[]> proxyMobile(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getMobileBffUrl(), request, principal);
+        return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
-    public ResponseEntity<byte[]> proxyReport(HttpServletRequest request,
-                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getReportServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：处理接口请求。
-     */
-    @RequestMapping("/api/files/**")
-    public ResponseEntity<byte[]> proxyFile(HttpServletRequest request,
-                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getFileServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：转发消息中心请求。
-     */
-    @RequestMapping("/api/notifications/**")
-    public ResponseEntity<byte[]> proxyNotification(HttpServletRequest request,
-                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getNotificationServiceUrl(), request, principal);
-    }
-
-    /**
-     * 接口用途：转发智能巡检请求。
-     */
-    @RequestMapping("/api/inspection/**")
-    public ResponseEntity<byte[]> proxyInspection(HttpServletRequest request,
-                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRiskControlService()
-                ? properties.getRiskControlServiceUrl() : properties.getInspectionServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：转发双重预防请求。
-     */
-    @RequestMapping("/api/dual-prevention/**")
-    public ResponseEntity<byte[]> proxyDualPrevention(HttpServletRequest request,
-                                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRiskControlService()
-                ? properties.getRiskControlServiceUrl() : properties.getDualPreventionServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：转发人员定位请求。
-     */
-    @RequestMapping("/api/location/**")
-    public ResponseEntity<byte[]> proxyLocation(HttpServletRequest request,
-                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRealtimePerceptionService()
-                ? properties.getRealtimePerceptionServiceUrl() : properties.getLocationServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：转发视频智能请求。
-     */
-    @RequestMapping("/api/video/**")
-    public ResponseEntity<byte[]> proxyVideo(HttpServletRequest request,
-                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
-        AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseRealtimePerceptionService()
-                ? properties.getRealtimePerceptionServiceUrl() : properties.getVideoServiceUrl();
-        return proxy(targetUrl, request, principal);
-    }
-
-    /**
-     * 接口用途：转发 SIMOPS 交叉作业请求。
-     */
     @RequestMapping("/api/simops/**")
     public ResponseEntity<byte[]> proxySimops(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getWorkPermitServiceUrl(), request, principal);
+        return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
-    /**
-     * 接口用途：转发集成与监管接口请求。
-     */
-    @RequestMapping("/api/integration/**")
-    public ResponseEntity<byte[]> proxyIntegration(HttpServletRequest request,
+    // ============================================================
+    // 实时感知域 (psm-realtime:18087)
+    // ============================================================
+
+    @RequestMapping("/api/alarms/**")
+    public ResponseEntity<byte[]> proxyAlarm(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getRealtimePerceptionServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/location/**")
+    public ResponseEntity<byte[]> proxyLocation(HttpServletRequest request,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getRealtimePerceptionServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/video/**")
+    public ResponseEntity<byte[]> proxyVideo(HttpServletRequest request,
+                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getRealtimePerceptionServiceUrl(), request, principal);
+    }
+
+    // ============================================================
+    // 风险防控域 (psm-risk:18101)
+    // ============================================================
+
+    @RequestMapping("/api/major-hazards/**")
+    public ResponseEntity<byte[]> proxyMajorHazard(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        return proxy(properties.getIntegrationServiceUrl(), request, principal);
+        return proxy(properties.getRiskControlServiceUrl(), request, principal);
     }
+
+    @RequestMapping("/api/inspection/**")
+    public ResponseEntity<byte[]> proxyInspection(HttpServletRequest request,
+                                                  @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getRiskControlServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/dual-prevention/**")
+    public ResponseEntity<byte[]> proxyDualPrevention(HttpServletRequest request,
+                                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getRiskControlServiceUrl(), request, principal);
+    }
+
+    // ============================================================
+    // 过程安全域 (psm-process-safety:18111)
+    // ============================================================
 
     @RequestMapping("/api/pha/**")
     public ResponseEntity<byte[]> proxyPha(HttpServletRequest request,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseProcessSafetyService()
-                ? properties.getProcessSafetyServiceUrl() : properties.getPhaServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/moc/**")
     public ResponseEntity<byte[]> proxyMoc(HttpServletRequest request,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseProcessSafetyService()
-                ? properties.getProcessSafetyServiceUrl() : properties.getMocServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/pssr/**")
     public ResponseEntity<byte[]> proxyPssr(HttpServletRequest request,
                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseProcessSafetyService()
-                ? properties.getProcessSafetyServiceUrl() : properties.getPssrServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
     @RequestMapping({"/api/barriers/**", "/api/mechanical-integrity/**"})
     public ResponseEntity<byte[]> proxyBarrier(HttpServletRequest request,
                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseProcessSafetyService()
-                ? properties.getProcessSafetyServiceUrl() : properties.getBarrierServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
+
+    @RequestMapping("/api/config/**")
+    public ResponseEntity<byte[]> proxyConfig(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
+    }
+
+    // ============================================================
+    // 事件治理域 (psm-incident-governance:18115)
+    // ============================================================
 
     @RequestMapping("/api/incidents/**")
     public ResponseEntity<byte[]> proxyIncident(HttpServletRequest request,
                                                 @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseIncidentGovernanceService()
-                ? properties.getIncidentGovernanceServiceUrl() : properties.getIncidentServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
     }
 
     @RequestMapping("/api/governance/**")
     public ResponseEntity<byte[]> proxyGovernance(HttpServletRequest request,
                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
         AuthPrincipal principal = authService.authenticate(authorization);
-        String targetUrl = properties.isUseIncidentGovernanceService()
-                ? properties.getIncidentGovernanceServiceUrl() : properties.getGovernanceServiceUrl();
-        return proxy(targetUrl, request, principal);
+        return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
     }
+
+    @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
+    public ResponseEntity<byte[]> proxyReport(HttpServletRequest request,
+                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
+    }
+
+    @RequestMapping("/api/integration/**")
+    public ResponseEntity<byte[]> proxyIntegration(HttpServletRequest request,
+                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
+    }
+
+    // ============================================================
+    // 代理实现
+    // ============================================================
 
     private ResponseEntity<byte[]> proxy(String serviceUrl, HttpServletRequest request, AuthPrincipal principal) throws IOException {
         URI target = targetUri(serviceUrl, request);
@@ -334,7 +223,7 @@ public class GatewayProxyController {
                     .headers(responseHeaders(e))
                     .body(e.getResponseBodyAsByteArray());
         } catch (RestClientException e) {
-            throw new BusinessException(502, "upstream service unavailable");
+            throw new BusinessException(502, "upstream service unavailable: " + e.getMessage());
         }
     }
 
@@ -347,24 +236,16 @@ public class GatewayProxyController {
 
     private HttpHeaders filterResponseHeaders(HttpHeaders upstreamHeaders) {
         HttpHeaders headers = new HttpHeaders();
-        if (upstreamHeaders == null) {
-            return headers;
-        }
-        if (upstreamHeaders.getContentType() != null) {
-            headers.setContentType(upstreamHeaders.getContentType());
-        }
-        if (upstreamHeaders.getContentDisposition() != null) {
-            headers.setContentDisposition(upstreamHeaders.getContentDisposition());
-        }
+        if (upstreamHeaders == null) return headers;
+        if (upstreamHeaders.getContentType() != null) headers.setContentType(upstreamHeaders.getContentType());
+        if (upstreamHeaders.getContentDisposition() != null) headers.setContentDisposition(upstreamHeaders.getContentDisposition());
         return headers;
     }
 
     private URI targetUri(String serviceUrl, HttpServletRequest request) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUrl + request.getRequestURI());
         String query = request.getQueryString();
-        if (StringUtils.hasText(query)) {
-            builder.query(query);
-        }
+        if (StringUtils.hasText(query)) builder.query(query);
         return builder.build(true).toUri();
     }
 
@@ -373,13 +254,9 @@ public class GatewayProxyController {
         Enumeration<String> names = request.getHeaderNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            if (shouldSkipHeader(name)) {
-                continue;
-            }
+            if (shouldSkipHeader(name)) continue;
             Enumeration<String> values = request.getHeaders(name);
-            while (values.hasMoreElements()) {
-                headers.add(name, values.nextElement());
-            }
+            while (values.hasMoreElements()) headers.add(name, values.nextElement());
         }
         return headers;
     }

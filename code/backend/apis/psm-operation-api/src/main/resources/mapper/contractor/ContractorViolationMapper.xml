@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.fgroupboss.ai.psm.contractor.mapper.ContractorViolationMapper">
+<mapper namespace="com.fgroupboss.ai.psm.operation.contractor.mapper.ContractorViolationMapper">
 
-    <select id="listByWorker" resultType="com.fgroupboss.ai.psm.contractor.model.entity.ContractorViolationEntity">
+    <select id="listByWorker" resultType="com.fgroupboss.ai.psm.operation.contractor.model.entity.ContractorViolationEntity">
         select * from contractor_violation
         where tenant_id = #{tenantId}
           and worker_id = #{workerId}

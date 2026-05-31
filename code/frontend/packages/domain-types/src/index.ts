@@ -296,7 +296,65 @@ export interface UserPermissionSummary {
   menus: MenuTreeNode[];
 }
 
-/** 承包商 API 路径常量（与网关 /api/contractors/** 对齐）。 */
+/** 网关统一入口（开发环境 Vite 代理目标，生产环境同源部署）。 */
+export const GATEWAY_URL = 'http://localhost:18080';
+
+/** 认证 API（由 身份与接入域 psm-identity-api 提供）。 */
+export const AUTH_API = {
+  login: '/auth/login',
+  me: '/auth/me',
+  refresh: '/auth/refresh',
+  logout: '/auth/logout'
+} as const;
+
+// ============================================================
+// 领域1: 身份与接入域 (psm-identity-api) — auth / iam / audit / file / notification / masterdata / gateway
+// ============================================================
+
+/** IAM 用户/角色/组织/菜单 API。 */
+export const IAM_API = {
+  users: '/api/iam/users',
+  roles: '/api/iam/roles',
+  orgs: '/api/iam/orgs',
+  menus: '/api/iam/menus',
+  permissions: '/api/iam/permissions'
+} as const;
+
+/** 审计日志 API。 */
+export const AUDIT_API = {
+  logs: '/api/audit/logs'
+} as const;
+
+/** 基础主数据 API（区域/装置/设备/监测点位）。 */
+export const MASTER_DATA_API = {
+  base: '/api/master-data',
+  areas: '/api/areas',
+  units: '/api/units',
+  equipments: '/api/equipments',
+  monitorPoints: '/api/monitor-points'
+} as const;
+
+/** 文件中心 API（身份与接入域 — psm-identity-api）。 */
+export const FILE_API = {
+  health: '/api/files/health',
+  upload: '/api/files/upload',
+  base: '/api/files'
+} as const;
+
+/** 消息通知 API。 */
+export const NOTIFICATION_API = {
+  base: '/api/notifications'
+} as const;
+
+/** 配置规则 API。 */
+export const CONFIG_API = {
+  base: '/api/config'
+} as const;
+
+// ============================================================
+// 领域2: 作业管控域 (psm-operation-api) — work-permit / contractor / mobile-bff / simops
+// ============================================================
+/** 承包商 API 路径常量（作业管控域 — psm-operation-api）。 */
 export const CONTRACTOR_API = {
   base: '/api/contractors',
   health: '/api/contractors/health',
@@ -305,14 +363,14 @@ export const CONTRACTOR_API = {
   eligibilityCheck: '/api/contractors/workers/eligibility-check'
 } as const;
 
-/** 重大危险源 API 路径常量（与网关 /api/major-hazards/** 对齐）。 */
+/** 重大危险源 API（风险防控域 — psm-risk-api）。 */
 export const MAJOR_HAZARD_API = {
   base: '/api/major-hazards',
   health: '/api/major-hazards/health',
   riskContext: '/api/major-hazards/risk-context'
 } as const;
 
-/** 报警中心 API 路径常量（与网关 /api/alarms/** 对齐）。 */
+/** 报警中心 API（实时感知域 — psm-realtime-api）。 */
 export const ALARM_API = {
   base: '/api/alarms',
   health: '/api/alarms/health',
@@ -707,21 +765,14 @@ export interface RiskContextResult {
   blockingReason?: string | null;
 }
 
-/** 危险工作票 API 路径常量。 */
+/** 危险工作票 API（作业管控域 — psm-operation-api）。 */
 export const WORK_PERMIT_API = {
   base: '/api/work-permits',
   health: '/api/work-permits/health',
   byHazard: '/api/work-permits/by-hazard'
 } as const;
 
-/** 文件中心 API 路径常量。 */
-export const FILE_API = {
-  health: '/api/files/health',
-  upload: '/api/files/upload',
-  base: '/api/files'
-} as const;
-
-/** 报表与大屏 API 路径常量。 */
+/** 报表与大屏 API（事件治理域 — psm-incident-governance-api）。 */
 export const REPORT_API = {
   health: '/api/reports/health',
   workPermitSummary: '/api/reports/work-permits/summary',
@@ -742,6 +793,7 @@ export const REPORT_API = {
   phase3Summary: '/api/reports/phase3/summary'
 } as const;
 
+/** 移动端 BFF API（作业管控域 — psm-operation-api）。 */
 export const MOBILE_API = {
   tasks: '/api/mobile/tasks',
   workPermit: '/api/mobile/work-permits',
@@ -1028,13 +1080,18 @@ export interface AcceptanceTestRunRequest {
   remark?: string;
 }
 
-/** 二期 API 路径常量。 */
+// ============================================================
+// 领域4: 风险防控域 (psm-risk-api) — dual-prevention / inspection / major-hazard
+// ============================================================
+
+/** 双防 API（风险防控域 — psm-risk-api）。 */
 export const DUAL_PREVENTION_API = {
   base: '/api/dual-prevention',
   riskUnits: '/api/dual-prevention/risk-units',
   hazards: '/api/dual-prevention/hazards'
 } as const;
 
+/** 巡检 API（风险防控域 — psm-risk-api）。 */
 export const INSPECTION_API = {
   base: '/api/inspection',
   plans: '/api/inspection/plans',
@@ -1042,6 +1099,11 @@ export const INSPECTION_API = {
   statistics: '/api/inspection/tasks/statistics'
 } as const;
 
+// ============================================================
+// 领域3: 实时感知域 (psm-realtime-api) — alarm / location / video
+// ============================================================
+
+/** 人员定位 API（实时感知域 — psm-realtime-api）。 */
 export const LOCATION_API = {
   base: '/api/location',
   tags: '/api/location/tags',
@@ -1051,12 +1113,18 @@ export const LOCATION_API = {
   headcount: '/api/location/areas'
 } as const;
 
+/** 视频 AI API（实时感知域 — psm-realtime-api）。 */
 export const VIDEO_API = {
   base: '/api/video',
   cameras: '/api/video/cameras',
   aiEvents: '/api/video/ai-events'
 } as const;
 
+// ============================================================
+// 领域2续: 作业管控域 (psm-operation-api) — simops
+// ============================================================
+
+/** SIMOPS 交叉作业 API（作业管控域 — psm-operation-api）。 */
 export const SIMOPS_API = {
   base: '/api/simops',
   rules: '/api/simops/rules',
@@ -1064,6 +1132,11 @@ export const SIMOPS_API = {
   statistics: '/api/simops/statistics'
 } as const;
 
+// ============================================================
+// 领域6: 事件治理域 (psm-incident-governance-api) — integration / report
+// ============================================================
+
+/** 监管集成 API（事件治理域 — psm-incident-governance-api）。 */
 export const INTEGRATION_REG_API = {
   base: '/api/integration/reg',
   tasks: '/api/integration/reg/tasks',
@@ -1255,37 +1328,45 @@ export interface Phase2ReportSummaryRecord {
   simops?: { totalScans?: number; totalConflicts?: number; blockCount?: number; coordinateCount?: number; warnCount?: number };
 }
 
-/** 三期 PHA/HAZOP API 路径。 */
+// ============================================================
+// 领域5: 过程安全域 (psm-process-safety-api) — pha / moc / pssr / barrier
+// ============================================================
+
+/** PHA/HAZOP API（过程安全域 — psm-process-safety-api）。 */
 export const PHA_API = {
   projects: '/api/pha/projects',
   recommendations: '/api/pha/recommendations',
   lopaScenarios: '/api/pha/lopa-scenarios'
 } as const;
 
-/** 三期 MOC API 路径。 */
+/** MOC 变更管理 API（过程安全域 — psm-process-safety-api）。 */
 export const MOC_API = {
   changes: '/api/moc/changes'
 } as const;
 
-/** 三期 PSSR API 路径。 */
+/** PSSR 启动前审查 API（过程安全域 — psm-process-safety-api）。 */
 export const PSSR_API = {
   projects: '/api/pssr/projects',
   templates: '/api/pssr/templates',
   issues: '/api/pssr/issues'
 } as const;
 
-/** 三期屏障与机械完整性 API 路径。 */
+/** 屏障与机械完整性 API（过程安全域 — psm-process-safety-api）。 */
 export const BARRIER_API = {
   barriers: '/api/barriers',
   mechanicalIntegrity: '/api/mechanical-integrity'
 } as const;
 
-/** 三期事故调查 API 路径。 */
+// ============================================================
+// 领域6: 事件治理域 (psm-incident-governance-api) — incident / governance
+// ============================================================
+
+/** 事故调查 API（事件治理域 — psm-incident-governance-api）。 */
 export const INCIDENT_API = {
   base: '/api/incidents'
 } as const;
 
-/** 三期集团治理 API 路径。 */
+/** 集团治理 API（事件治理域 — psm-incident-governance-api）。 */
 export const GOVERNANCE_API = {
   base: '/api/governance',
   dashboard: '/api/governance/dashboard/overview',

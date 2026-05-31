@@ -37,7 +37,7 @@ public class WorkPermitReportClient {
                                   @Value("${psm.work-permit-service-url:${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}}")
                                   String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://localhost:18088");
+        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://psm-operation:18088");
     }
 
     public List<RemoteWorkPermitVO> listPermits(Long tenantId) {

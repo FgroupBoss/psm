@@ -27,7 +27,7 @@ public class LocationHeadcountClient {
     private final String locationServiceUrl;
 
     public LocationHeadcountClient(RestTemplate restTemplate,
-                                  @Value("${psm.location-service-url:${PSM_LOCATION_SERVICE_URL:http://localhost:18103}}")
+                                  @Value("${psm.location-service-url:${PSM_LOCATION_SERVICE_URL:http://psm-realtime:18087}}")
                                   String locationServiceUrl) {
         this.restTemplate = restTemplate;
         this.locationServiceUrl = trimTrailingSlash(locationServiceUrl);
@@ -60,7 +60,7 @@ public class LocationHeadcountClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18103";
+            return "http://psm-realtime:18087";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

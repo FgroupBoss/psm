@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.fgroupboss.ai.psm.iam.mapper.IamUserMapper">
+<mapper namespace="com.fgroupboss.ai.psm.identity.iam.mapper.IamUserMapper">
 
     <sql id="columns">
         id, tenant_id, auth_user_id, username, display_name, mobile, email, org_id, post_id,
         account_type, status, permission_version, created_at, updated_at, deleted
     </sql>
 
-    <select id="findById" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
+    <select id="findById" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
         select <include refid="columns"/>
         from sys_user
         where id = #{id}
@@ -15,7 +15,7 @@
           and deleted = 0
     </select>
 
-    <select id="findByUsername" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
+    <select id="findByUsername" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
         select <include refid="columns"/>
         from sys_user
         where tenant_id = #{tenantId}
@@ -23,7 +23,7 @@
           and deleted = 0
     </select>
 
-    <select id="findByAuthUserId" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
+    <select id="findByAuthUserId" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
         select <include refid="columns"/>
         from sys_user
         where tenant_id = #{tenantId}
@@ -31,7 +31,7 @@
           and deleted = 0
     </select>
 
-    <select id="list" resultType="com.fgroupboss.ai.psm.iam.model.entity.IamUserEntity">
+    <select id="list" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
         select <include refid="columns"/>
         from sys_user
         where tenant_id = #{tenantId}

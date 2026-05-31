@@ -37,7 +37,7 @@ public class ContractorReportClient {
                                   @Value("${psm.contractor-service-url:${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}}")
                                   String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://localhost:18085");
+        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://psm-operation:18088");
     }
 
     public List<RemoteContractorCompanyVO> listCompanies(Long tenantId) {

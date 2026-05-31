@@ -6,52 +6,52 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="psm-pha-service" />
-        <module name="psm-inspection-service" />
-        <module name="psm-file-service" />
-        <module name="psm-operation-control-service" />
-        <module name="psm-report-service" />
-        <module name="psm-risk-control-service" />
         <module name="psm-process-safety-api" />
-        <module name="psm-location-service" />
-        <module name="psm-moc-service" />
-        <module name="psm-notification-service" />
         <module name="psm-common-security" />
-        <module name="psm-master-data-service" />
         <module name="psm-risk-api" />
         <module name="psm-common-web" />
-        <module name="psm-work-permit-service" />
-        <module name="psm-alarm-service" />
         <module name="psm-operation-api" />
         <module name="psm-common-core" />
-        <module name="psm-config-rule-service" />
-        <module name="psm-major-hazard-service" />
-        <module name="psm-mobile-bff" />
-        <module name="psm-contractor-service" />
-        <module name="psm-identity-service" />
-        <module name="psm-audit-service" />
         <module name="psm-incident-governance-api" />
         <module name="psm-realtime-api" />
-        <module name="psm-auth-service" />
-        <module name="psm-incident-service" />
         <module name="psm-common-data" />
-        <module name="psm-incident-governance-service" />
-        <module name="psm-pssr-service" />
-        <module name="psm-dual-prevention-service" />
-        <module name="psm-governance-service" />
-        <module name="psm-process-safety-service" />
-        <module name="psm-video-service" />
         <module name="psm-common-feign" />
-        <module name="psm-realtime-perception-service" />
         <module name="psm-identity-api" />
-        <module name="psm-iam-service" />
-        <module name="psm-barrier-service" />
-        <module name="psm-integration-service" />
-        <module name="psm-gateway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="psm-alarm-service" target="1.8" />
+      <module name="psm-audit-service" target="1.8" />
+      <module name="psm-auth-service" target="1.8" />
+      <module name="psm-barrier-service" target="1.8" />
+      <module name="psm-config-rule-service" target="1.8" />
+      <module name="psm-contractor-service" target="1.8" />
+      <module name="psm-dual-prevention-service" target="1.8" />
+      <module name="psm-file-service" target="1.8" />
+      <module name="psm-gateway" target="1.8" />
+      <module name="psm-governance-service" target="1.8" />
+      <module name="psm-iam-service" target="1.8" />
+      <module name="psm-identity-service" target="1.8" />
+      <module name="psm-incident-governance-service" target="1.8" />
+      <module name="psm-incident-service" target="1.8" />
+      <module name="psm-inspection-service" target="1.8" />
+      <module name="psm-integration-service" target="1.8" />
+      <module name="psm-location-service" target="1.8" />
+      <module name="psm-major-hazard-service" target="1.8" />
+      <module name="psm-master-data-service" target="1.8" />
+      <module name="psm-mobile-bff" target="1.8" />
+      <module name="psm-moc-service" target="1.8" />
+      <module name="psm-notification-service" target="1.8" />
+      <module name="psm-operation-control-service" target="1.8" />
+      <module name="psm-pha-service" target="1.8" />
       <module name="psm-platform-api" target="1.8" />
+      <module name="psm-process-safety-service" target="1.8" />
+      <module name="psm-pssr-service" target="1.8" />
+      <module name="psm-realtime-perception-service" target="1.8" />
+      <module name="psm-report-service" target="1.8" />
+      <module name="psm-risk-control-service" target="1.8" />
+      <module name="psm-video-service" target="1.8" />
+      <module name="psm-work-permit-service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

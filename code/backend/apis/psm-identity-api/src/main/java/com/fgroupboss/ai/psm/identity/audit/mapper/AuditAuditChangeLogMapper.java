@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface AuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
+public interface AuditAuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
 
     List<AuditChangeLogEntity> list(@Param("tenantId") Long tenantId,
                                     @Param("bizType") String bizType,

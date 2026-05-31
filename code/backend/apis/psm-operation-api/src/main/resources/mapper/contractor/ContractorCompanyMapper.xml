@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.fgroupboss.ai.psm.contractor.mapper.ContractorCompanyMapper">
+<mapper namespace="com.fgroupboss.ai.psm.operation.contractor.mapper.ContractorCompanyMapper">
 
     <sql id="companyWhere">
         tenant_id = #{tenantId}
@@ -22,7 +22,7 @@
         </where>
     </select>
 
-    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.contractor.model.entity.ContractorCompanyEntity">
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.operation.contractor.model.entity.ContractorCompanyEntity">
         select * from contractor_company
         <where>
             <include refid="companyWhere"/>
@@ -31,7 +31,7 @@
         limit #{offset}, #{limit}
     </select>
 
-    <select id="findByCode" resultType="com.fgroupboss.ai.psm.contractor.model.entity.ContractorCompanyEntity">
+    <select id="findByCode" resultType="com.fgroupboss.ai.psm.operation.contractor.model.entity.ContractorCompanyEntity">
         select * from contractor_company
         where tenant_id = #{tenantId}
           and company_code = #{companyCode}

@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.risk.majorhazard.mapper.MajorHazardMapper">
+
+    <sql id="hazardWhere">
+        tenant_id = #{tenantId}
+        and deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (hazard_no like concat('%', #{keyword}, '%')
+            or name like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="level != null and level != ''">
+            and level = #{level}
+        </if>
+    </sql>
+
+    <select id="countByTenant" resultType="long">
+        select count(1) from major_hazard
+        <where>
+            <include refid="hazardWhere"/>
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.fgroupboss.ai.psm.risk.majorhazard.model.entity.MajorHazardEntity">
+        select * from major_hazard
+        <where>
+            <include refid="hazardWhere"/>
+        </where>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="findByHazardNo" resultType="com.fgroupboss.ai.psm.risk.majorhazard.model.entity.MajorHazardEntity">
+        select * from major_hazard
+        where tenant_id = #{tenantId}
+          and hazard_no = #{hazardNo}
+          and deleted = 0
+        limit 1
+    </select>
+
+    <select id="listForRiskContext" resultType="com.fgroupboss.ai.psm.risk.majorhazard.model.entity.MajorHazardEntity">
+        select distinct h.* from major_hazard h
+        left join major_hazard_point_rel p
+          on p.tenant_id = h.tenant_id and p.hazard_id = h.id and p.deleted = 0
+        where h.tenant_id = #{tenantId}
+          and h.deleted = 0
+          and h.status != 'DRAFT'
+          and (
+            <trim prefixOverrides="or">
+              <if test="areaId != null">
+                or h.area_id = #{areaId}
+              </if>
+              <if test="unitId != null">
+                or h.unit_id = #{unitId}
+              </if>
+              <if test="pointIds != null and pointIds.size() > 0">
+                or p.monitor_point_id in
+                <foreach collection="pointIds" item="pointId" open="(" separator="," close=")">
+                  #{pointId}
+                </foreach>
+              </if>
+            </trim>
+          )
+        order by h.id asc
+    </select>
+</mapper>

@@ -40,18 +40,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- 跨域依赖（DTO + Feign 接口） -->
-        <dependency>
-            <groupId>com.fgroupboss.ai</groupId>
-            <artifactId>psm-realtime-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fgroupboss.ai</groupId>
-            <artifactId>psm-risk-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -106,9 +94,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <classifier>exec</classifier>
-                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

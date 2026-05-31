@@ -8,7 +8,7 @@ import com.fgroupboss.ai.psm.operation.mobile.client.AlarmClient;
 import com.fgroupboss.ai.psm.operation.mobile.client.FileClient;
 import com.fgroupboss.ai.psm.operation.mobile.client.WorkPermitClient;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.AcceptanceRequest;
-import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmActionRequest;
+import com.fgroupboss.ai.psm.operation.client.dto.AlarmActionRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.CheckInRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.GasTestRequest;
 import com.fgroupboss.ai.psm.operation.mobile.client.dto.MeasureConfirmRequest;
@@ -16,7 +16,7 @@ import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MobileDraftSyncRequest
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.MonitorRecordRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.PermitActionRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SitePermitRequest;
-import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.operation.client.dto.AlarmEventVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.GasTestVO;
 import com.fgroupboss.ai.psm.operation.mobile.client.vo.MobileDraftSyncResultVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MonitorRecordVO;

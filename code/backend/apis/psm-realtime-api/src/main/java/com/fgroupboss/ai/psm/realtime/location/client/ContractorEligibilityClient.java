@@ -29,7 +29,7 @@ public class ContractorEligibilityClient {
     private final String contractorServiceUrl;
 
     public ContractorEligibilityClient(RestTemplate restTemplate,
-                                       @Value("${psm.contractor-service-url:${PSM_CONTRACTOR_SERVICE_URL:http://localhost:18085}}")
+                                       @Value("${psm.contractor-service-url:${PSM_CONTRACTOR_SERVICE_URL:http://psm-operation:18088}}")
                                        String contractorServiceUrl) {
         this.restTemplate = restTemplate;
         this.contractorServiceUrl = trimTrailingSlash(contractorServiceUrl);
@@ -56,7 +56,7 @@ public class ContractorEligibilityClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18085";
+            return "http://psm-operation:18088";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

@@ -1,14 +1,32 @@
 server:
-  port: 18093
+  port: 18080
 
 spring:
   application:
-    name: psm-notification-service
+    name: psm-identity
+  main:
+    allow-bean-definition-overriding: true
   datasource:
-    url: ${PSM_NOTIFICATION_DB_URL:jdbc:mysql://localhost:3306/psm_notification?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
-    username: ${PSM_NOTIFICATION_DB_USER:root}
-    password: ${PSM_NOTIFICATION_DB_PASSWORD:root}
+    url: ${PSM_DB_URL:jdbc:mysql://mysql:3306/psm_identity?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${PSM_DB_USER:root}
+    password: ${PSM_DB_PASSWORD:YourStrongP@ssw0rd}
+  redis:
+    host: ${PSM_REDIS_HOST:redis}
+    port: 6379
 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+psm:
+  gateway:
+    auth-service-url: http://127.0.0.1:18080
+    file-service-url: http://127.0.0.1:18080
+    operation-control-service-url: http://psm-operation:18088
+    realtime-perception-service-url: http://psm-realtime:18087
+    risk-control-service-url: http://psm-risk:18101
+    process-safety-service-url: http://psm-process-safety:18111
+    incident-governance-service-url: http://psm-incident-governance:18115
+  central-audit-enabled: false
+  central-notification-enabled: false

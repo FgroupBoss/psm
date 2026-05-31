@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   root: fileURLToPath(new URL('.', import.meta.url)),
+  base: '/mobile/',
   plugins: [react()],
   build: {
     outDir: '../../dist/mobile-site',
@@ -26,7 +27,8 @@ export default defineConfig({
     alias: {
       '@psm/api-client': fileURLToPath(new URL('../../packages/api-client/src', import.meta.url)),
       '@psm/domain-types': fileURLToPath(new URL('../../packages/domain-types/src', import.meta.url)),
-      '@psm/auth': fileURLToPath(new URL('../../packages/auth/src', import.meta.url))
+      '@psm/auth': fileURLToPath(new URL('../../packages/auth/src', import.meta.url)),
+      '@psm/ui': fileURLToPath(new URL('../../packages/ui/src', import.meta.url))
     }
   }
 });

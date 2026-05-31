@@ -37,7 +37,7 @@ public class AlarmServiceClient {
     private final String alarmServiceUrl;
 
     public AlarmServiceClient(RestTemplate restTemplate,
-                              @Value("${psm.alarm-service-url:${PSM_ALARM_SERVICE_URL:http://localhost:18087}}") String alarmServiceUrl) {
+                              @Value("${psm.alarm-service-url:${PSM_ALARM_SERVICE_URL:http://psm-realtime:18087}}") String alarmServiceUrl) {
         this.restTemplate = restTemplate;
         this.alarmServiceUrl = trimTrailingSlash(alarmServiceUrl);
     }
@@ -90,7 +90,7 @@ public class AlarmServiceClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18087";
+            return "http://psm-realtime:18087";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

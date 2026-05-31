@@ -1,0 +1,198 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # Redis 缓存
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: psm-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # MySQL 数据库
+  # ============================================================
+  mysql:
+    image: mysql:8.0
+    container_name: psm-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongP@ssw0rd
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./code/backend/generate_ddl.sql:/docker-entrypoint-initdb.d/01_init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongP@ssw0rd"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ============================================================
+  # 领域1: 身份与接入域 (port 18080) — auth / iam / audit / file / notification / masterdata / gateway
+  # ============================================================
+  psm-identity:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-identity-api
+    container_name: psm-identity
+    restart: unless-stopped
+    ports:
+      - "18080:18080"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_identity?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # 领域2: 作业管控域 (port 18088) — work-permit / contractor / mobile-bff
+  # ============================================================
+  psm-operation:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-operation-api
+    container_name: psm-operation
+    restart: unless-stopped
+    ports:
+      - "18088:18088"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_operation?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # 领域3: 实时感知域 (port 18087) — alarm / location / video
+  # ============================================================
+  psm-realtime:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-realtime-api
+    container_name: psm-realtime
+    restart: unless-stopped
+    ports:
+      - "18087:18087"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_realtime?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # 领域4: 风险防控域 (port 18101) — major-hazard / inspection / dual-prevention
+  # ============================================================
+  psm-risk:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-risk-api
+    container_name: psm-risk
+    restart: unless-stopped
+    ports:
+      - "18101:18101"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_risk?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # 领域5: 过程安全域 (port 18111) — pha / moc / pssr / barrier / config-rule
+  # ============================================================
+  psm-process-safety:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-process-safety-api
+    container_name: psm-process-safety
+    restart: unless-stopped
+    ports:
+      - "18111:18111"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_process_safety?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ============================================================
+  # 领域6: 事件治理域 (port 18115) — incident / governance / report / integration
+  # ============================================================
+  psm-incident-governance:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        SERVICE_NAME: psm-incident-governance-api
+    container_name: psm-incident-governance
+    restart: unless-stopped
+    ports:
+      - "18115:18115"
+    environment:
+      PSM_DB_URL: jdbc:mysql://mysql:3306/psm_incident_governance?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      PSM_DB_USER: root
+      PSM_DB_PASSWORD: YourStrongP@ssw0rd
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # 前端 Nginx (port 80)
+  # ============================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: psm-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - psm-identity
+      - psm-operation
+      - psm-realtime
+      - psm-risk
+      - psm-process-safety
+      - psm-incident-governance
+
+volumes:
+  mysql_data:

@@ -39,7 +39,7 @@ public class FileClient {
     private final String fileServiceUrl;
 
     public FileClient(RestTemplate restTemplate,
-                      @Value("${psm.file-service-url:http://localhost:18092}") String fileServiceUrl) {
+                      @Value("${psm.file-service-url:http://psm-identity:18080}") String fileServiceUrl) {
         this.restTemplate = restTemplate;
         this.fileServiceUrl = trim(fileServiceUrl);
     }

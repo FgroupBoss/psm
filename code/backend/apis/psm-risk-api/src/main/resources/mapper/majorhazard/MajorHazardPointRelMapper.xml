@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.risk.majorhazard.mapper.MajorHazardPointRelMapper">
+
+    <select id="listByHazardId"
+            resultType="com.fgroupboss.ai.psm.risk.majorhazard.model.entity.MajorHazardPointRelEntity">
+        select * from major_hazard_point_rel
+        where tenant_id = #{tenantId}
+          and hazard_id = #{hazardId}
+          and deleted = 0
+        order by id asc
+    </select>
+
+    <select id="findActive"
+            resultType="com.fgroupboss.ai.psm.risk.majorhazard.model.entity.MajorHazardPointRelEntity">
+        select * from major_hazard_point_rel
+        where tenant_id = #{tenantId}
+          and hazard_id = #{hazardId}
+          and monitor_point_id = #{monitorPointId}
+          and deleted = 0
+        limit 1
+    </select>
+</mapper>

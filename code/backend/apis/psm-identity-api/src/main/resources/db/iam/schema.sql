@@ -149,7 +149,8 @@ create table if not exists sys_permission_version (
 create table if not exists audit_change_log (
   id bigint not null auto_increment,
   tenant_id bigint not null,
-  operator_name varchar(128) not null,
+  operator_id bigint null,
+  operator_name varchar(128) null,
   action varchar(64) not null,
   biz_type varchar(64) not null,
   biz_id bigint null,
@@ -157,8 +158,9 @@ create table if not exists audit_change_log (
   after_value json null,
   result varchar(32) not null,
   client_ip varchar(64) null,
-  user_agent varchar(255) null,
+  user_agent varchar(512) null,
   operated_at datetime not null default current_timestamp,
   primary key (id),
-  key idx_audit_biz (tenant_id, biz_type, biz_id)
+  key idx_audit_biz (tenant_id, biz_type, biz_id),
+  key idx_audit_change_log_time (tenant_id, operated_at)
 ) engine=InnoDB default charset=utf8mb4 comment='关键数据变更审计';

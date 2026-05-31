@@ -1,0 +1,145 @@
+/* PSM 双主题设计令牌 — dark / light */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-primary: #0a84ff;
+  --color-secondary: #5e5ce6;
+  --color-accent: #30d158;
+  --color-warn: #ff9f0a;
+  --color-danger: #ff3b30;
+
+  --color-bg-start: #1c1c1e;
+  --color-bg-end: #0a0a0c;
+  --color-bg-glow: #2c2c2e;
+  --color-text: #ffffff;
+  --color-text-muted: #8e8e93;
+
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.12);
+  --glass-blur: 12px;
+
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.25);
+
+  --theme-border: rgba(255, 255, 255, 0.06);
+  --theme-border-strong: rgba(255, 255, 255, 0.1);
+  --theme-input-bg: rgba(255, 255, 255, 0.08);
+  --theme-input-bg-focus: rgba(255, 255, 255, 0.12);
+  --theme-sidebar-bg: rgba(20, 20, 22, 0.85);
+  --theme-topbar-bg: rgba(255, 255, 255, 0.08);
+  --theme-nav-hover: rgba(255, 255, 255, 0.06);
+  --theme-nav-active: linear-gradient(135deg, rgba(10, 132, 255, 0.35), rgba(94, 92, 230, 0.35));
+  --theme-table-head: rgba(255, 255, 255, 0.03);
+  --theme-table-hover: rgba(255, 255, 255, 0.04);
+  --theme-modal-bg: rgba(28, 28, 30, 0.92);
+  --theme-modal-backdrop: rgba(0, 0, 0, 0.55);
+  --theme-error-bg: rgba(255, 69, 58, 0.15);
+  --theme-success-bg: rgba(48, 209, 88, 0.15);
+  --theme-warning-bg: rgba(255, 159, 10, 0.12);
+
+  --auth-bg-gradient: linear-gradient(135deg, #050a14 0%, #0a1628 25%, #0d2847 50%, #061018 75%, #030810 100%);
+  --auth-card-bg: rgba(255, 255, 255, 0.1);
+  --auth-input-bg: rgba(255, 255, 255, 0.08);
+  --auth-tabs-bg: rgba(0, 0, 0, 0.2);
+  --auth-faceid-bg: rgba(255, 255, 255, 0.08);
+
+  --phone-frame-bg: linear-gradient(165deg, #2a2a2e 0%, #141416 55%, #0d0d0f 100%);
+  --phone-nav-bg: rgba(20, 20, 22, 0.75);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.1);
+  --theme-toggle-hover: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg-start: #f2f2f7;
+  --color-bg-end: #e5e5ea;
+  --color-bg-glow: #ffffff;
+  --color-text: #1c1c1e;
+  --color-text-muted: #636366;
+
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg-strong: rgba(255, 255, 255, 0.92);
+  --glass-blur: 16px;
+
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+
+  --theme-border: rgba(0, 0, 0, 0.08);
+  --theme-border-strong: rgba(0, 0, 0, 0.12);
+  --theme-input-bg: rgba(0, 0, 0, 0.04);
+  --theme-input-bg-focus: rgba(255, 255, 255, 0.95);
+  --theme-sidebar-bg: rgba(255, 255, 255, 0.88);
+  --theme-topbar-bg: rgba(255, 255, 255, 0.78);
+  --theme-nav-hover: rgba(0, 0, 0, 0.04);
+  --theme-nav-active: linear-gradient(135deg, rgba(10, 132, 255, 0.18), rgba(94, 92, 230, 0.14));
+  --theme-table-head: rgba(0, 0, 0, 0.03);
+  --theme-table-hover: rgba(10, 132, 255, 0.04);
+  --theme-modal-bg: rgba(255, 255, 255, 0.96);
+  --theme-modal-backdrop: rgba(0, 0, 0, 0.25);
+  --theme-error-bg: rgba(255, 59, 48, 0.1);
+  --theme-success-bg: rgba(48, 209, 88, 0.12);
+  --theme-warning-bg: rgba(255, 159, 10, 0.12);
+
+  --auth-bg-gradient: linear-gradient(135deg, #e8f2ff 0%, #f0f4ff 35%, #f2f2f7 70%, #e5e5ea 100%);
+  --auth-card-bg: rgba(255, 255, 255, 0.82);
+  --auth-input-bg: rgba(0, 0, 0, 0.04);
+  --auth-tabs-bg: rgba(0, 0, 0, 0.05);
+  --auth-faceid-bg: rgba(0, 0, 0, 0.04);
+
+  --phone-frame-bg: linear-gradient(165deg, #ffffff 0%, #f2f2f7 55%, #e5e5ea 100%);
+  --phone-nav-bg: rgba(255, 255, 255, 0.88);
+  --theme-toggle-bg: rgba(0, 0, 0, 0.05);
+  --theme-toggle-hover: rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 12px;
+  background: var(--theme-toggle-bg);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--theme-toggle-hover);
+  color: var(--color-primary);
+}
+
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+
+.theme-toggle span {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.theme-toggle--floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-card);
+}
+
+.theme-toggle--labeled {
+  width: auto;
+  padding: 0 14px;
+}

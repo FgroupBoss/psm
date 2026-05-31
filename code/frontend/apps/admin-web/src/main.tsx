@@ -17,7 +17,6 @@ import {
   fetchConfigItems,
   fetchCurrentUser,
   fetchMyPermissions,
-  login,
   publishConfigItem,
   updateConfigItem
 } from '@psm/api-client';
@@ -34,7 +33,7 @@ import type {
   PageResult,
   RuleEvaluationResult
 } from '@psm/domain-types';
-import { buildNavItems, DEFAULT_NAV, groupNavItems, viewTitle, type AppView } from './nav';
+import { buildNavItems, DEFAULT_NAV, groupNavItems, navIconFor, readSidebarCollapsed, saveSidebarCollapsed, viewTitle, type AppView } from './nav';
 import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MajorHazardsPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
 import { AcceptancePanel, DashboardPanel, ReportOverviewPanel } from './report-panel';
 import { WorkPermitsPanel } from './work-permit-panel';
@@ -68,6 +67,8 @@ import {
   StatusTag,
   stringifyJson
 } from './ui-helpers';
+import { AuthBootScreen, LoginView } from './login-view';
+import { ThemeProvider, ThemeToggle } from '@psm/ui';
 import './styles.css';
 
 const CONFIG_TYPES: Array<{ path: ConfigItemPath; label: string }> = [
@@ -82,7 +83,6 @@ const CONFIG_TYPES: Array<{ path: ConfigItemPath; label: string }> = [
 function App() {
   const [user, setUser] = React.useState<AuthUser | null>(null);
   const [checkingSession, setCheckingSession] = React.useState<boolean>(hasAccessToken());
-  const [error, setError] = React.useState<string>('');
 
   React.useEffect(() => {
     if (!hasAccessToken()) {
@@ -96,11 +96,11 @@ function App() {
   }, []);
 
   if (checkingSession) {
-    return <main className="boot">正在恢复登录状态...</main>;
+    return <AuthBootScreen />;
   }
 
   if (!user) {
-    return <LoginView onLogin={setUser} error={error} setError={setError} />;
+    return <LoginView onLogin={setUser} />;
   }
 
   return (
@@ -114,73 +114,19 @@ function App() {
   );
 }
 
-interface LoginViewProps {
-  onLogin: (user: AuthUser) => void;
-  error: string;
-  setError: (error: string) => void;
-}
-
-function LoginView({ onLogin, error, setError }: LoginViewProps) {
-  const [tenantId, setTenantId] = React.useState<string>('1');
-  const [username, setUsername] = React.useState<string>('admin');
-  const [password, setPassword] = React.useState<string>('');
-  const [submitting, setSubmitting] = React.useState<boolean>(false);
-
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      const result = await login({
-        tenantId: Number(tenantId),
-        username,
-        password
-      });
-      onLogin(result.user);
-    } catch (err: unknown) {
-      setError(errorMessage(err, '登录失败'));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <main className="login-page">
-      <form className="login-panel" onSubmit={submit}>
-        <div>
-          <p className="eyebrow">PSM 安全管理平台</p>
-          <h1>管理端登录</h1>
-        </div>
-        <label>
-          <span>租户 ID</span>
-          <input value={tenantId} onChange={(event) => setTenantId(event.target.value)} inputMode="numeric" />
-        </label>
-        <label>
-          <span>用户名</span>
-          <input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" />
-        </label>
-        <label>
-          <span>密码</span>
-          <input
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            type="password"
-            autoComplete="current-password"
-          />
-        </label>
-        {error && <div className="error">{error}</div>}
-        <button type="submit" disabled={submitting}>
-          {submitting ? '登录中...' : '登录'}
-        </button>
-      </form>
-    </main>
-  );
-}
-
 function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   const [view, setView] = React.useState<AppView>('master-data:areas');
   const [navItems, setNavItems] = React.useState(DEFAULT_NAV);
   const [navError, setNavError] = React.useState<string>('');
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState<boolean>(readSidebarCollapsed);
+
+  function toggleSidebar() {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      saveSidebarCollapsed(next);
+      return next;
+    });
+  }
 
   React.useEffect(() => {
     fetchMyPermissions()
@@ -306,20 +252,39 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="sidebar">
-        <div className="brand">PSM</div>
+        <div className="sidebar-header">
+          <div className="brand">
+            <i className="fa-solid fa-shield-halved brand__icon" aria-hidden="true" />
+            <span className="brand__text">PSM</span>
+          </div>
+          <button
+            type="button"
+            className="sidebar-toggle"
+            onClick={toggleSidebar}
+            aria-label={sidebarCollapsed ? '展开菜单' : '折叠菜单'}
+            title={sidebarCollapsed ? '展开菜单' : '折叠菜单'}
+          >
+            <i className={`fa-solid ${sidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'}`} />
+          </button>
+        </div>
         <nav>
           {groupedNav.map((group) => (
             <div key={group.group} className="nav-group">
-              <div className="nav-group-title">{group.group}</div>
+              <div className="nav-group-title" title={group.group}>
+                {group.group}
+              </div>
               {group.items.map((item) => (
                 <button
                   key={item.view}
+                  type="button"
                   className={`nav-item ${view === item.view ? 'active' : ''}`}
                   onClick={() => setView(item.view)}
+                  title={sidebarCollapsed ? item.label : undefined}
                 >
-                  {item.label}
+                  <i className={`fa-solid ${navIconFor(item.view)} nav-item__icon`} aria-hidden="true" />
+                  <span className="nav-item__label">{item.label}</span>
                 </button>
               ))}
             </div>
@@ -328,13 +293,25 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
       </aside>
       <section className="workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">一期 + 二期</p>
-            <h1>{viewTitle(view)}</h1>
+          <div className="topbar__leading">
+            <button
+              type="button"
+              className="topbar-toggle secondary"
+              onClick={toggleSidebar}
+              aria-label={sidebarCollapsed ? '展开菜单' : '折叠菜单'}
+            >
+              <i className={`fa-solid ${sidebarCollapsed ? 'fa-bars' : 'fa-bars-staggered'}`} />
+            </button>
+            <div>
+              <p className="eyebrow">一期 + 二期</p>
+              <h1>{viewTitle(view)}</h1>
+            </div>
           </div>
           <div className="userbar">
+            <ThemeToggle />
+            <div className="user-avatar">{(user.displayName || user.username || '?').slice(0, 1).toUpperCase()}</div>
             <span>{user.displayName || user.username}</span>
-            <button type="button" onClick={onLogout}>
+            <button type="button" className="secondary" onClick={onLogout}>
               退出
             </button>
           </div>
@@ -1113,4 +1090,8 @@ function AuditPanel({ tenantId }: { tenantId: number }) {
   );
 }
 
-createRoot(document.getElementById('root') as HTMLElement).render(<App />);
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>
+);

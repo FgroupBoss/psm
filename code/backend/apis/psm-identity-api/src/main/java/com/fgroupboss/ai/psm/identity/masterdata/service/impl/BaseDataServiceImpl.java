@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.identity.masterdata.config.BaseDataType;
-import com.fgroupboss.ai.psm.identity.masterdata.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.identity.masterdata.mapper.MdAuditChangeLogMapper;
 import com.fgroupboss.ai.psm.identity.masterdata.mapper.BaseAreaMapper;
 import com.fgroupboss.ai.psm.identity.masterdata.mapper.BaseEquipmentMapper;
 import com.fgroupboss.ai.psm.identity.masterdata.mapper.BaseUnitMapper;
@@ -39,7 +39,7 @@ public class BaseDataServiceImpl implements BaseDataService {
     private final BaseUnitMapper baseUnitMapper;
     private final BaseEquipmentMapper baseEquipmentMapper;
     private final MonitorPointMapper monitorPointMapper;
-    private final AuditChangeLogMapper auditChangeLogMapper;
+    private final MdAuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
     /**

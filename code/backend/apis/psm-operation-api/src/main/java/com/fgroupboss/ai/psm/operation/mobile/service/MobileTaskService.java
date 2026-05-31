@@ -2,7 +2,7 @@ package com.fgroupboss.ai.psm.operation.mobile.service;
 
 import com.fgroupboss.ai.psm.operation.mobile.client.AlarmClient;
 import com.fgroupboss.ai.psm.operation.mobile.client.WorkPermitClient;
-import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
+import com.fgroupboss.ai.psm.operation.client.dto.AlarmEventVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.operation.mobile.config.MobileRole;
 import com.fgroupboss.ai.psm.operation.mobile.model.vo.MobileTaskVO;

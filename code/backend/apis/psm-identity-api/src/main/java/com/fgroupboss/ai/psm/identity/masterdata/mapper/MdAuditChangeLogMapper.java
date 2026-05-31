@@ -6,5 +6,5 @@ import com.fgroupboss.ai.psm.identity.masterdata.model.entity.AuditChangeLogEnti
 /**
  * 数据变更审计日志持久化操作。
  */
-public interface AuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
+public interface MdAuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
 }

@@ -37,7 +37,7 @@ public class AlarmReportClient {
                              @Value("${psm.alarm-service-url:${PSM_ALARM_SERVICE_URL:http://localhost:18087}}")
                              String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://localhost:18087");
+        this.serviceUrl = RemoteClientSupport.trimTrailingSlash(serviceUrl, "http://psm-realtime:18087");
     }
 
     public List<RemoteAlarmEventVO> listAlarms(Long tenantId) {

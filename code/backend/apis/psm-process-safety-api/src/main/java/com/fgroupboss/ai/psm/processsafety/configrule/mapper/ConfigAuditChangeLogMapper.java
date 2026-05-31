@@ -6,5 +6,5 @@ import com.fgroupboss.ai.psm.processsafety.configrule.model.entity.AuditChangeLo
 /**
  * 配置变更审计持久化操作。
  */
-public interface AuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
+public interface ConfigAuditChangeLogMapper extends BaseMapper<AuditChangeLogEntity> {
 }

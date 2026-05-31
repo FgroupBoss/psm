@@ -1,0 +1,26 @@
+server:
+  port: 18111
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: psm-process-safety
+  datasource:
+    url: ${PSM_DB_URL:jdbc:mysql://mysql:3306/psm_process_safety?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${PSM_DB_USER:root}
+    password: ${PSM_DB_PASSWORD:YourStrongP@ssw0rd}
+  redis:
+    host: ${PSM_REDIS_HOST:redis}
+    port: 6379
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+psm:
+  pha-service-url: http://127.0.0.1:18111
+  pssr-service-url: http://127.0.0.1:18111
+  barrier-service-url: http://127.0.0.1:18111
+  moc-service-url: http://127.0.0.1:18111

@@ -16,6 +16,7 @@ import type {
   MajorHazardReportSummary,
   TrendSeriesRecord
 } from '@psm/domain-types';
+import { ThemeProvider, ThemeToggle } from '@psm/ui';
 import './styles.css';
 
 const TENANT_ID = 1;
@@ -70,56 +71,89 @@ function App() {
   return (
     <main className="dashboard-shell">
       <header className="dashboard-header">
-        <div>
-          <h1>PSM 中控态势大屏</h1>
-          {overview && (
-            <p className="hint">
-              数据刷新 {overview.refreshedAt} · 来源 {overview.dataSources.join('、')}
-              {refreshing ? ' · 刷新中…' : ` · 自动刷新 ${REFRESH_MS / 1000}s`}
-            </p>
-          )}
+        <div className="dashboard-header__brand">
+          <div className="dashboard-header__icon">
+            <i className="fa-solid fa-chart-line" />
+          </div>
+          <div>
+            <h1>PSM 中控态势大屏</h1>
+            {overview && (
+              <p className="hint">
+                数据刷新 {overview.refreshedAt} · 来源 {overview.dataSources.join('、')}
+                {refreshing ? ' · 刷新中…' : ` · 自动刷新 ${REFRESH_MS / 1000}s`}
+              </p>
+            )}
+          </div>
         </div>
-        <button type="button" className="refresh-btn" onClick={load} disabled={refreshing}>
-          立即刷新
-        </button>
+        <div className="dashboard-header__actions">
+          <ThemeToggle className="theme-toggle--labeled" showLabel />
+          <button type="button" className="refresh-btn" onClick={load} disabled={refreshing}>
+            <i className={`fa-solid ${refreshing ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'}`} />
+            立即刷新
+          </button>
+        </div>
       </header>
       {error && <p className="error">{error}</p>}
       {overview && (
         <div className="metric-grid">
-          <Metric label="作业票总量" value={overview.workPermitTotal} accent />
-          <Metric label="进行中" value={overview.workPermitInProgress} />
-          <Metric label="待许可" value={overview.workPermitPendingPermit} />
-          <Metric label="未关闭报警" value={overview.alarmOpenCount} warn={overview.alarmOpenCount > 0} />
-          <Metric label="报警闭环率" value={formatRate(overview.alarmClosedRate)} />
-          <Metric label="重大危险源" value={overview.hazardCount} />
+          <Metric label="作业票总量" value={overview.workPermitTotal} icon="fa-clipboard-list" accent className="stagger-1" />
+          <Metric label="进行中" value={overview.workPermitInProgress} icon="fa-person-digging" className="stagger-2" />
+          <Metric label="待许可" value={overview.workPermitPendingPermit} icon="fa-hourglass-half" className="stagger-3" />
+          <Metric
+            label="未关闭报警"
+            value={overview.alarmOpenCount}
+            icon="fa-bell"
+            warn={overview.alarmOpenCount > 0}
+            className="stagger-4"
+          />
+          <Metric label="报警闭环率" value={formatRate(overview.alarmClosedRate)} icon="fa-circle-check" className="stagger-5" />
+          <Metric label="重大危险源" value={overview.hazardCount} icon="fa-triangle-exclamation" className="stagger-6" />
         </div>
       )}
       <div className="sub-metric-grid">
         {hazardSummary && (
-          <div className="sub-card">
-            <h3>危险源档案</h3>
-            <p>总数 {hazardSummary.totalCount}</p>
-            <p>完整率 {formatRate(hazardSummary.archiveCompletenessRate)}</p>
+          <div className="sub-card stagger-1">
+            <h3>
+              <i className="fa-solid fa-radiation" /> 危险源档案
+            </h3>
+            <p>
+              总数 <span className="value">{hazardSummary.totalCount}</span>
+            </p>
+            <p>
+              完整率 <span className="value">{formatRate(hazardSummary.archiveCompletenessRate)}</span>
+            </p>
           </div>
         )}
         {contractorSummary && (
-          <div className="sub-card">
-            <h3>承包商态势</h3>
-            <p>单位 {contractorSummary.companyCount}</p>
-            <p>人员 {contractorSummary.workerCount}</p>
+          <div className="sub-card stagger-2">
+            <h3>
+              <i className="fa-solid fa-helmet-safety" /> 承包商态势
+            </h3>
+            <p>
+              单位 <span className="value">{contractorSummary.companyCount}</span>
+            </p>
+            <p>
+              人员 <span className="value">{contractorSummary.workerCount}</span>
+            </p>
           </div>
         )}
         {alarmSummary && (
-          <div className="sub-card">
-            <h3>报警统计</h3>
-            <p>总数 {alarmSummary.totalCount}</p>
-            <p>闭环率 {formatRate(alarmSummary.closureRate)}</p>
+          <div className="sub-card stagger-3">
+            <h3>
+              <i className="fa-solid fa-bell" /> 报警统计
+            </h3>
+            <p>
+              总数 <span className="value">{alarmSummary.totalCount}</span>
+            </p>
+            <p>
+              闭环率 <span className="value">{formatRate(alarmSummary.closureRate)}</span>
+            </p>
           </div>
         )}
       </div>
       <div className="trend-panel">
-        <TrendCard title="作业票趋势（7日）" series={permitTrend} color="#38bdf8" />
-        <TrendCard title="报警趋势（7日）" series={alarmTrend} color="#f97316" />
+        <TrendCard title="作业票趋势（7日）" series={permitTrend} color="linear-gradient(180deg, #0A84FF, #5E5CE6)" icon="fa-chart-column" />
+        <TrendCard title="报警趋势（7日）" series={alarmTrend} color="linear-gradient(180deg, #FF9F0A, #FF453A)" icon="fa-chart-bar" />
       </div>
     </main>
   );
@@ -128,32 +162,62 @@ function App() {
 function Metric({
   label,
   value,
+  icon,
   accent,
-  warn
+  warn,
+  className
 }: {
   label: string;
   value: string | number;
+  icon: string;
   accent?: boolean;
   warn?: boolean;
+  className?: string;
 }) {
   return (
-    <div className={`metric-card${accent ? ' accent' : ''}${warn ? ' warn' : ''}`}>
-      <span>{label}</span>
+    <div className={`metric-card${accent ? ' accent' : ''}${warn ? ' warn' : ''}${className ? ` ${className}` : ''}`}>
+      <span>
+        <i className={`fa-solid ${icon}`} />
+        {label}
+      </span>
       <strong>{value}</strong>
     </div>
   );
 }
 
-function TrendCard({ title, series, color }: { title: string; series: TrendSeriesRecord | null; color: string }) {
+function TrendCard({
+  title,
+  series,
+  color,
+  icon
+}: {
+  title: string;
+  series: TrendSeriesRecord | null;
+  color: string;
+  icon: string;
+}) {
   const max = Math.max(...(series?.points || []).map((p) => p.value), 1);
   return (
     <section className="trend-card">
-      <h3>{title}</h3>
+      <h3>
+        <i className={`fa-solid ${icon}`} />
+        {title}
+      </h3>
       {series && <p className="hint">{series.dataSource}</p>}
       <div className="bar-chart">
-        {(series?.points || []).map((point) => (
+        {(series?.points || []).map((point, index) => (
           <div key={point.label} className="bar-item">
-            <div className="bar" style={{ height: `${(point.value / max) * 100}%`, background: color }} title={String(point.value)} />
+            <div className="bar-wrap">
+              <div
+                className="bar"
+                style={{
+                  height: `${(point.value / max) * 100}%`,
+                  background: color,
+                  animationDelay: `${index * 0.06}s`
+                }}
+                title={String(point.value)}
+              />
+            </div>
             <span>{point.label}</span>
             <strong>{point.value}</strong>
           </div>
@@ -168,4 +232,8 @@ function formatRate(value?: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-createRoot(document.getElementById('root') as HTMLElement).render(<App />);
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>
+);

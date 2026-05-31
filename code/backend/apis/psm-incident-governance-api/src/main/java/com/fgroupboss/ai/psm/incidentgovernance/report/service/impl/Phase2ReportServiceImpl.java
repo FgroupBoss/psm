@@ -42,27 +42,27 @@ public class Phase2ReportServiceImpl implements Phase2ReportService {
     private final String workPermitServiceUrl;
 
     public Phase2ReportServiceImpl(RestTemplate restTemplate,
-                                   @Value("${psm.dual-prevention-service-url:${PSM_DUAL_PREVENTION_SERVICE_URL:http://localhost:18101}}")
+                                   @Value("${psm.dual-prevention-service-url:${PSM_DUAL_PREVENTION_SERVICE_URL:http://psm-risk:18101}}")
                                    String dualPreventionServiceUrl,
-                                   @Value("${psm.inspection-service-url:${PSM_INSPECTION_SERVICE_URL:http://localhost:18102}}")
+                                   @Value("${psm.inspection-service-url:${PSM_INSPECTION_SERVICE_URL:http://psm-risk:18101}}")
                                    String inspectionServiceUrl,
-                                   @Value("${psm.location-service-url:${PSM_LOCATION_SERVICE_URL:http://localhost:18103}}")
+                                   @Value("${psm.location-service-url:${PSM_LOCATION_SERVICE_URL:http://psm-realtime:18087}}")
                                    String locationServiceUrl,
-                                   @Value("${psm.video-service-url:${PSM_VIDEO_SERVICE_URL:http://localhost:18104}}")
+                                   @Value("${psm.video-service-url:${PSM_VIDEO_SERVICE_URL:http://psm-realtime:18087}}")
                                    String videoServiceUrl,
-                                   @Value("${psm.work-permit-service-url:${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}}")
+                                   @Value("${psm.work-permit-service-url:${PSM_WORK_PERMIT_SERVICE_URL:http://psm-operation:18088}}")
                                    String workPermitServiceUrl) {
         this.restTemplate = restTemplate;
         this.dualPreventionServiceUrl = RemoteClientSupport.trimTrailingSlash(
-                dualPreventionServiceUrl, "http://localhost:18101");
+                dualPreventionServiceUrl, "http://psm-risk:18101");
         this.inspectionServiceUrl = RemoteClientSupport.trimTrailingSlash(
-                inspectionServiceUrl, "http://localhost:18102");
+                inspectionServiceUrl, "http://psm-risk:18101");
         this.locationServiceUrl = RemoteClientSupport.trimTrailingSlash(
-                locationServiceUrl, "http://localhost:18103");
+                locationServiceUrl, "http://psm-realtime:18087");
         this.videoServiceUrl = RemoteClientSupport.trimTrailingSlash(
-                videoServiceUrl, "http://localhost:18104");
+                videoServiceUrl, "http://psm-realtime:18087");
         this.workPermitServiceUrl = RemoteClientSupport.trimTrailingSlash(
-                workPermitServiceUrl, "http://localhost:18088");
+                workPermitServiceUrl, "http://psm-operation:18088");
     }
 
     @Override

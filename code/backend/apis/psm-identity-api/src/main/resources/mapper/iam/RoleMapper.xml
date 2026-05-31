@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.fgroupboss.ai.psm.iam.mapper.RoleMapper">
+<mapper namespace="com.fgroupboss.ai.psm.identity.iam.mapper.RoleMapper">
 
     <sql id="columns">
         id, tenant_id, role_code, role_name, role_type, description, status, created_at, updated_at, deleted
     </sql>
 
-    <select id="findById" resultType="com.fgroupboss.ai.psm.iam.model.entity.RoleEntity">
+    <select id="findById" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.RoleEntity">
         select <include refid="columns"/>
         from sys_role
         where id = #{id}
@@ -14,7 +14,7 @@
           and deleted = 0
     </select>
 
-    <select id="findByCode" resultType="com.fgroupboss.ai.psm.iam.model.entity.RoleEntity">
+    <select id="findByCode" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.RoleEntity">
         select <include refid="columns"/>
         from sys_role
         where tenant_id = #{tenantId}
@@ -22,7 +22,7 @@
           and deleted = 0
     </select>
 
-    <select id="list" resultType="com.fgroupboss.ai.psm.iam.model.entity.RoleEntity">
+    <select id="list" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.RoleEntity">
         select <include refid="columns"/>
         from sys_role
         where tenant_id = #{tenantId}

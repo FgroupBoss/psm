@@ -39,25 +39,25 @@ public class Phase3ReportServiceImpl implements Phase3ReportService {
     private final String incidentServiceUrl;
 
     public Phase3ReportServiceImpl(RestTemplate restTemplate,
-                                   @Value("${psm.governance-service-url:${PSM_GOVERNANCE_SERVICE_URL:http://localhost:18116}}")
+                                   @Value("${psm.governance-service-url:${PSM_GOVERNANCE_SERVICE_URL:http://127.0.0.1:18115}}")
                                    String governanceServiceUrl,
-                                   @Value("${psm.pha-service-url:${PSM_PHA_SERVICE_URL:http://localhost:18111}}")
+                                   @Value("${psm.pha-service-url:${PSM_PHA_SERVICE_URL:http://psm-process-safety:18111}}")
                                    String phaServiceUrl,
-                                   @Value("${psm.moc-service-url:${PSM_MOC_SERVICE_URL:http://localhost:18112}}")
+                                   @Value("${psm.moc-service-url:${PSM_MOC_SERVICE_URL:http://psm-process-safety:18111}}")
                                    String mocServiceUrl,
-                                   @Value("${psm.pssr-service-url:${PSM_PSSR_SERVICE_URL:http://localhost:18113}}")
+                                   @Value("${psm.pssr-service-url:${PSM_PSSR_SERVICE_URL:http://psm-process-safety:18111}}")
                                    String pssrServiceUrl,
-                                   @Value("${psm.barrier-service-url:${PSM_BARRIER_SERVICE_URL:http://localhost:18114}}")
+                                   @Value("${psm.barrier-service-url:${PSM_BARRIER_SERVICE_URL:http://psm-process-safety:18111}}")
                                    String barrierServiceUrl,
-                                   @Value("${psm.incident-service-url:${PSM_INCIDENT_SERVICE_URL:http://localhost:18115}}")
+                                   @Value("${psm.incident-service-url:${PSM_INCIDENT_SERVICE_URL:http://127.0.0.1:18115}}")
                                    String incidentServiceUrl) {
         this.restTemplate = restTemplate;
-        this.governanceServiceUrl = RemoteClientSupport.trimTrailingSlash(governanceServiceUrl, "http://localhost:18116");
-        this.phaServiceUrl = RemoteClientSupport.trimTrailingSlash(phaServiceUrl, "http://localhost:18111");
-        this.mocServiceUrl = RemoteClientSupport.trimTrailingSlash(mocServiceUrl, "http://localhost:18112");
-        this.pssrServiceUrl = RemoteClientSupport.trimTrailingSlash(pssrServiceUrl, "http://localhost:18113");
-        this.barrierServiceUrl = RemoteClientSupport.trimTrailingSlash(barrierServiceUrl, "http://localhost:18114");
-        this.incidentServiceUrl = RemoteClientSupport.trimTrailingSlash(incidentServiceUrl, "http://localhost:18115");
+        this.governanceServiceUrl = RemoteClientSupport.trimTrailingSlash(governanceServiceUrl, "http://127.0.0.1:18115");
+        this.phaServiceUrl = RemoteClientSupport.trimTrailingSlash(phaServiceUrl, "http://psm-process-safety:18111");
+        this.mocServiceUrl = RemoteClientSupport.trimTrailingSlash(mocServiceUrl, "http://psm-process-safety:18111");
+        this.pssrServiceUrl = RemoteClientSupport.trimTrailingSlash(pssrServiceUrl, "http://psm-process-safety:18111");
+        this.barrierServiceUrl = RemoteClientSupport.trimTrailingSlash(barrierServiceUrl, "http://psm-process-safety:18111");
+        this.incidentServiceUrl = RemoteClientSupport.trimTrailingSlash(incidentServiceUrl, "http://127.0.0.1:18115");
     }
 
     @Override

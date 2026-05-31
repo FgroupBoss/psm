@@ -78,7 +78,7 @@ public class WorkPermitClient {
     private final String workPermitServiceUrl;
 
     public WorkPermitClient(RestTemplate restTemplate,
-                            @Value("${psm.work-permit-service-url:${PSM_WORK_PERMIT_SERVICE_URL:http://localhost:18088}}")
+                            @Value("${psm.work-permit-service-url:${PSM_WORK_PERMIT_SERVICE_URL:http://127.0.0.1:18088}}")
                             String workPermitServiceUrl) {
         this.restTemplate = restTemplate;
         this.workPermitServiceUrl = trimTrailingSlash(workPermitServiceUrl);
@@ -229,7 +229,7 @@ public class WorkPermitClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18088";
+            return "http://127.0.0.1:18088";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

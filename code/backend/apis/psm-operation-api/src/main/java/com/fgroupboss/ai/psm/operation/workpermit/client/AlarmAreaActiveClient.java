@@ -1,8 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.client;
 
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.realtime.api.alarm.dto.AlarmAreaActiveCheckRequest;
-import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmAreaActiveCheckResult;
+import com.fgroupboss.ai.psm.operation.client.dto.AlarmAreaActiveCheckRequest;
+import com.fgroupboss.ai.psm.operation.client.dto.AlarmAreaActiveCheckResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,7 +29,7 @@ public class AlarmAreaActiveClient {
     private final String alarmServiceUrl;
 
     public AlarmAreaActiveClient(RestTemplate restTemplate,
-                                 @Value("${psm.alarm-service-url:${PSM_ALARM_SERVICE_URL:http://localhost:18087}}") String alarmServiceUrl) {
+                                 @Value("${psm.alarm-service-url:${PSM_ALARM_SERVICE_URL:http://psm-realtime:18087}}") String alarmServiceUrl) {
         this.restTemplate = restTemplate;
         this.alarmServiceUrl = trimTrailingSlash(alarmServiceUrl);
     }
@@ -55,7 +55,7 @@ public class AlarmAreaActiveClient {
 
     private String trimTrailingSlash(String url) {
         if (!StringUtils.hasText(url)) {
-            return "http://localhost:18087";
+            return "http://psm-realtime:18087";
         }
         String normalized = url.trim();
         while (normalized.endsWith("/")) {

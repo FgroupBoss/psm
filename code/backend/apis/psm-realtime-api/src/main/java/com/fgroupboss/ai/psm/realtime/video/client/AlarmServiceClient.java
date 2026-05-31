@@ -22,7 +22,7 @@ import java.util.Date;
  * 调用 psm-alarm-service 转发高等级 AI 事件（best-effort，失败不阻断主流程）。
  */
 @Slf4j
-@Component
+@Component("videoAlarmServiceClient")
 public class AlarmServiceClient {
 
     private static final String SOURCE_TYPE = "VIDEO_AI";

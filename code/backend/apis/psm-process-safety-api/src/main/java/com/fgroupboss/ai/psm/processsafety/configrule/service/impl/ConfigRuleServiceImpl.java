@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.processsafety.configrule.config.ConfigType;
-import com.fgroupboss.ai.psm.processsafety.configrule.mapper.AuditChangeLogMapper;
+import com.fgroupboss.ai.psm.processsafety.configrule.mapper.ConfigAuditChangeLogMapper;
 import com.fgroupboss.ai.psm.processsafety.configrule.mapper.ConfigItemMapper;
 import com.fgroupboss.ai.psm.processsafety.configrule.model.dto.ConfigItemRequest;
 import com.fgroupboss.ai.psm.processsafety.configrule.model.dto.RuleEvaluationRequest;
@@ -39,7 +39,7 @@ public class ConfigRuleServiceImpl implements ConfigRuleService {
     };
 
     private final ConfigItemMapper configItemMapper;
-    private final AuditChangeLogMapper auditChangeLogMapper;
+    private final ConfigAuditChangeLogMapper auditChangeLogMapper;
     private final ObjectMapper objectMapper;
 
     /**
