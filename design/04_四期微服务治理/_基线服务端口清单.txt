@@ -1,0 +1,41 @@
+微服务治理基线 - 服务端口与数据库清单
+记录日期: 2026-05-31
+
+| 端口  | 服务名                          | 数据库            | 业务域归属               |
+|-------|--------------------------------|-------------------|--------------------------|
+| 18080 | psm-gateway                    | -                 | 接入与体验层              |
+| 18081 | psm-auth-service               | psm_auth          | 身份与组织域              |
+| 18082 | psm-iam-service                | psm_iam           | 身份与组织域              |
+| 18083 | psm-master-data-service        | psm_master_data   | 平台支撑域                |
+| 18084 | psm-config-rule-service        | psm_config_rule   | 平台支撑域                |
+| 18085 | psm-contractor-service         | psm_contractor    | 作业与承包商域            |
+| 18086 | psm-major-hazard-service       | psm_major_hazard  | 风险防控域                |
+| 18087 | psm-alarm-service              | psm_alarm         | 实时感知域                |
+| 18088 | psm-work-permit-service        | psm_work_permit   | 作业与承包商域            |
+| 18089 | psm-mobile-bff                 | -                 | 接入与体验层              |
+| 18090 | psm-report-service             | psm_report        | 事件治理域                |
+| 18091 | psm-integration-service        | psm_integration   | 外部集成域                |
+| 18092 | psm-file-service               | psm_file          | 平台支撑域                |
+| 18093 | psm-notification-service       | psm_notification  | 平台支撑域                |
+| 18094 | psm-audit-service              | psm_audit         | 平台支撑域                |
+| 18101 | psm-dual-prevention-service    | psm_dual_prevention| 风险防控域               |
+| 18102 | psm-inspection-service         | psm_inspection    | 风险防控域                |
+| 18103 | psm-location-service           | psm_location      | 实时感知域                |
+| 18104 | psm-video-service              | psm_video         | 实时感知域                |
+| 18111 | psm-pha-service                | psm_pha           | 流程安全域                |
+| 18112 | psm-moc-service                | psm_moc           | 流程安全域                |
+| 18113 | psm-pssr-service               | psm_pssr          | 流程安全域                |
+| 18114 | psm-barrier-service            | psm_barrier       | 流程安全域                |
+| 18115 | psm-incident-service           | psm_incident      | 事件治理域                |
+| 18116 | psm-governance-service         | psm_governance    | 事件治理域                |
+
+=== 目标 9 域映射 ===
+1. 接入与体验层: gateway (保留) + mobile-bff (保留瘦身)
+2. 身份与组织域: psm-identity-service <- auth + iam
+3. 平台支撑域: psm-platform-support-service <- master-data + config-rule + file + notification + audit
+4. 实时感知域: psm-realtime-perception-service <- alarm + location + video
+5. 作业与承包商域: psm-operation-control-service <- work-permit + contractor
+6. 风险防控域: psm-risk-control-service <- dual-prevention + major-hazard + inspection
+7. 流程安全域: psm-process-safety-service <- moc + pha + pssr + barrier
+8. 事件治理域: psm-incident-governance-service <- incident + governance + report
+9. 外部集成域: psm-integration-service (保留)

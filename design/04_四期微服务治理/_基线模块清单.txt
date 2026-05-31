@@ -1,0 +1,48 @@
+微服务治理基线模块清单
+记录日期: 2026-05-31
+分支: main
+Git Commit: 待记录
+
+=== Shared 模块 (13) ===
+shared/psm-common-bom
+shared/psm-common-core
+shared/psm-common-data
+shared/psm-common-web
+shared/psm-common-feign
+shared/psm-common-security
+shared/psm-identity-api
+shared/psm-platform-api
+shared/psm-realtime-api
+shared/psm-operation-api
+shared/psm-risk-api
+shared/psm-process-safety-api
+shared/psm-incident-governance-api
+
+=== Service 模块 (25) ===
+services/psm-gateway
+services/psm-auth-service
+services/psm-iam-service
+services/psm-master-data-service
+services/psm-config-rule-service
+services/psm-contractor-service
+services/psm-major-hazard-service
+services/psm-alarm-service
+services/psm-work-permit-service
+services/psm-mobile-bff
+services/psm-report-service
+services/psm-integration-service
+services/psm-file-service
+services/psm-notification-service
+services/psm-audit-service
+services/psm-dual-prevention-service
+services/psm-pha-service
+services/psm-moc-service
+services/psm-pssr-service
+services/psm-barrier-service
+services/psm-video-service
+services/psm-location-service
+services/psm-inspection-service
+services/psm-incident-service
+services/psm-governance-service
+
+总计: 38 个 Maven 模块

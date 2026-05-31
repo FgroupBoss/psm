@@ -13,44 +13,36 @@
     <description>PSM safety management platform backend scaffold</description>
 
     <modules>
-        <module>shared/psm-common-bom</module>
-        <module>shared/psm-common-core</module>
-        <module>shared/psm-common-data</module>
-        <module>shared/psm-common-web</module>
-        <module>shared/psm-common-feign</module>
-        <module>shared/psm-common-security</module>
-        <module>shared/psm-identity-api</module>
-        <module>shared/psm-platform-api</module>
-        <module>shared/psm-realtime-api</module>
-        <module>shared/psm-operation-api</module>
-        <module>shared/psm-risk-api</module>
-        <module>shared/psm-process-safety-api</module>
-        <module>shared/psm-incident-governance-api</module>
-        <module>services/psm-gateway</module>
-        <module>services/psm-auth-service</module>
-        <module>services/psm-iam-service</module>
-        <module>services/psm-master-data-service</module>
-        <module>services/psm-config-rule-service</module>
-        <module>services/psm-contractor-service</module>
-        <module>services/psm-major-hazard-service</module>
-        <module>services/psm-alarm-service</module>
-        <module>services/psm-work-permit-service</module>
-        <module>services/psm-mobile-bff</module>
-        <module>services/psm-report-service</module>
-        <module>services/psm-integration-service</module>
-        <module>services/psm-file-service</module>
-        <module>services/psm-notification-service</module>
-        <module>services/psm-audit-service</module>
-        <module>services/psm-dual-prevention-service</module>
-        <module>services/psm-pha-service</module>
-        <module>services/psm-moc-service</module>
-        <module>services/psm-pssr-service</module>
-        <module>services/psm-barrier-service</module>
-        <module>services/psm-video-service</module>
-        <module>services/psm-location-service</module>
-        <module>services/psm-inspection-service</module>
-        <module>services/psm-incident-service</module>
-        <module>services/psm-governance-service</module>
+        <!-- ============================================================ -->
+        <!-- Layer 0: BOM — 版本管理中心                                  -->
+        <!-- ============================================================ -->
+        <module>bom/psm-common-bom</module>
+
+        <!-- ============================================================ -->
+        <!-- Layer 1: Common 基础设施（无跨域依赖）                       -->
+        <!-- ============================================================ -->
+        <module>common/psm-common-core</module>
+        <module>common/psm-common-data</module>
+        <module>common/psm-common-web</module>
+        <module>common/psm-common-feign</module>
+        <module>common/psm-common-security</module>
+
+        <!-- ============================================================ -->
+        <!-- Layer 2: 领域服务（6 个完整 Spring Boot 服务）               -->
+        <!--   无跨域 compile 依赖，跨域调用走运行时 HTTP                 -->
+        <!--   identity        — 身份与接入（认证/授权/审计/文件/通知）   -->
+        <!--   operation       — 作业管控（许可/承包商/移动BFF）          -->
+        <!--   realtime        — 实时感知（告警/定位/视频AI）             -->
+        <!--   risk            — 风险防控（危险源/巡检/双防）             -->
+        <!--   process-safety  — 过程安全（PHA/MOC/PSSR/屏障）           -->
+        <!--   incident-gov    — 事件治理（事故/CAPA/报表/监管上报）      -->
+        <!-- ============================================================ -->
+        <module>apis/psm-identity-api</module>
+        <module>apis/psm-process-safety-api</module>
+        <module>apis/psm-incident-governance-api</module>
+        <module>apis/psm-risk-api</module>
+        <module>apis/psm-realtime-api</module>
+        <module>apis/psm-operation-api</module>
     </modules>
 
     <properties>

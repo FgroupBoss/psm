@@ -1,0 +1,24 @@
+package com.fgroupboss.ai.psm.incidentgovernance.integration.model.dto;
+
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+
+@Data
+public class RegReportPreviewRequest {
+
+    @NotNull(message = "tenantId is required")
+    private Long tenantId;
+
+    @NotBlank(message = "platformCode is required")
+    private String platformCode;
+
+    @NotBlank(message = "dataDomain is required")
+    private String dataDomain;
+
+    private LocalDateTime dataWindowStart;
+
+    private LocalDateTime dataWindowEnd;
+}

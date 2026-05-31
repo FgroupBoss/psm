@@ -26,35 +26,45 @@
 
 - Java 8 编译级别。
 - Spring Boot 2.7.18。
-- Maven 多模块。
+- Maven 多模块（12 个子模块）。
 - 默认 Web starter 排除 `spring-boot-starter-logging`，使用 `spring-boot-starter-log4j2`。
-- `psm-common-core` 提供 `ResponseVO` 和 demo 类型。
-- `psm-auth-service` 提供 `/api/demo`，用于前后端联调。
+- `psm-common-core` 提供 `ResponseVO`、`BusinessException`、`CentralAuditClient`、`CentralNotificationClient`。
+
+## 本地验证
+
+```powershell
+mvn compile -DskipTests
+mvn -pl apis/psm-identity-api -am spring-boot:run
+```
+
+## 模块分层与打包顺序
+
+```text
+backend/
+├── bom/                                 Layer 0: 版本管理中心
+│   └── psm-common-bom/                  最先构建
+│
+├── common/                              Layer 1: 基础设施底座（5 个库）
+│   ├── psm-common-core/                 根依赖
+│   ├── psm-common-data/                 MyBatis-Plus 持久层
+│   ├── psm-common-web/                  Web 层（Controller/响应）
+│   ├── psm-common-feign/                微服务 Feign 调用
+│   └── psm-common-security/             安全认证
+│
+└── apis/                                Layer 2: 领域服务（6 个 Spring Boot 应用）
+    ├── psm-identity-api/                身份与接入（认证/授权/审计/文件/通知/主数据/网关）
+    ├── psm-operation-api/               作业管控（许可/承包商/移动BFF）
+    ├── psm-realtime-api/                实时感知（告警/定位/视频AI）
+    ├── psm-risk-api/                    风险防控（危险源/巡检/双防）
+    ├── psm-process-safety-api/          过程安全（PHA/MOC/PSSR/屏障/配置规则）
+    └── psm-incident-governance-api/     事件治理（事故/CAPA/报表/监管上报）
+```
+
+> **打包顺序**：BOM → Common → 领域服务（identity → process-safety → incident-governance → risk → realtime → operation）。跨域调用走运行时 HTTP，编译期无循环依赖。
 
 ## 本地验证
 
 ```powershell
 mvn -DskipTests=false test
 mvn -pl services/psm-auth-service -am spring-boot:run
-```
-
-## 服务目录约定
-
-```text
-services/<service-name>
-  README.md
-  src/main/java/.gitkeep
-  src/main/resources/.gitkeep
-  src/test/java/.gitkeep
-```
-
-后续实现时建议包结构：
-
-```text
-com.company.psm.<module>
-  api/             对外 DTO、Client、契约
-  application/     应用服务、用例编排
-  domain/          领域模型、领域服务、状态机
-  infrastructure/  持久化、外部系统、消息、缓存
-  interfaces/      Controller、Consumer、Job
 ```
