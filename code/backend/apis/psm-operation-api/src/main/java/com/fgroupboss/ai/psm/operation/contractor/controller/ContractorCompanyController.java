@@ -29,6 +29,9 @@ import java.util.List;
 
 /**
  * 承包商单位准入接口。
+ * <p>单位资质、审批流与准入状态管理。</p>
+ * <p>基础路径：{@code /api/contractors/companies}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +42,15 @@ public class ContractorCompanyController {
     private final ContractorQualificationService qualificationService;
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 分页查询承包商单位。
+     * <p>HTTP GET {@code /api/contractors/companies}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
     public ResponseVO<PageResult<ContractorCompanyVO>> page(@RequestParam Long tenantId,
@@ -51,7 +62,10 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：创建业务数据。
+     * 新建记录。
+     * <p>HTTP POST {@code /api/contractors/companies}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
     public ResponseVO<ContractorCompanyVO> create(@Valid @RequestBody ContractorCompanyRequest request,
@@ -62,7 +76,12 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/contractors/companies/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<ContractorCompanyVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -70,7 +89,11 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/contractors/companies/{id}}</p>
+     * @param id 承包商单位 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
     public ResponseVO<ContractorCompanyVO> update(@PathVariable Long id,
@@ -82,7 +105,12 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：提交审批。
+     * 提交审批。
+     * <p>HTTP POST {@code /api/contractors/companies/{id}/submit}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
     public ResponseVO<ContractorCompanyVO> submit(@PathVariable Long id,
@@ -94,7 +122,13 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：审批业务数据。
+     * 审批通过。
+     * <p>HTTP POST {@code /api/contractors/companies/{id}/approve}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve")
     public ResponseVO<ContractorCompanyVO> approve(@PathVariable Long id,
@@ -107,7 +141,13 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：挂起业务数据。
+     * 暂停/挂起。
+     * <p>HTTP POST {@code /api/contractors/companies/{id}/suspend}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/suspend")
     public ResponseVO<ContractorCompanyVO> suspend(@PathVariable Long id,
@@ -120,7 +160,13 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：加入黑名单。
+     * 加入黑名单。
+     * <p>HTTP POST {@code /api/contractors/companies/{id}/blacklist}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/blacklist")
     public ResponseVO<ContractorCompanyVO> blacklist(@PathVariable Long id,
@@ -133,7 +179,12 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：查询承包商资质列表。
+     * 查询qualifications。
+     * <p>HTTP GET {@code /api/contractors/companies/{id}/qualifications}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/qualifications")
     public ResponseVO<List<ContractorQualificationVO>> listQualifications(@PathVariable Long id,
@@ -142,7 +193,11 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：新增承包商资质。
+     * 新增qualifications或触发qualifications相关动作。
+     * <p>HTTP POST {@code /api/contractors/companies/{id}/qualifications}</p>
+     * @param id 承包商单位 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/qualifications")
     public ResponseVO<ContractorQualificationVO> createQualification(@PathVariable Long id,
@@ -154,7 +209,12 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：更新承包商资质。
+     * 更新qualifications。
+     * <p>HTTP PUT {@code /api/contractors/companies/{id}/qualifications/{qualId}}</p>
+     * @param id 承包商单位 ID
+     * @param qualId qual ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}/qualifications/{qualId}")
     public ResponseVO<ContractorQualificationVO> updateQualification(@PathVariable Long id,
@@ -167,7 +227,13 @@ public class ContractorCompanyController {
     }
 
     /**
-     * 接口用途：删除承包商资质。
+     * 删除qualifications。
+     * <p>HTTP DELETE {@code /api/contractors/companies/{id}/qualifications/{qualId}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 承包商单位 ID
+     * @param qualId qual ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/qualifications/{qualId}")
     public ResponseVO<Void> deleteQualification(@PathVariable Long id,

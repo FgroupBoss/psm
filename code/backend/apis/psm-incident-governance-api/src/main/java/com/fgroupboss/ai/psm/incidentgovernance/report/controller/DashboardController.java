@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * M08 大屏态势接口。
+ * Dashboard 模块 HTTP API。
+ * <p>基础路径：{@code /api/dashboard}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +23,11 @@ public class DashboardController {
     private final ReportService reportService;
 
     /**
-     * 接口用途：处理接口请求。
+     * 查询overview。
+     * <p>HTTP GET {@code /api/dashboard/overview}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/overview")
     public ResponseVO<DashboardOverviewVO> overview(@RequestParam Long tenantId) {
@@ -29,7 +35,12 @@ public class DashboardController {
     }
 
     /**
-     * 接口用途：查询作业票趋势。
+     * 查询trend。
+     * <p>HTTP GET {@code /api/dashboard/work-permits/trend}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param days days 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/trend")
     public ResponseVO<TrendSeriesVO> workPermitTrend(@RequestParam Long tenantId,
@@ -38,7 +49,12 @@ public class DashboardController {
     }
 
     /**
-     * 接口用途：查询报警趋势。
+     * 查询trend。
+     * <p>HTTP GET {@code /api/dashboard/alarms/trend}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param days days 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/trend")
     public ResponseVO<TrendSeriesVO> alarmTrend(@RequestParam Long tenantId,

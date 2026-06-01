@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * 监管字段/编码映射接口。
+ * RegMapping 模块 HTTP API。
+ * <p>基础路径：{@code /api/integration/reg/mappings}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +26,15 @@ public class RegMappingController {
 
     private final RegMappingService mappingService;
 
+    /**
+     * 查询列表。
+     * <p>HTTP GET {@code /api/integration/reg/mappings}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param platformCode platformCode 参数
+     * @param dataDomain dataDomain 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping
     public ResponseVO<RegMappingVO> list(@RequestParam Long tenantId,
                                          @RequestParam String platformCode,
@@ -31,6 +42,12 @@ public class RegMappingController {
         return ResponseVO.success(mappingService.list(tenantId, platformCode, dataDomain));
     }
 
+    /**
+     * 保存数据。
+     * <p>HTTP POST {@code /api/integration/reg/mappings}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping
     public ResponseVO<RegMappingVO> save(@Valid @RequestBody RegMappingSaveRequest request) {
         return ResponseVO.success(mappingService.save(request));

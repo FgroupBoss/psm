@@ -28,7 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 风险单元与风险清单接口。
+ * RiskUnit 模块 HTTP API。
+ * <p>双重预防机制：风险单元、事件与管控措施。</p>
+ * <p>基础路径：{@code /api/dual-prevention/risk-units}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -37,6 +40,18 @@ public class RiskUnitController {
 
     private final RiskUnitService riskUnitService;
 
+    /**
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param areaId 区域 ID
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping
     public ResponseVO<PageResult<RiskUnitVO>> page(@RequestParam Long tenantId,
                                                    @RequestParam(required = false) String keyword,
@@ -47,29 +62,67 @@ public class RiskUnitController {
         return ResponseVO.success(riskUnitService.page(tenantId, keyword, status, areaId, pageNo, pageSize));
     }
 
+    /**
+     * 查询tree。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units/tree}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param areaId 区域 ID
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/tree")
     public ResponseVO<List<RiskUnitTreeNodeVO>> tree(@RequestParam Long tenantId,
                                                      @RequestParam(required = false) Long areaId) {
         return ResponseVO.success(riskUnitService.tree(tenantId, areaId));
     }
 
+    /**
+     * 查询color map。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units/color-map}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param areaId 区域 ID
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/color-map")
     public ResponseVO<Map<String, Long>> colorMap(@RequestParam Long tenantId,
                                                   @RequestParam(required = false) Long areaId) {
         return ResponseVO.success(riskUnitService.colorMap(tenantId, areaId));
     }
 
+    /**
+     * 查询color stats。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units/color-stats}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param areaId 区域 ID
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/color-stats")
     public ResponseVO<List<RiskColorStatVO>> colorStats(@RequestParam Long tenantId,
                                                         @RequestParam(required = false) Long areaId) {
         return ResponseVO.success(riskUnitService.colorStats(tenantId, areaId));
     }
 
+    /**
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}")
     public ResponseVO<RiskUnitVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(riskUnitService.getById(tenantId, id));
     }
 
+    /**
+     * 新建记录。
+     * <p>HTTP POST {@code /api/dual-prevention/risk-units}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping
     public ResponseVO<RiskUnitVO> create(@Valid @RequestBody RiskUnitRequest request,
                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -78,6 +131,13 @@ public class RiskUnitController {
         return ResponseVO.success(riskUnitService.create(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/dual-prevention/risk-units/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PutMapping("/{id}")
     public ResponseVO<RiskUnitVO> update(@PathVariable Long id,
                                          @Valid @RequestBody RiskUnitRequest request,
@@ -87,6 +147,14 @@ public class RiskUnitController {
         return ResponseVO.success(riskUnitService.update(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 删除记录。
+     * <p>HTTP DELETE {@code /api/dual-prevention/risk-units/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @DeleteMapping("/{id}")
     public ResponseVO<Void> delete(@PathVariable Long id,
                                    @RequestParam Long tenantId,
@@ -97,11 +165,26 @@ public class RiskUnitController {
         return ResponseVO.success(null);
     }
 
+    /**
+     * 查询events。
+     * <p>HTTP GET {@code /api/dual-prevention/risk-units/{id}/events}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/events")
     public ResponseVO<List<RiskEventVO>> listEvents(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(riskUnitService.listEvents(tenantId, id));
     }
 
+    /**
+     * 新增events或触发events相关动作。
+     * <p>HTTP POST {@code /api/dual-prevention/risk-units/{id}/events}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/events")
     public ResponseVO<RiskEventVO> createEvent(@PathVariable Long id,
                                                @Valid @RequestBody RiskEventRequest request,

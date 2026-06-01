@@ -28,6 +28,9 @@ import java.util.List;
 
 /**
  * 吊装作业专项接口。
+ * <p>吊装方案、吊具检查、指挥与司索人员确认等。</p>
+ * <p>基础路径：{@code /api/work-permits/{id}/lifting}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -36,11 +39,26 @@ public class LiftingController {
 
     private final LiftingService liftingService;
 
+    /**
+     * 查询专项详情。
+     * <p>HTTP GET {@code /api/work-permits/{id}/lifting/detail}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/detail")
     public ResponseVO<LiftingWorkDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(liftingService.getDetail(tenantId, id));
     }
 
+    /**
+     * 更新专项详情。
+     * <p>HTTP PUT {@code /api/work-permits/{id}/lifting/detail}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PutMapping("/detail")
     public ResponseVO<LiftingWorkDetailVO> saveDetail(@PathVariable Long id,
                                                       @Valid @RequestBody LiftingWorkDetailRequest request,
@@ -51,12 +69,27 @@ public class LiftingController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 查询equipment checks。
+     * <p>HTTP GET {@code /api/work-permits/{id}/lifting/equipment-checks}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/equipment-checks")
     public ResponseVO<List<LiftingEquipmentCheckVO>> listEquipmentChecks(@PathVariable Long id,
                                                                          @RequestParam Long tenantId) {
         return ResponseVO.success(liftingService.listEquipmentChecks(tenantId, id));
     }
 
+    /**
+     * 新增equipment checks或触发equipment checks相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/lifting/equipment-checks}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/equipment-checks")
     public ResponseVO<LiftingEquipmentCheckVO> addEquipmentCheck(@PathVariable Long id,
                                                                  @Valid @RequestBody LiftingEquipmentCheckRequest request,
@@ -67,11 +100,26 @@ public class LiftingController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 查询trial records。
+     * <p>HTTP GET {@code /api/work-permits/{id}/lifting/trial-records}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/trial-records")
     public ResponseVO<List<LiftingTrialRecordVO>> listTrialRecords(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(liftingService.listTrialRecords(tenantId, id));
     }
 
+    /**
+     * 新增trial records或触发trial records相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/lifting/trial-records}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/trial-records")
     public ResponseVO<LiftingTrialRecordVO> addTrialRecord(@PathVariable Long id,
                                                            @Valid @RequestBody LiftingTrialRecordRequest request,
@@ -82,6 +130,15 @@ public class LiftingController {
                 operator(userId, username, operator)));
     }
 
+    /**
+     * 新增前置校验或触发前置校验相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/lifting/pre-check}</p>
+     * <p>所有查询与变更均按租户隔离。根据 checkPoint 返回是否允许进入下一流程节点。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param checkPoint 流程校验节点编码（如 SUBMIT、SITE_PERMIT）
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/pre-check")
     public ResponseVO<LiftingPreCheckResultVO> preCheck(@PathVariable Long id,
                                                         @RequestParam Long tenantId,
@@ -89,6 +146,14 @@ public class LiftingController {
         return ResponseVO.success(liftingService.preCheck(tenantId, id, checkPoint));
     }
 
+    /**
+     * 查询流程进度。
+     * <p>HTTP GET {@code /api/work-permits/{id}/lifting/flow-progress}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/flow-progress")
     public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(liftingService.getFlowProgress(tenantId, id));

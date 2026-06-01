@@ -49,7 +49,10 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 鍗遍櫓宸ヤ綔绁ㄦ帴鍙ｏ紙M06 鍔ㄧ伀/鍙楅檺绌洪棿闂幆锛夈€?
+ * 危险作业票（通用）接口。
+ * <p>作业票全生命周期：建档、审批、现场许可、验收与关闭。</p>
+ * <p>基础路径：{@code /api/work-permits}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -57,17 +60,28 @@ import java.util.List;
 public class WorkPermitController {
 
     private final WorkPermitService workPermitService;
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鏈嶅姟鍋ュ悍鐘舵€併€?
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/work-permits/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<WorkPermitHealthVO> health() {
         return ResponseVO.success(workPermitService.health());
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍒嗛〉鏌ヨ涓氬姟鏁版嵁銆?
+     * 分页查询危险作业票。
+     * <p>HTTP GET {@code /api/work-permits}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param workType 作业类型编码
+     * @param areaId 区域 ID
+     * @param hazardId 重大危险源 ID
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
     public ResponseVO<PageResult<WorkPermitVO>> page(@RequestParam Long tenantId,
@@ -83,21 +97,35 @@ public class WorkPermitController {
 
     /**
      * 鎺ュ彛鐢ㄩ€旓細鎸夐噸澶у嵄闄╂簮鏌ヨ鍏宠仈浣滀笟绁ㄣ€?     */
+    /**
+     * 查询by hazard。
+     * <p>HTTP GET {@code /api/work-permits/by-hazard}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param hazardId 重大危险源 ID
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/by-hazard")
     public ResponseVO<List<WorkPermitVO>> listByHazard(@RequestParam Long tenantId, @RequestParam Long hazardId) {
         return ResponseVO.success(workPermitService.listByHazard(tenantId, hazardId));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ璇︽儏銆?
+     * 查询作业票详情（含专项扩展字段）。
+     * <p>HTTP GET {@code /api/work-permits/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<WorkPermitDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.getDetail(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍒涘缓涓氬姟鏁版嵁銆?
+     * 新建记录。
+     * <p>HTTP POST {@code /api/work-permits}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
     public ResponseVO<WorkPermitVO> create(@Valid @RequestBody WorkPermitRequest request,
@@ -106,9 +134,12 @@ public class WorkPermitController {
                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(workPermitService.create(request, operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏇存柊涓氬姟鏁版嵁銆?
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/work-permits/{id}}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
     public ResponseVO<WorkPermitVO> update(@PathVariable Long id,
@@ -118,17 +149,24 @@ public class WorkPermitController {
                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(workPermitService.update(id, request, operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ浣滀笟浜哄憳銆?
+     * 查询作业人员。
+     * <p>HTTP GET {@code /api/work-permits/{id}/workers}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/workers")
     public ResponseVO<List<WorkPermitWorkerVO>> listWorkers(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listWorkers(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏂板浣滀笟浜哄憳銆?
+     * 新增作业人员或触发作业人员相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/workers}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/workers")
     public ResponseVO<WorkPermitWorkerVO> addWorker(@PathVariable Long id,
@@ -139,9 +177,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.addWorker(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細绉婚櫎浣滀笟浜哄憳銆?
+     * 删除作业人员。
+     * <p>HTTP DELETE {@code /api/work-permits/{id}/workers/{workerId}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param workerId 承包商人员 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/workers/{workerId}")
     public ResponseVO<Void> removeWorker(@PathVariable Long id,
@@ -153,9 +196,13 @@ public class WorkPermitController {
         workPermitService.removeWorker(tenantId, id, workerId, operator(userId, username, operator));
         return ResponseVO.success(null);
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦瀹℃壒銆?
+     * 提交审批。
+     * <p>HTTP POST {@code /api/work-permits/{id}/submit}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
     public ResponseVO<WorkPermitVO> submit(@PathVariable Long id,
@@ -165,9 +212,14 @@ public class WorkPermitController {
                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(workPermitService.submit(tenantId, id, operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細瀹℃壒涓氬姟鏁版嵁銆?
+     * 审批通过。
+     * <p>HTTP POST {@code /api/work-permits/{id}/approve}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve")
     public ResponseVO<WorkPermitVO> approve(@PathVariable Long id,
@@ -179,9 +231,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.approve(tenantId, id, enrichAction(request, userId),
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
+     * 新增return或触发return相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/return}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/return")
     public ResponseVO<WorkPermitVO> returnPermit(@PathVariable Long id,
@@ -193,9 +250,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.returnPermit(tenantId, id, enrichAction(request, userId),
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
+     * 审批驳回。
+     * <p>HTTP POST {@code /api/work-permits/{id}/reject}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/reject")
     public ResponseVO<WorkPermitVO> reject(@PathVariable Long id,
@@ -210,13 +272,24 @@ public class WorkPermitController {
 
     /**
      * 鎺ュ彛鐢ㄩ€旓細鏌ヨ椋庨櫓鍒嗘瀽鍒楄〃銆?     */
+    /**
+     * 查询risk analysis。
+     * <p>HTTP GET {@code /api/work-permits/{id}/risk-analysis}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/risk-analysis")
     public ResponseVO<List<RiskAnalysisVO>> listRiskAnalysis(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listRiskAnalysis(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細澶勭悊鎺ュ彛璇锋眰銆?
+     * 新增risk analysis或触发risk analysis相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/risk-analysis}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/risk-analysis")
     public ResponseVO<RiskAnalysisVO> saveRiskAnalysis(@PathVariable Long id,
@@ -227,17 +300,25 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.saveRiskAnalysis(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ瀹夊叏鎺柦銆?
+     * 查询安全措施。
+     * <p>HTTP GET {@code /api/work-permits/{id}/safety-measures}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/safety-measures")
     public ResponseVO<List<SafetyMeasureVO>> listSafetyMeasures(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listSafetyMeasures(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細纭瀹夊叏鎺柦銆?
+     * 新增安全措施或触发安全措施相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/safety-measures/{measureId}}</p>
+     * @param id 作业票 ID
+     * @param measureId measure ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/safety-measures/{measureId}")
     public ResponseVO<SafetyMeasureVO> confirmSafetyMeasure(@PathVariable Long id,
@@ -249,17 +330,24 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.confirmSafetyMeasure(request.getTenantId(), id, measureId, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ姘斾綋妫€娴嬭褰曘€?
+     * 查询气体检测记录。
+     * <p>HTTP GET {@code /api/work-permits/{id}/gas-tests}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/gas-tests")
     public ResponseVO<List<GasTestVO>> listGasTests(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listGasTests(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏂板姘斾綋妫€娴嬭褰曘€?
+     * 新增气体检测记录或触发气体检测记录相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/gas-tests}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/gas-tests")
     public ResponseVO<GasTestVO> addGasTest(@PathVariable Long id,
@@ -270,17 +358,24 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.addGasTest(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎵ц浣滀笟鍓嶇疆鏍￠獙銆?
+     * 新增前置校验或触发前置校验相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/pre-check}</p>
+     * <p>根据 checkPoint 返回是否允许进入下一流程节点。</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/pre-check")
     public ResponseVO<PreCheckResultVO> preCheck(@PathVariable Long id, @Valid @RequestBody PreCheckRequest request) {
         return ResponseVO.success(workPermitService.preCheck(request.getTenantId(), id, request));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦鐜板満璁稿彲銆?
+     * 新增site permit或触发site permit相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/site-permit}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/site-permit")
     public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
@@ -291,9 +386,12 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.sitePermit(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦鐜板満绛惧埌銆?
+     * 新增check in或触发check in相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/check-in}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/check-in")
     public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
@@ -304,17 +402,24 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.checkIn(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鐩戞姢璁板綍銆?
+     * 查询monitor records。
+     * <p>HTTP GET {@code /api/work-permits/{id}/monitor-records}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/monitor-records")
     public ResponseVO<List<MonitorRecordVO>> listMonitorRecords(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.listMonitorRecords(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏂板鐩戞姢璁板綍銆?
+     * 新增monitor records或触发monitor records相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/monitor-records}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/monitor-records")
     public ResponseVO<MonitorRecordVO> addMonitorRecord(@PathVariable Long id,
@@ -325,9 +430,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.addMonitorRecord(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎸傝捣涓氬姟鏁版嵁銆?
+     * 暂停/挂起。
+     * <p>HTTP POST {@code /api/work-permits/{id}/suspend}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/suspend")
     public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
@@ -339,9 +449,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.suspend(tenantId, id, defaultAction(request),
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎭㈠涓氬姟鏁版嵁銆?
+     * 新增resume或触发resume相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/resume}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/resume")
     public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
@@ -353,9 +468,14 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.resume(tenantId, id, defaultAction(request),
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細缁堟浣滀笟绁ㄣ€?
+     * 新增terminate或触发terminate相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/terminate}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/terminate")
     public ResponseVO<WorkPermitVO> terminate(@PathVariable Long id,
@@ -367,9 +487,12 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.terminate(tenantId, id, defaultAction(request),
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎻愪氦楠屾敹銆?
+     * 新增acceptance或触发acceptance相关动作。
+     * <p>HTTP POST {@code /api/work-permits/{id}/acceptance}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/acceptance")
     public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
@@ -380,23 +503,38 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.acceptance(request.getTenantId(), id, request,
                 operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ浣滀笟绁ㄦ椂闂寸嚎銆?
+     * 查询timeline。
+     * <p>HTTP GET {@code /api/work-permits/{id}/timeline}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/timeline")
     public ResponseVO<List<TimelineItemVO>> timeline(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.timeline(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍚屾绉诲姩绔崏绋裤€?
+     * 新增sync或触发sync相关动作。
+     * <p>HTTP POST {@code /api/work-permits/mobile/drafts/sync}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/mobile/drafts/sync")
     public ResponseVO<MobileDraftSyncResultVO> syncMobileDraft(@Valid @RequestBody MobileDraftSyncRequest request) {
         return ResponseVO.success(workPermitService.syncMobileDraft(request));
     }
 
+    /**
+     * 查询available workflows。
+     * <p>HTTP GET {@code /api/work-permits/hot-work/available-workflows}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param hotWorkLevel hotWorkLevel 参数
+     * @param areaId 区域 ID
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/hot-work/available-workflows")
     public ResponseVO<List<HotWorkWorkflowSummaryDTO>> listAvailableHotWorkWorkflows(
             @RequestParam Long tenantId,
@@ -405,12 +543,29 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.listAvailableHotWorkWorkflows(tenantId, hotWorkLevel, areaId));
     }
 
+    /**
+     * 查询progress。
+     * <p>HTTP GET {@code /api/work-permits/{id}/approval/progress}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/approval/progress")
     public ResponseVO<HotWorkApprovalProgressVO> getHotWorkApprovalProgress(@PathVariable Long id,
                                                                             @RequestParam Long tenantId) {
         return ResponseVO.success(workPermitService.getHotWorkApprovalProgress(tenantId, id));
     }
 
+    /**
+     * 查询mine。
+     * <p>HTTP GET {@code /api/work-permits/{id}/approval/tasks/mine}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param assigneeUserId assigneeUser ID
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/approval/tasks/mine")
     public ResponseVO<List<HotWorkApprovalTaskVO>> listHotWorkApprovalTasks(
             @PathVariable Long id,

@@ -26,7 +26,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 动火审批流配置接口。
+ * HotWorkWorkflow 模块 HTTP API。
+ * <p>基础路径：{@code /api/config/hot-work/workflows}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +37,12 @@ public class HotWorkWorkflowController {
 
     private final HotWorkWorkflowService hotWorkWorkflowService;
 
+    /**
+     * 新建记录。
+     * <p>HTTP POST {@code /api/config/hot-work/workflows}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping
     public ResponseVO<HotWorkWorkflowDetailVO> create(@Valid @RequestBody HotWorkWorkflowTemplateRequest request,
                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
@@ -43,6 +51,13 @@ public class HotWorkWorkflowController {
         return ResponseVO.success(hotWorkWorkflowService.create(request, operator(userId, username, operator)));
     }
 
+    /**
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/config/hot-work/workflows/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PutMapping("/{id}")
     public ResponseVO<HotWorkWorkflowDetailVO> update(@PathVariable Long id,
                                                       @Valid @RequestBody HotWorkWorkflowTemplateRequest request,
@@ -52,11 +67,29 @@ public class HotWorkWorkflowController {
         return ResponseVO.success(hotWorkWorkflowService.update(id, request, operator(userId, username, operator)));
     }
 
+    /**
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/config/hot-work/workflows/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}")
     public ResponseVO<HotWorkWorkflowDetailVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(hotWorkWorkflowService.get(tenantId, id));
     }
 
+    /**
+     * 查询available。
+     * <p>HTTP GET {@code /api/config/hot-work/workflows/available}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param hotWorkLevel hotWorkLevel 参数
+     * @param areaId 区域 ID
+     * @param status 业务状态筛选
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/available")
     public ResponseVO<List<HotWorkWorkflowSummaryVO>> available(@RequestParam Long tenantId,
                                                               @RequestParam(required = false) String hotWorkLevel,
@@ -70,6 +103,15 @@ public class HotWorkWorkflowController {
         return ResponseVO.success(hotWorkWorkflowService.listAvailable(query));
     }
 
+    /**
+     * 查询snapshot。
+     * <p>HTTP GET {@code /api/config/hot-work/workflows/{id}/snapshot}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param versionNo versionNo 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/snapshot")
     public ResponseVO<HotWorkWorkflowSnapshotDTO> snapshot(@PathVariable Long id,
                                                            @RequestParam Long tenantId,
@@ -77,11 +119,25 @@ public class HotWorkWorkflowController {
         return ResponseVO.success(hotWorkWorkflowService.getSnapshot(tenantId, id, versionNo));
     }
 
+    /**
+     * 新增resolve approvers或触发resolve approvers相关动作。
+     * <p>HTTP POST {@code /api/config/hot-work/workflows/resolve-approvers}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/resolve-approvers")
     public ResponseVO<HotWorkApproverResolveResultVO> resolveApprovers(@RequestBody HotWorkApproverResolveDTO request) {
         return ResponseVO.success(hotWorkWorkflowService.resolveApprovers(request));
     }
 
+    /**
+     * 新增publish或触发publish相关动作。
+     * <p>HTTP POST {@code /api/config/hot-work/workflows/{id}/publish}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/publish")
     public ResponseVO<Void> publish(@PathVariable Long id,
                                     @RequestParam Long tenantId,
@@ -92,6 +148,14 @@ public class HotWorkWorkflowController {
         return ResponseVO.success();
     }
 
+    /**
+     * 新增disable或触发disable相关动作。
+     * <p>HTTP POST {@code /api/config/hot-work/workflows/{id}/disable}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable Long id,
                                     @RequestParam Long tenantId,

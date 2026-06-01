@@ -30,7 +30,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * M08 统计报表接口。
+ * Report 模块 HTTP API。
+ * <p>基础路径：{@code /api/reports}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +42,9 @@ public class ReportController {
     private final ReportService reportService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/reports/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<ReportHealthVO> health() {
@@ -48,7 +52,11 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：统计作业票报表汇总。
+     * 查询summary。
+     * <p>HTTP GET {@code /api/reports/work-permits/summary}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/summary")
     public ResponseVO<WorkPermitReportSummaryVO> workPermitSummary(@RequestParam Long tenantId) {
@@ -56,7 +64,13 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：查询作业票报表明细。
+     * 查询details。
+     * <p>HTTP GET {@code /api/reports/work-permits/details}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param status 业务状态筛选
+     * @param workType 作业类型编码
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/details")
     public ResponseVO<List<WorkPermitReportDetailVO>> workPermitDetails(@RequestParam Long tenantId,
@@ -66,7 +80,11 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：统计报警报表汇总。
+     * 查询summary。
+     * <p>HTTP GET {@code /api/reports/alarms/summary}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/summary")
     public ResponseVO<AlarmReportSummaryVO> alarmSummary(@RequestParam Long tenantId) {
@@ -74,7 +92,13 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：查询报警报表明细。
+     * 查询details。
+     * <p>HTTP GET {@code /api/reports/alarms/details}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param status 业务状态筛选
+     * @param alarmLevel alarmLevel 参数
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/details")
     public ResponseVO<List<AlarmReportDetailVO>> alarmDetails(@RequestParam Long tenantId,
@@ -84,7 +108,11 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：统计重大危险源报表汇总。
+     * 查询summary。
+     * <p>HTTP GET {@code /api/reports/major-hazards/summary}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/major-hazards/summary")
     public ResponseVO<MajorHazardReportSummaryVO> majorHazardSummary(@RequestParam Long tenantId) {
@@ -92,7 +120,11 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：统计承包商报表汇总。
+     * 查询summary。
+     * <p>HTTP GET {@code /api/reports/contractors/summary}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/contractors/summary")
     public ResponseVO<ContractorReportSummaryVO> contractorSummary(@RequestParam Long tenantId) {
@@ -100,7 +132,11 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：统计审计报表汇总。
+     * 查询summary。
+     * <p>HTTP GET {@code /api/reports/audit/summary}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/audit/summary")
     public ResponseVO<AuditReportSummaryVO> auditSummary(@RequestParam Long tenantId) {
@@ -108,7 +144,10 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增export或触发export相关动作。
+     * <p>HTTP POST {@code /api/reports/export}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/export")
     public ResponseVO<ReportExportTaskVO> exportReport(@Valid @RequestBody ReportExportRequest request) {
@@ -116,7 +155,12 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：查询报表导出任务。
+     * 查询export。
+     * <p>HTTP GET {@code /api/reports/export/{taskId}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param taskId task ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/export/{taskId}")
     public ResponseVO<ReportExportTaskVO> getExportTask(@PathVariable Long taskId, @RequestParam Long tenantId) {
@@ -124,7 +168,12 @@ public class ReportController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 查询download。
+     * <p>HTTP GET {@code /api/reports/export/{taskId}/download}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param taskId task ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/export/{taskId}/download")
     public ResponseEntity<Resource> downloadExport(@PathVariable Long taskId, @RequestParam Long tenantId) {

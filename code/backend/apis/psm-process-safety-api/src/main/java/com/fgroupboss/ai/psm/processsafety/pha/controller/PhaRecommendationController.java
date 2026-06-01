@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * PhaRecommendation 模块 HTTP API。
+ * <p>工艺危害分析（PHA/HAZOP/LOPA）项目与节点数据。</p>
+ * <p>基础路径：{@code /api/pha/recommendations}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pha/recommendations")
@@ -26,6 +32,17 @@ public class PhaRecommendationController {
 
     private final PhaRecommendationService phaRecommendationService;
 
+    /**
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/pha/recommendations}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param projectId project ID
+     * @param status 业务状态筛选
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping
     public ResponseVO<PageResult<PhaRecommendationVO>> page(@RequestParam Long tenantId,
                                                             @RequestParam(required = false) Long projectId,
@@ -35,6 +52,15 @@ public class PhaRecommendationController {
         return ResponseVO.success(phaRecommendationService.page(tenantId, projectId, status, pageNo, pageSize));
     }
 
+    /**
+     * 查询列表。
+     * <p>HTTP GET {@code /api/pha/recommendations/list}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param projectId project ID
+     * @param status 业务状态筛选
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/list")
     public ResponseVO<List<PhaRecommendationVO>> list(@RequestParam Long tenantId,
                                                       @RequestParam(required = false) Long projectId,
@@ -42,12 +68,27 @@ public class PhaRecommendationController {
         return ResponseVO.success(phaRecommendationService.list(tenantId, projectId, status));
     }
 
+    /**
+     * 新建记录。
+     * <p>HTTP POST {@code /api/pha/recommendations}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping
     public ResponseVO<PhaRecommendationVO> create(@Valid @RequestBody PhaRecommendationRequest request,
                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(phaRecommendationService.create(request, operator));
     }
 
+    /**
+     * 新增assign或触发assign相关动作。
+     * <p>HTTP POST {@code /api/pha/recommendations/{id}/assign}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/assign")
     public ResponseVO<PhaRecommendationVO> assign(@PathVariable Long id,
                                                    @RequestParam Long tenantId,
@@ -56,6 +97,15 @@ public class PhaRecommendationController {
         return ResponseVO.success(phaRecommendationService.assign(tenantId, id, request, operator));
     }
 
+    /**
+     * 新增rectify或触发rectify相关动作。
+     * <p>HTTP POST {@code /api/pha/recommendations/{id}/rectify}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/rectify")
     public ResponseVO<PhaRecommendationVO> rectify(@PathVariable Long id,
                                                    @RequestParam Long tenantId,
@@ -64,6 +114,15 @@ public class PhaRecommendationController {
         return ResponseVO.success(phaRecommendationService.rectify(tenantId, id, request, operator));
     }
 
+    /**
+     * 新增verify或触发verify相关动作。
+     * <p>HTTP POST {@code /api/pha/recommendations/{id}/verify}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/verify")
     public ResponseVO<PhaRecommendationVO> verify(@PathVariable Long id,
                                                    @RequestParam Long tenantId,
@@ -72,6 +131,15 @@ public class PhaRecommendationController {
         return ResponseVO.success(phaRecommendationService.verify(tenantId, id, request, operator));
     }
 
+    /**
+     * 新增close或触发close相关动作。
+     * <p>HTTP POST {@code /api/pha/recommendations/{id}/close}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/{id}/close")
     public ResponseVO<PhaRecommendationVO> close(@PathVariable Long id,
                                                  @RequestParam Long tenantId,

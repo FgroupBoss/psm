@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Provides the existing integration smoke-check endpoint for this service.
+ * Demo 模块 HTTP API。
+ * <p>基础路径：{@code /api}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequestMapping("/api")
@@ -16,7 +18,9 @@ public class DemoController {
 
     @CrossOrigin
     /**
-     * 接口用途：处理接口请求。
+     * 查询demo。
+     * <p>HTTP GET {@code /api/demo}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/demo")
     public ResponseVO<DemoInfo> demo() {

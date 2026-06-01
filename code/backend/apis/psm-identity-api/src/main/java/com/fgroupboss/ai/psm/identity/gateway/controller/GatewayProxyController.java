@@ -41,6 +41,11 @@ public class GatewayProxyController {
     // 作业管控域 (psm-operation:18088)
     // ============================================================
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/contractors/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/contractors/**")
     public ResponseEntity<byte[]> proxyContractor(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -48,6 +53,11 @@ public class GatewayProxyController {
         return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/work-permits/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/work-permits/**")
     public ResponseEntity<byte[]> proxyWorkPermit(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -55,6 +65,11 @@ public class GatewayProxyController {
         return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/mobile/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/mobile/**")
     public ResponseEntity<byte[]> proxyMobile(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -62,6 +77,11 @@ public class GatewayProxyController {
         return proxy(properties.getOperationControlServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/simops/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/simops/**")
     public ResponseEntity<byte[]> proxySimops(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -73,6 +93,11 @@ public class GatewayProxyController {
     // 实时感知域 (psm-realtime:18087)
     // ============================================================
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/alarms/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/alarms/**")
     public ResponseEntity<byte[]> proxyAlarm(HttpServletRequest request,
                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -80,6 +105,11 @@ public class GatewayProxyController {
         return proxy(properties.getRealtimePerceptionServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/location/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/location/**")
     public ResponseEntity<byte[]> proxyLocation(HttpServletRequest request,
                                                 @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -87,6 +117,11 @@ public class GatewayProxyController {
         return proxy(properties.getRealtimePerceptionServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/video/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/video/**")
     public ResponseEntity<byte[]> proxyVideo(HttpServletRequest request,
                                              @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -98,6 +133,11 @@ public class GatewayProxyController {
     // 风险防控域 (psm-risk:18101)
     // ============================================================
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/major-hazards/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/major-hazards/**")
     public ResponseEntity<byte[]> proxyMajorHazard(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -105,6 +145,11 @@ public class GatewayProxyController {
         return proxy(properties.getRiskControlServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/inspection/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/inspection/**")
     public ResponseEntity<byte[]> proxyInspection(HttpServletRequest request,
                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -112,6 +157,11 @@ public class GatewayProxyController {
         return proxy(properties.getRiskControlServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/dual-prevention/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/dual-prevention/**")
     public ResponseEntity<byte[]> proxyDualPrevention(HttpServletRequest request,
                                                       @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -123,6 +173,11 @@ public class GatewayProxyController {
     // 过程安全域 (psm-process-safety:18111)
     // ============================================================
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/pha/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/pha/**")
     public ResponseEntity<byte[]> proxyPha(HttpServletRequest request,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -130,6 +185,11 @@ public class GatewayProxyController {
         return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/moc/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/moc/**")
     public ResponseEntity<byte[]> proxyMoc(HttpServletRequest request,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -137,6 +197,11 @@ public class GatewayProxyController {
         return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/pssr/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/pssr/**")
     public ResponseEntity<byte[]> proxyPssr(HttpServletRequest request,
                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -144,6 +209,11 @@ public class GatewayProxyController {
         return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/barriers/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping({"/api/barriers/**", "/api/mechanical-integrity/**"})
     public ResponseEntity<byte[]> proxyBarrier(HttpServletRequest request,
                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -151,6 +221,11 @@ public class GatewayProxyController {
         return proxy(properties.getProcessSafetyServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/config/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/config/**")
     public ResponseEntity<byte[]> proxyConfig(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -162,6 +237,11 @@ public class GatewayProxyController {
     // 事件治理域 (psm-incident-governance:18115)
     // ============================================================
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/incidents/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/incidents/**")
     public ResponseEntity<byte[]> proxyIncident(HttpServletRequest request,
                                                 @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -169,6 +249,11 @@ public class GatewayProxyController {
         return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/governance/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/governance/**")
     public ResponseEntity<byte[]> proxyGovernance(HttpServletRequest request,
                                                   @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -176,6 +261,11 @@ public class GatewayProxyController {
         return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/reports/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping({"/api/reports/**", "/api/dashboard/**", "/api/acceptance/**"})
     public ResponseEntity<byte[]> proxyReport(HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
@@ -183,6 +273,11 @@ public class GatewayProxyController {
         return proxy(properties.getIncidentGovernanceServiceUrl(), request, principal);
     }
 
+    /**
+     * 代理访问**。
+     * <p>HTTP REQUEST {@code /api/integration/**}</p>
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @RequestMapping("/api/integration/**")
     public ResponseEntity<byte[]> proxyIntegration(HttpServletRequest request,
                                                    @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {

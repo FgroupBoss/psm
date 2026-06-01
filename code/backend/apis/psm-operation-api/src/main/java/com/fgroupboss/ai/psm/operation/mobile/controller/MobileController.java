@@ -47,7 +47,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 移动端现场作业 BFF 接口（M07）。
+ * Mobile 模块 HTTP API。
+ * <p>基础路径：{@code /api/mobile}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -61,7 +63,12 @@ public class MobileController {
     private final FileClient fileClient;
 
     /**
-     * 接口用途：查询移动端任务。
+     * 查询tasks。
+     * <p>HTTP GET {@code /api/mobile/tasks}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param role role 参数
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/tasks")
     public ResponseVO<List<MobileTaskVO>> tasks(@RequestParam Long tenantId,
@@ -72,7 +79,12 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：查询移动端作业票详情。
+     * 查询work permits。
+     * <p>HTTP GET {@code /api/mobile/work-permits/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/{id}")
     public ResponseVO<WorkPermitDetailVO> workPermitDetail(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -80,7 +92,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：提交现场签到。
+     * 新增check in或触发check in相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/check-in}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/check-in")
     public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
@@ -92,7 +108,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：提交气体检测。
+     * 新增气体检测记录或触发气体检测记录相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/gas-tests}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/gas-tests")
     public ResponseVO<GasTestVO> gasTest(@PathVariable Long id,
@@ -104,7 +124,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：确认安全措施。
+     * 新增confirm或触发confirm相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/measures/confirm}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/measures/confirm")
     public ResponseVO<SafetyMeasureVO> confirmMeasure(@PathVariable Long id,
@@ -116,7 +140,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：提交现场许可。
+     * 新增site permit或触发site permit相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/site-permit}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/site-permit")
     public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
@@ -128,7 +156,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：新增监护记录。
+     * 新增monitor records或触发monitor records相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/monitor-records}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/monitor-records")
     public ResponseVO<MonitorRecordVO> monitorRecord(@PathVariable Long id,
@@ -140,7 +172,13 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：挂起业务数据。
+     * 暂停/挂起。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/suspend}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/suspend")
     public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
@@ -154,7 +192,13 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：恢复业务数据。
+     * 新增resume或触发resume相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/resume}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 作业票 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/resume")
     public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
@@ -168,7 +212,11 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：提交验收。
+     * 新增acceptance或触发acceptance相关动作。
+     * <p>HTTP POST {@code /api/mobile/work-permits/{id}/acceptance}</p>
+     * @param id 作业票 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/work-permits/{id}/acceptance")
     public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
@@ -180,7 +228,13 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增feedback或触发feedback相关动作。
+     * <p>HTTP POST {@code /api/mobile/alarms/{id}/feedback}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/alarms/{id}/feedback")
     public ResponseVO<AlarmEventVO> alarmFeedback(@PathVariable Long id,
@@ -195,7 +249,14 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增upload或触发upload相关动作。
+     * <p>HTTP POST {@code /api/mobile/files/upload}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param file file 参数
+     * @param bizType 业务类型
+     * @param bizId 业务实体 ID
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/files/upload")
     public ResponseVO<FileUploadVO> uploadFile(@RequestParam Long tenantId,
@@ -210,7 +271,10 @@ public class MobileController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增sync或触发sync相关动作。
+     * <p>HTTP POST {@code /api/mobile/drafts/sync}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/drafts/sync")
     public ResponseVO<MobileDraftSyncResultVO> syncDraft(@Valid @RequestBody MobileDraftSyncRequest request,

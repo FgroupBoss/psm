@@ -41,7 +41,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 重大危险源管理接口（批次 6：报警 Tab 联动）。
+ * MajorHazard 模块 HTTP API。
+ * <p>基础路径：{@code /api/major-hazards}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +57,9 @@ public class MajorHazardController {
     private final HazardAlarmQueryService hazardAlarmQueryService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/major-hazards/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<DemoInfo> health() {
@@ -63,7 +67,10 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询风险上下文。
+     * 新增risk context或触发risk context相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/risk-context}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/risk-context")
     public ResponseVO<RiskContextVO> riskContext(@Valid @RequestBody RiskContextRequest request) {
@@ -71,7 +78,16 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/major-hazards}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param level level 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
     public ResponseVO<PageResult<MajorHazardVO>> page(@RequestParam Long tenantId,
@@ -84,7 +100,10 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：创建业务数据。
+     * 新建记录。
+     * <p>HTTP POST {@code /api/major-hazards}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
     public ResponseVO<MajorHazardVO> create(@Valid @RequestBody MajorHazardRequest request,
@@ -95,7 +114,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/major-hazards/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<MajorHazardVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -103,7 +127,11 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/major-hazards/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
     public ResponseVO<MajorHazardVO> update(@PathVariable Long id,
@@ -115,7 +143,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：发布业务数据。
+     * 新增publish或触发publish相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/{id}/publish}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/publish")
     public ResponseVO<MajorHazardVO> publish(@PathVariable Long id,
@@ -127,7 +160,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：变更业务状态。
+     * 新增status或触发status相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/{id}/status}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/status")
     public ResponseVO<MajorHazardVO> changeStatus(@PathVariable Long id,
@@ -140,7 +179,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询责任人配置。
+     * 查询responsibilities。
+     * <p>HTTP GET {@code /api/major-hazards/{id}/responsibilities}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/responsibilities")
     public ResponseVO<List<MajorHazardResponsibilityVO>> listResponsibilities(@PathVariable Long id,
@@ -149,7 +193,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：替换责任人配置。
+     * 更新responsibilities。
+     * <p>HTTP PUT {@code /api/major-hazards/{id}/responsibilities}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}/responsibilities")
     public ResponseVO<List<MajorHazardResponsibilityVO>> replaceResponsibilities(
@@ -164,7 +214,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询关联点位。
+     * 查询points。
+     * <p>HTTP GET {@code /api/major-hazards/{id}/points}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/points")
     public ResponseVO<List<HazardPointVO>> listPoints(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -172,7 +227,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：绑定点位。
+     * 新增points或触发points相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/{id}/points}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/points")
     public ResponseVO<HazardPointVO> bindPoint(@PathVariable Long id,
@@ -185,7 +246,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：解绑点位。
+     * 删除points。
+     * <p>HTTP DELETE {@code /api/major-hazards/{id}/points/{relId}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param relId rel ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/points/{relId}")
     public ResponseVO<Void> unbindPoint(@PathVariable Long id,
@@ -199,7 +266,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询附件列表。
+     * 查询attachments。
+     * <p>HTTP GET {@code /api/major-hazards/{id}/attachments}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/attachments")
     public ResponseVO<List<HazardAttachmentVO>> listAttachments(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -207,7 +279,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：新增附件。
+     * 新增attachments或触发attachments相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/{id}/attachments}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/attachments")
     public ResponseVO<HazardAttachmentVO> createAttachment(@PathVariable Long id,
@@ -221,7 +299,13 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：删除附件。
+     * 删除attachments。
+     * <p>HTTP DELETE {@code /api/major-hazards/{id}/attachments/{attachmentId}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param attachmentId attachment ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/attachments/{attachmentId}")
     public ResponseVO<Void> deleteAttachment(@PathVariable Long id,
@@ -235,7 +319,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询关联报警。
+     * 查询alarms。
+     * <p>HTTP GET {@code /api/major-hazards/{id}/alarms}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/alarms")
     public ResponseVO<List<HazardAlarmSummaryVO>> listAlarms(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -243,7 +332,11 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：绑定默认巡检计划。
+     * 新增bind或触发bind相关动作。
+     * <p>HTTP POST {@code /api/major-hazards/{id}/inspection-plan/bind}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/inspection-plan/bind")
     public ResponseVO<MajorHazardVO> bindInspectionPlan(@PathVariable Long id,
@@ -257,7 +350,12 @@ public class MajorHazardController {
     }
 
     /**
-     * 接口用途：查询关联作业票。
+     * 查询permits。
+     * <p>HTTP GET {@code /api/major-hazards/{id}/permits}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/permits")
     public ResponseVO<List<Map<String, Object>>> listPermits(@PathVariable Long id, @RequestParam Long tenantId) {

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * IAM 内部查询接口，供网关和业务服务做鉴权判断。
+ * InternalIam 模块 HTTP API。
+ * <p>基础路径：{@code /internal/iam}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +23,12 @@ public class InternalIamController {
     private final IamAdminService service;
 
     /**
-     * 接口用途：查询用户权限摘要。
+     * 查询permissions。
+     * <p>HTTP GET {@code /internal/iam/users/{userId}/permissions}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/permissions")
     public ResponseVO<UserPermissionSummaryVO> permissions(@PathVariable Long userId, @RequestParam Long tenantId) {
@@ -29,7 +36,12 @@ public class InternalIamController {
     }
 
     /**
-     * 接口用途：查询用户权限版本。
+     * 查询permission version。
+     * <p>HTTP GET {@code /internal/iam/users/{userId}/permission-version}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/permission-version")
     public ResponseVO<Long> permissionVersion(@PathVariable Long userId, @RequestParam Long tenantId) {
@@ -37,7 +49,12 @@ public class InternalIamController {
     }
 
     /**
-     * 接口用途：查询用户数据权限范围。
+     * 查询data scope。
+     * <p>HTTP GET {@code /internal/iam/users/{userId}/data-scope}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/data-scope")
     public ResponseVO<UserPermissionSummaryVO> dataScope(@PathVariable Long userId, @RequestParam Long tenantId) {

@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 文件中心接口：上传、元数据查询、下载。
+ * File 模块 HTTP API。
+ * <p>基础路径：{@code /api/files}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +33,9 @@ public class FileController {
     private final FileService fileService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/files/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<FileHealthVO> health() {
@@ -39,7 +43,14 @@ public class FileController {
     }
 
     /**
-     * 接口用途：上传文件。
+     * 新增upload或触发upload相关动作。
+     * <p>HTTP POST {@code /api/files/upload}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param file file 参数
+     * @param bizType 业务类型
+     * @param bizId 业务实体 ID
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseVO<FileObjectVO> upload(@RequestParam Long tenantId,
@@ -54,7 +65,12 @@ public class FileController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询作业票详情。
+     * <p>HTTP GET {@code /api/files/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<FileObjectVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -62,7 +78,12 @@ public class FileController {
     }
 
     /**
-     * 接口用途：下载文件。
+     * 查询download。
+     * <p>HTTP GET {@code /api/files/{id}/download}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> download(@PathVariable Long id, @RequestParam Long tenantId) {

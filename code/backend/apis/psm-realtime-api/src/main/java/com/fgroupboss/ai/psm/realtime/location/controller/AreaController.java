@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 区域封闭化统计接口。
+ * Area 模块 HTTP API。
+ * <p>人员/车辆/访客定位与出入记录。</p>
+ * <p>基础路径：{@code /api/location/areas}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +23,14 @@ public class AreaController {
 
     private final LocLocationService locationService;
 
+    /**
+     * 查询headcount。
+     * <p>HTTP GET {@code /api/location/areas/{id}/headcount}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param areaId 区域 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/headcount")
     public ResponseVO<AreaHeadcountVO> headcount(@PathVariable("id") Long areaId, @RequestParam Long tenantId) {
         return ResponseVO.success(locationService.headcount(tenantId, areaId));

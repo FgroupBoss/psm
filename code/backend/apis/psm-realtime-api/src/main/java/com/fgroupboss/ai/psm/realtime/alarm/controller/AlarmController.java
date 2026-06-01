@@ -30,7 +30,10 @@ import javax.validation.Valid;
 import java.util.Date;
 
 /**
- * 鎶ヨ涓績鎺ュ彛锛堟壒娆?6锛氬畬鏁寸敓鍛藉懆鏈?+ 鍖哄煙娲昏穬妫€鏌ワ級銆?
+ * Alarm 模块 HTTP API。
+ * <p>实时告警事件与规则配置。</p>
+ * <p>基础路径：{@code /api/alarms}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -38,33 +41,51 @@ import java.util.Date;
 public class AlarmController {
 
     private final AlarmService alarmService;
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ鏈嶅姟鍋ュ悍鐘舵€併€?
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/alarms/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<AlarmHealthVO> health() {
         return ResponseVO.success(alarmService.health());
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎺ュ叆鎶ヨ浜嬩欢銆?
+     * 新增ingest或触发ingest相关动作。
+     * <p>HTTP POST {@code /api/alarms/ingest}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/ingest")
     public ResponseVO<AlarmEventVO> ingest(@Valid @RequestBody AlarmIngestRequest request) {
         return ResponseVO.success(alarmService.ingest(request));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細妫€鏌ュ尯鍩熸椿璺冩姤璀︺€?
+     * 新增area active check或触发area active check相关动作。
+     * <p>HTTP POST {@code /api/alarms/area-active-check}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/area-active-check")
     public ResponseVO<AlarmAreaActiveCheckVO> areaActiveCheck(@Valid @RequestBody AlarmAreaActiveCheckRequest request) {
         return ResponseVO.success(alarmService.areaActiveCheck(request));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍒嗛〉鏌ヨ涓氬姟鏁版嵁銆?
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/alarms}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param alarmLevel alarmLevel 参数
+     * @param areaId 区域 ID
+     * @param hazardId 重大危险源 ID
+     * @param sourceType sourceType 参数
+     * @param occurredFrom occurredFrom 参数
+     * @param occurredTo occurredTo 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
     public ResponseVO<PageResult<AlarmEventVO>> page(@RequestParam Long tenantId,
@@ -81,17 +102,26 @@ public class AlarmController {
         return ResponseVO.success(alarmService.page(tenantId, keyword, status, alarmLevel, areaId, hazardId, sourceType,
                 occurredFrom, occurredTo, pageNo, pageSize));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鏌ヨ璇︽儏銆?
+     * 查询作业票详情。
+     * <p>HTTP GET {@code /api/alarms/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<AlarmDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(alarmService.getDetail(tenantId, id));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細纭鎶ヨ銆?
+     * 新增confirm或触发confirm相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/confirm}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/confirm")
     public ResponseVO<AlarmEventVO> confirm(@PathVariable Long id,
@@ -102,9 +132,14 @@ public class AlarmController {
                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.confirm(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細娲惧彂鎶ヨ銆?
+     * 新增dispatch或触发dispatch相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/dispatch}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/dispatch")
     public ResponseVO<AlarmEventVO> dispatch(@PathVariable Long id,
@@ -115,9 +150,14 @@ public class AlarmController {
                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.dispatch(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍙嶉鎶ヨ澶勭悊缁撴灉銆?
+     * 新增feedback或触发feedback相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/feedback}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/feedback")
     public ResponseVO<AlarmEventVO> feedback(@PathVariable Long id,
@@ -128,9 +168,14 @@ public class AlarmController {
                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.feedback(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鍏抽棴鎶ヨ銆?
+     * 新增close或触发close相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/close}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/close")
     public ResponseVO<AlarmEventVO> close(@PathVariable Long id,
@@ -141,9 +186,14 @@ public class AlarmController {
                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.close(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細璇姤鍏抽棴鎶ヨ銆?
+     * 新增false close或触发false close相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/false-close}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/false-close")
     public ResponseVO<AlarmEventVO> falseClose(@PathVariable Long id,
@@ -154,9 +204,12 @@ public class AlarmController {
                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(alarmService.falseClose(tenantId, id, request, operator(userId, username, operator)));
     }
-
     /**
-     * 鎺ュ彛鐢ㄩ€旓細鎶ヨ涓€閿浆闅愭偅銆?
+     * 新增to hazard或触发to hazard相关动作。
+     * <p>HTTP POST {@code /api/alarms/{id}/to-hazard}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/to-hazard")
     public ResponseVO<RemoteHazardReportVO> toHazard(@PathVariable Long id,

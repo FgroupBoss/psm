@@ -18,7 +18,10 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 报警规则最小 CRUD（批次 4）。
+ * AlarmRule 模块 HTTP API。
+ * <p>实时告警事件与规则配置。</p>
+ * <p>基础路径：{@code /api/alarms/rules}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +31,12 @@ public class AlarmRuleController {
     private final AlarmRuleService alarmRuleService;
 
     /**
-     * 接口用途：查询列表数据。
+     * 查询列表。
+     * <p>HTTP GET {@code /api/alarms/rules}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param ruleType ruleType 参数
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
     public ResponseVO<List<AlarmRuleVO>> list(@RequestParam Long tenantId,
@@ -37,7 +45,12 @@ public class AlarmRuleController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询作业票详情。
+     * <p>HTTP GET {@code /api/alarms/rules/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<AlarmRuleVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -45,7 +58,10 @@ public class AlarmRuleController {
     }
 
     /**
-     * 接口用途：创建业务数据。
+     * 新建记录。
+     * <p>HTTP POST {@code /api/alarms/rules}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
     public ResponseVO<AlarmRuleVO> create(@Valid @RequestBody AlarmRuleSaveRequest request) {
@@ -53,7 +69,11 @@ public class AlarmRuleController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/alarms/rules/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
     public ResponseVO<AlarmRuleVO> update(@PathVariable Long id, @Valid @RequestBody AlarmRuleSaveRequest request) {

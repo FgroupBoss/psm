@@ -39,7 +39,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * IAM 后台管理接口。
+ * IamAdmin 模块 HTTP API。
+ * <p>基础路径：{@code /api/iam}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +51,12 @@ public class IamAdminController {
     private final IamAdminService service;
 
     /**
-     * 接口用途：分页查询租户。
+     * 查询tenants。
+     * <p>HTTP GET {@code /api/iam/tenants}</p>
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/tenants")
     public ResponseVO<PageResult<TenantVO>> tenants(@RequestParam(required = false) String keyword,
@@ -59,7 +66,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建租户。
+     * 新增tenants或触发tenants相关动作。
+     * <p>HTTP POST {@code /api/iam/tenants}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/tenants")
     public ResponseVO<TenantVO> createTenant(@Valid @RequestBody TenantRequest request,
@@ -70,7 +80,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新租户。
+     * 更新tenants。
+     * <p>HTTP PUT {@code /api/iam/tenants/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/tenants/{id}")
     public ResponseVO<TenantVO> updateTenant(@PathVariable Long id,
@@ -82,7 +96,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：调整租户状态。
+     * 更新status。
+     * <p>HTTP PUT {@code /api/iam/tenants/{id}/status}</p>
+     * @param id 资源主键 ID
+     * @param status 业务状态筛选
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/tenants/{id}/status")
     public ResponseVO<Void> updateTenantStatus(@PathVariable Long id,
@@ -95,7 +113,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：查询组织树。
+     * 查询tree。
+     * <p>HTTP GET {@code /api/iam/orgs/tree}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/orgs/tree")
     public ResponseVO<List<OrgTreeVO>> orgTree(@RequestParam Long tenantId) {
@@ -103,7 +125,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建组织。
+     * 新增orgs或触发orgs相关动作。
+     * <p>HTTP POST {@code /api/iam/orgs}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/orgs")
     public ResponseVO<OrgTreeVO> createOrg(@Valid @RequestBody OrgRequest request,
@@ -114,7 +139,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新组织。
+     * 更新orgs。
+     * <p>HTTP PUT {@code /api/iam/orgs/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/orgs/{id}")
     public ResponseVO<OrgTreeVO> updateOrg(@PathVariable Long id,
@@ -126,7 +155,12 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：删除组织。
+     * 删除orgs。
+     * <p>HTTP DELETE {@code /api/iam/orgs/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/orgs/{id}")
     public ResponseVO<Void> deleteOrg(@PathVariable Long id,
@@ -139,7 +173,14 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分页查询岗位。
+     * 查询posts。
+     * <p>HTTP GET {@code /api/iam/posts}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/posts")
     public ResponseVO<PageResult<PostVO>> posts(@RequestParam Long tenantId,
@@ -150,7 +191,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建岗位。
+     * 新增posts或触发posts相关动作。
+     * <p>HTTP POST {@code /api/iam/posts}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/posts")
     public ResponseVO<PostVO> createPost(@Valid @RequestBody PostRequest request,
@@ -161,7 +205,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新岗位。
+     * 更新posts。
+     * <p>HTTP PUT {@code /api/iam/posts/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/posts/{id}")
     public ResponseVO<PostVO> updatePost(@PathVariable Long id,
@@ -173,7 +221,12 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：删除岗位。
+     * 删除posts。
+     * <p>HTTP DELETE {@code /api/iam/posts/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/posts/{id}")
     public ResponseVO<Void> deletePost(@PathVariable Long id,
@@ -186,7 +239,14 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分页查询用户。
+     * 查询users。
+     * <p>HTTP GET {@code /api/iam/users}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users")
     public ResponseVO<PageResult<IamUserVO>> users(@RequestParam Long tenantId,
@@ -197,7 +257,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建用户。
+     * 新增users或触发users相关动作。
+     * <p>HTTP POST {@code /api/iam/users}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/users")
     public ResponseVO<IamUserVO> createUser(@Valid @RequestBody IamUserRequest request,
@@ -208,7 +271,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新用户。
+     * 更新users。
+     * <p>HTTP PUT {@code /api/iam/users/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}")
     public ResponseVO<IamUserVO> updateUser(@PathVariable Long id,
@@ -220,7 +287,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：调整用户状态。
+     * 更新status。
+     * <p>HTTP PUT {@code /api/iam/users/{id}/status}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}/status")
     public ResponseVO<Void> updateUserStatus(@PathVariable Long id,
@@ -233,7 +304,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分配用户角色。
+     * 更新roles。
+     * <p>HTTP PUT {@code /api/iam/users/{id}/roles}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}/roles")
     public ResponseVO<Void> assignUserRoles(@PathVariable Long id,
@@ -246,7 +321,12 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：查询用户权限集合。
+     * 查询permissions。
+     * <p>HTTP GET {@code /api/iam/users/{id}/permissions}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{id}/permissions")
     public ResponseVO<UserPermissionSummaryVO> userPermissions(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -254,7 +334,9 @@ public class IamAdminController {
     }
 
     /**
-     * 当前登录用户权限摘要；网关透传认证用户 ID 与用户名。
+     * 查询permissions。
+     * <p>HTTP GET {@code /api/iam/users/me/permissions}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/me/permissions")
     public ResponseVO<UserPermissionSummaryVO> myPermissions(
@@ -270,7 +352,14 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分页查询角色。
+     * 查询roles。
+     * <p>HTTP GET {@code /api/iam/roles}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/roles")
     public ResponseVO<PageResult<RoleVO>> roles(@RequestParam Long tenantId,
@@ -281,7 +370,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建角色。
+     * 新增roles或触发roles相关动作。
+     * <p>HTTP POST {@code /api/iam/roles}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/roles")
     public ResponseVO<RoleVO> createRole(@Valid @RequestBody RoleRequest request,
@@ -292,7 +384,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新角色。
+     * 更新roles。
+     * <p>HTTP PUT {@code /api/iam/roles/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}")
     public ResponseVO<RoleVO> updateRole(@PathVariable Long id,
@@ -304,7 +400,12 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：删除角色。
+     * 删除roles。
+     * <p>HTTP DELETE {@code /api/iam/roles/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/roles/{id}")
     public ResponseVO<Void> deleteRole(@PathVariable Long id,
@@ -317,7 +418,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分配角色权限。
+     * 更新permissions。
+     * <p>HTTP PUT {@code /api/iam/roles/{id}/permissions}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}/permissions")
     public ResponseVO<Void> assignRolePermissions(@PathVariable Long id,
@@ -330,7 +435,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：分配角色数据范围。
+     * 更新data scopes。
+     * <p>HTTP PUT {@code /api/iam/roles/{id}/data-scopes}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}/data-scopes")
     public ResponseVO<Void> assignDataScope(@PathVariable Long id,
@@ -343,7 +452,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：查询菜单树。
+     * 查询tree。
+     * <p>HTTP GET {@code /api/iam/menus/tree}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/menus/tree")
     public ResponseVO<List<MenuTreeVO>> menuTree(@RequestParam(defaultValue = "0") Long tenantId) {
@@ -351,7 +464,10 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：创建菜单资源。
+     * 新增menus或触发menus相关动作。
+     * <p>HTTP POST {@code /api/iam/menus}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/menus")
     public ResponseVO<MenuTreeVO> createMenu(@Valid @RequestBody MenuResourceRequest request,
@@ -362,7 +478,11 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：更新菜单资源。
+     * 更新menus。
+     * <p>HTTP PUT {@code /api/iam/menus/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/menus/{id}")
     public ResponseVO<MenuTreeVO> updateMenu(@PathVariable Long id,
@@ -374,7 +494,12 @@ public class IamAdminController {
     }
 
     /**
-     * 接口用途：删除菜单资源。
+     * 删除menus。
+     * <p>HTTP DELETE {@code /api/iam/menus/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/menus/{id}")
     public ResponseVO<Void> deleteMenu(@PathVariable Long id,

@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * 消息中心：站内信发送与收件箱。
+ * Notification 模块 HTTP API。
+ * <p>基础路径：{@code /api/notifications}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +30,9 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     /**
-     * 接口用途：查询服务健康状态。
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/notifications/health}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/health")
     public ResponseVO<NotificationHealthVO> health() {
@@ -36,7 +40,10 @@ public class NotificationController {
     }
 
     /**
-     * 接口用途：发送站内信（业务/内部调用，支持 requestId 幂等）。
+     * 新增send或触发send相关动作。
+     * <p>HTTP POST {@code /api/notifications/send}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/send")
     public ResponseVO<NotificationMessageVO> send(@Valid @RequestBody NotificationSendRequest request) {
@@ -44,7 +51,15 @@ public class NotificationController {
     }
 
     /**
-     * 接口用途：分页查询用户收件箱。
+     * 查询inbox。
+     * <p>HTTP GET {@code /api/notifications/inbox}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param read read 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/inbox")
     public ResponseVO<PageResult<NotificationMessageVO>> inbox(@RequestParam Long tenantId,
@@ -56,7 +71,13 @@ public class NotificationController {
     }
 
     /**
-     * 接口用途：查询消息详情。
+     * 查询作业票详情。
+     * <p>HTTP GET {@code /api/notifications/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<NotificationMessageVO> detail(@PathVariable Long id,
@@ -66,7 +87,13 @@ public class NotificationController {
     }
 
     /**
-     * 接口用途：标记单条消息已读。
+     * 新增read或触发read相关动作。
+     * <p>HTTP POST {@code /api/notifications/{id}/read}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/read")
     public ResponseVO<Void> markRead(@PathVariable Long id,
@@ -77,7 +104,12 @@ public class NotificationController {
     }
 
     /**
-     * 接口用途：标记全部消息已读。
+     * 新增read all或触发read all相关动作。
+     * <p>HTTP POST {@code /api/notifications/read-all}</p>
+     * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param userId 当前操作人用户 ID（请求头透传）
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/read-all")
     public ResponseVO<Integer> markAllRead(@RequestParam Long tenantId,

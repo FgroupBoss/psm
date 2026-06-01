@@ -24,7 +24,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 主数据管理接口。
+ * MasterData 模块 HTTP API。
+ * <p>基础路径：{@code /api/master-data}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +36,11 @@ public class MasterDataController {
     private final MasterDataService service;
 
     /**
-     * 接口用途：创建业务数据。
+     * 新建记录。
+     * <p>HTTP POST {@code /api/master-data/{type}}</p>
+     * @param type type 参数
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type}")
     public ResponseVO<MasterDataRecordVO> create(@PathVariable String type,
@@ -46,7 +52,12 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/master-data/{type}/{id}}</p>
+     * @param type type 参数
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{type}/{id}")
     public ResponseVO<MasterDataRecordVO> update(@PathVariable String type,
@@ -59,7 +70,13 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增disable或触发disable相关动作。
+     * <p>HTTP POST {@code /api/master-data/{type}/{id}/disable}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type}/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable String type,
@@ -73,7 +90,13 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：删除业务数据。
+     * 删除记录。
+     * <p>HTTP DELETE {@code /api/master-data/{type}/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{type}/{id}")
     public ResponseVO<Void> delete(@PathVariable String type,
@@ -87,7 +110,13 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/master-data/{type}/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}/{id}")
     public ResponseVO<MasterDataRecordVO> get(@PathVariable String type,
@@ -97,7 +126,15 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/master-data/{type}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}")
     public ResponseVO<PageResult<MasterDataRecordVO>> page(@PathVariable String type,
@@ -109,7 +146,12 @@ public class MasterDataController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 查询tree。
+     * <p>HTTP GET {@code /api/master-data/{type}/tree}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}/tree")
     public ResponseVO<List<MasterDataRecordVO>> tree(@PathVariable String type,

@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * 机械完整性接口。
+ * MechanicalIntegrity 模块 HTTP API。
+ * <p>基础路径：{@code /api/mechanical-integrity}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +35,16 @@ public class MechanicalIntegrityController {
 
     private final MechanicalIntegrityService mechanicalIntegrityService;
 
+    /**
+     * 查询equipment。
+     * <p>HTTP GET {@code /api/mechanical-integrity/equipment}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/equipment")
     public ResponseVO<PageResult<MiEquipmentVO>> pageEquipment(@RequestParam Long tenantId,
                                                                @RequestParam(required = false) String keyword,
@@ -41,12 +53,25 @@ public class MechanicalIntegrityController {
         return ResponseVO.success(mechanicalIntegrityService.pageEquipment(tenantId, keyword, pageNo, pageSize));
     }
 
+    /**
+     * 新增equipment或触发equipment相关动作。
+     * <p>HTTP POST {@code /api/mechanical-integrity/equipment}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/equipment")
     public ResponseVO<MiEquipmentVO> createEquipment(@Valid @RequestBody MiEquipmentRequest request,
                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(mechanicalIntegrityService.createEquipment(request, operator));
     }
 
+    /**
+     * 更新equipment。
+     * <p>HTTP PUT {@code /api/mechanical-integrity/equipment/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PutMapping("/equipment/{id}")
     public ResponseVO<MiEquipmentVO> updateEquipment(@PathVariable Long id,
                                                      @Valid @RequestBody MiEquipmentRequest request,
@@ -54,6 +79,16 @@ public class MechanicalIntegrityController {
         return ResponseVO.success(mechanicalIntegrityService.updateEquipment(id, request, operator));
     }
 
+    /**
+     * 查询inspection plans。
+     * <p>HTTP GET {@code /api/mechanical-integrity/inspection-plans}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param equipmentId equipment ID
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/inspection-plans")
     public ResponseVO<PageResult<MiInspectionPlanVO>> pageInspectionPlans(@RequestParam Long tenantId,
                                                                           @RequestParam(required = false) Long equipmentId,
@@ -62,12 +97,29 @@ public class MechanicalIntegrityController {
         return ResponseVO.success(mechanicalIntegrityService.pageInspectionPlans(tenantId, equipmentId, pageNo, pageSize));
     }
 
+    /**
+     * 新增inspection plans或触发inspection plans相关动作。
+     * <p>HTTP POST {@code /api/mechanical-integrity/inspection-plans}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/inspection-plans")
     public ResponseVO<MiInspectionPlanVO> createInspectionPlan(@Valid @RequestBody MiInspectionPlanRequest request,
                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(mechanicalIntegrityService.createInspectionPlan(request, operator));
     }
 
+    /**
+     * 查询defects。
+     * <p>HTTP GET {@code /api/mechanical-integrity/defects}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param equipmentId equipment ID
+     * @param status 业务状态筛选
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/defects")
     public ResponseVO<PageResult<MiDefectVO>> pageDefects(@RequestParam Long tenantId,
                                                         @RequestParam(required = false) Long equipmentId,
@@ -77,12 +129,25 @@ public class MechanicalIntegrityController {
         return ResponseVO.success(mechanicalIntegrityService.pageDefects(tenantId, equipmentId, status, pageNo, pageSize));
     }
 
+    /**
+     * 新增defects或触发defects相关动作。
+     * <p>HTTP POST {@code /api/mechanical-integrity/defects}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/defects")
     public ResponseVO<MiDefectVO> createDefect(@Valid @RequestBody MiDefectRequest request,
                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
         return ResponseVO.success(mechanicalIntegrityService.createDefect(request, operator));
     }
 
+    /**
+     * 新增close或触发close相关动作。
+     * <p>HTTP POST {@code /api/mechanical-integrity/defects/{id}/close}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/defects/{id}/close")
     public ResponseVO<MiDefectVO> closeDefect(@PathVariable Long id,
                                               @Valid @RequestBody MiDefectCloseRequest request,

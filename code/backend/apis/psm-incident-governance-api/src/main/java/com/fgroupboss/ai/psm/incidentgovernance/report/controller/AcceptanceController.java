@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * M08 UAT 验收用例与执行记录接口。
+ * Acceptance 模块 HTTP API。
+ * <p>基础路径：{@code /api/acceptance}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +30,15 @@ public class AcceptanceController {
     private final ReportService reportService;
 
     /**
-     * 接口用途：分页查询验收用例。
+     * 查询test cases。
+     * <p>HTTP GET {@code /api/acceptance/test-cases}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param module module 参数
+     * @param status 业务状态筛选
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/test-cases")
     public ResponseVO<PageResult<AcceptanceTestCaseVO>> pageTestCases(@RequestParam Long tenantId,
@@ -40,7 +50,10 @@ public class AcceptanceController {
     }
 
     /**
-     * 接口用途：创建验收用例。
+     * 新增test cases或触发test cases相关动作。
+     * <p>HTTP POST {@code /api/acceptance/test-cases}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/test-cases")
     public ResponseVO<AcceptanceTestCaseVO> createTestCase(@Valid @RequestBody AcceptanceTestCaseRequest request) {
@@ -48,7 +61,14 @@ public class AcceptanceController {
     }
 
     /**
-     * 接口用途：分页查询验收执行记录。
+     * 查询test runs。
+     * <p>HTTP GET {@code /api/acceptance/test-runs}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param caseId case ID
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/test-runs")
     public ResponseVO<PageResult<AcceptanceTestRunVO>> pageTestRuns(@RequestParam Long tenantId,
@@ -59,7 +79,10 @@ public class AcceptanceController {
     }
 
     /**
-     * 接口用途：创建验收执行记录。
+     * 新增test runs或触发test runs相关动作。
+     * <p>HTTP POST {@code /api/acceptance/test-runs}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/test-runs")
     public ResponseVO<AcceptanceTestRunVO> createTestRun(@Valid @RequestBody AcceptanceTestRunRequest request) {

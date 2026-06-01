@@ -25,9 +25,10 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * Authentication API endpoints for local account and SSO workflows.
- *
- * <p>All user and provider responses are view objects that omit stored credentials.</p>
+ * 认证与会话接口。
+ * <p>本地注册登录、令牌刷新、SSO 与当前用户信息。</p>
+ * <p>基础路径：{@code /auth}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequestMapping("/auth")
@@ -36,18 +37,22 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /** Creates a local tenant user account. */
     /**
-     * 接口用途：注册本地账号。
+     * 注册本地账号。
+     * <p>HTTP POST {@code /auth/register}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/register")
     public ResponseVO<AuthUserVO> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseVO.success(authService.register(request));
     }
 
-    /** Authenticates a local account and returns a new token session. */
     /**
-     * 接口用途：完成账号登录并签发令牌。
+     * 账号登录并签发令牌。
+     * <p>HTTP POST {@code /auth/login}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/login")
     public ResponseVO<AuthTokenResponse> login(@Valid @RequestBody LoginRequest request,
@@ -56,9 +61,10 @@ public class AuthController {
                 servletRequest.getHeader("User-Agent")));
     }
 
-    /** Revokes the active token session. */
     /**
-     * 接口用途：注销当前令牌会话。
+     * 注销当前会话。
+     * <p>HTTP POST {@code /auth/logout}</p>
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/logout")
     public ResponseVO<Void> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
@@ -66,36 +72,47 @@ public class AuthController {
         return ResponseVO.success();
     }
 
-    /** Replaces a valid refresh-token session with a new token session. */
     /**
-     * 接口用途：刷新令牌会话。
+     * 刷新访问令牌。
+     * <p>HTTP POST {@code /auth/token/refresh}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/token/refresh")
     public ResponseVO<AuthTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseVO.success(authService.refresh(request));
     }
 
-    /** Returns the authenticated user without stored credentials. */
     /**
-     * 接口用途：查询当前登录用户信息。
+     * 查询me。
+     * <p>HTTP GET {@code /auth/me}</p>
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/me")
     public ResponseVO<AuthUserVO> me(@RequestHeader(value = "Authorization", required = false) String authorization) {
         return ResponseVO.success(authService.me(authorization));
     }
 
-    /** Lists tenant identity providers without provider secrets. */
     /**
-     * 接口用途：查询租户可用身份提供方。
+     * 查询providers。
+     * <p>HTTP GET {@code /auth/sso/providers}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/sso/providers")
     public ResponseVO<List<IdentityProviderVO>> providers(@RequestParam Long tenantId) {
         return ResponseVO.success(authService.providers(tenantId));
     }
 
-    /** Creates the state value and redirect URL for an SSO login. */
     /**
-     * 接口用途：生成单点登录跳转地址。
+     * 查询login。
+     * <p>HTTP GET {@code /auth/sso/{providerCode}/login}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param providerCode providerCode 参数
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param redirectAfterLogin redirectAfterLogin 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/sso/{providerCode}/login")
     public ResponseVO<SsoLoginResponse> ssoLogin(@PathVariable String providerCode,
@@ -104,9 +121,12 @@ public class AuthController {
         return ResponseVO.success(authService.startSso(tenantId, providerCode, redirectAfterLogin));
     }
 
-    /** Handles SSO callbacks supplied as a JSON body. */
     /**
-     * 接口用途：处理单点登录回调。
+     * 新增callback或触发callback相关动作。
+     * <p>HTTP POST {@code /auth/sso/{providerCode}/callback}</p>
+     * @param providerCode providerCode 参数
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/sso/{providerCode}/callback")
     public ResponseVO<AuthTokenResponse> ssoCallback(@PathVariable String providerCode,
@@ -116,9 +136,17 @@ public class AuthController {
                 servletRequest.getHeader("User-Agent")));
     }
 
-    /** Handles redirect-style SSO callbacks supplied as query parameters. */
     /**
-     * 接口用途：处理重定向形式的单点登录回调。
+     * 查询callback。
+     * <p>HTTP GET {@code /auth/sso/{providerCode}/callback}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param providerCode providerCode 参数
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param state state 参数
+     * @param code code 参数
+     * @param externalUserId externalUser ID
+     * @param externalUsername externalUsername 参数
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/sso/{providerCode}/callback")
     public ResponseVO<AuthTokenResponse> ssoCallbackGet(@PathVariable String providerCode,

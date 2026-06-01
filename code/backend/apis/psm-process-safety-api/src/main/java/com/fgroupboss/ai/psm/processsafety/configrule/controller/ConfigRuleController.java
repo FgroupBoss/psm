@@ -26,7 +26,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 系统配置与规则管理接口。
+ * ConfigRule 模块 HTTP API。
+ * <p>基础路径：{@code /api/config}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +38,11 @@ public class ConfigRuleController {
     private final ConfigRuleService service;
 
     /**
-     * 接口用途：创建业务数据。
+     * 新建记录。
+     * <p>HTTP POST {@code /api/config/{type:dictionaries|forms|workflows|rules}}</p>
+     * @param type type 参数
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type:dictionaries|forms|workflows|rules}")
     public ResponseVO<ConfigItemVO> create(@PathVariable String type,
@@ -48,7 +54,10 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：创建通知配置。
+     * 新增templates或触发templates相关动作。
+     * <p>HTTP POST {@code /api/config/notifications/templates}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/notifications/templates")
     public ResponseVO<ConfigItemVO> createNotification(@Valid @RequestBody ConfigItemRequest request,
@@ -59,7 +68,10 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：创建附件策略配置。
+     * 新增policies或触发policies相关动作。
+     * <p>HTTP POST {@code /api/config/attachments/policies}</p>
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/attachments/policies")
     public ResponseVO<ConfigItemVO> createAttachmentPolicy(@Valid @RequestBody ConfigItemRequest request,
@@ -70,7 +82,12 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：更新业务数据。
+     * 更新记录。
+     * <p>HTTP PUT {@code /api/config/{type:dictionaries|forms|workflows|rules}/{id}}</p>
+     * @param type type 参数
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{type:dictionaries|forms|workflows|rules}/{id}")
     public ResponseVO<ConfigItemVO> update(@PathVariable String type,
@@ -83,7 +100,11 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：更新通知配置。
+     * 更新templates。
+     * <p>HTTP PUT {@code /api/config/notifications/templates/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/notifications/templates/{id}")
     public ResponseVO<ConfigItemVO> updateNotification(@PathVariable Long id,
@@ -95,7 +116,11 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：更新附件策略配置。
+     * 更新policies。
+     * <p>HTTP PUT {@code /api/config/attachments/policies/{id}}</p>
+     * @param id 资源主键 ID
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/attachments/policies/{id}")
     public ResponseVO<ConfigItemVO> updateAttachmentPolicy(@PathVariable Long id,
@@ -107,7 +132,17 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：分页查询业务数据。
+     * 分页查询列表。
+     * <p>HTTP GET {@code /api/config/{type:dictionaries|forms|workflows|rules}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param type type 参数
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param bizScene bizScene 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type:dictionaries|forms|workflows|rules}")
     public ResponseVO<PageResult<ConfigItemVO>> page(@PathVariable String type,
@@ -121,7 +156,16 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 查询templates。
+     * <p>HTTP GET {@code /api/config/notifications/templates}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param bizScene bizScene 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/notifications/templates")
     public ResponseVO<PageResult<ConfigItemVO>> pageNotifications(@RequestParam Long tenantId,
@@ -134,7 +178,16 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 查询policies。
+     * <p>HTTP GET {@code /api/config/attachments/policies}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param keyword 模糊搜索关键字
+     * @param status 业务状态筛选
+     * @param bizScene bizScene 参数
+     * @param pageNo 页码，从 1 开始
+     * @param pageSize 每页条数，默认 20
+     * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/attachments/policies")
     public ResponseVO<PageResult<ConfigItemVO>> pageAttachmentPolicies(@RequestParam Long tenantId,
@@ -147,7 +200,12 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：查询详情。
+     * 查询单条详情。
+     * <p>HTTP GET {@code /api/config/items/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/items/{id}")
     public ResponseVO<ConfigItemVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
@@ -155,7 +213,12 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：发布业务数据。
+     * 新增publish或触发publish相关动作。
+     * <p>HTTP POST {@code /api/config/items/{id}/publish}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/items/{id}/publish")
     public ResponseVO<Void> publish(@PathVariable Long id,
@@ -168,7 +231,12 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增disable或触发disable相关动作。
+     * <p>HTTP POST {@code /api/config/items/{id}/disable}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/items/{id}/disable")
     public ResponseVO<Void> disable(@PathVariable Long id,
@@ -181,7 +249,12 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：删除业务数据。
+     * 删除记录。
+     * <p>HTTP DELETE {@code /api/config/items/{id}}</p>
+     * <p>所有查询与变更均按租户隔离。</p>
+     * @param id 资源主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/items/{id}")
     public ResponseVO<Void> delete(@PathVariable Long id,
@@ -194,7 +267,10 @@ public class ConfigRuleController {
     }
 
     /**
-     * 接口用途：处理接口请求。
+     * 新增evaluate或触发evaluate相关动作。
+     * <p>HTTP POST {@code /api/config/rules/evaluate}</p>
+     * @param request 请求体
+     * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/rules/evaluate")
     public ResponseVO<List<RuleEvaluationResultVO>> evaluate(@Valid @RequestBody RuleEvaluationRequest request) {
