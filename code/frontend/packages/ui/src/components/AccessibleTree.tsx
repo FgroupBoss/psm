@@ -1,6 +1,7 @@
 import React from 'react';
 import { useIdPrefix } from '../hooks/useIdPrefix';
 import { useTreeNavigation } from '../hooks/useTreeNavigation';
+import { TableEmptyState } from './TableEmptyState';
 
 export interface TreeGridColumn<T> {
   key: string;
@@ -30,6 +31,8 @@ export interface AccessibleTreeProps<T> {
   /** 可见深度超过该值时启用横向滚动 */
   deepScrollThreshold?: number;
   emptyMessage?: string;
+  hasActiveFilters?: boolean;
+  onClearFilters?: () => void;
   /** 拖拽排序（需同时提供 onReorder） */
   draggable?: boolean;
   onReorder?: (payload: {
@@ -62,6 +65,8 @@ export function AccessibleTree<T>(props: AccessibleTreeProps<T>) {
     indentPx = 20,
     deepScrollThreshold = 3,
     emptyMessage = '暂无数据',
+    hasActiveFilters,
+    onClearFilters,
     draggable = false,
     onReorder
   } = props;
@@ -185,9 +190,11 @@ export function AccessibleTree<T>(props: AccessibleTreeProps<T>) {
 
   if (nodes.length === 0) {
     return (
-      <p className="psm-tree-empty" role="status">
-        {emptyMessage}
-      </p>
+      <TableEmptyState
+        message={emptyMessage}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={onClearFilters}
+      />
     );
   }
 

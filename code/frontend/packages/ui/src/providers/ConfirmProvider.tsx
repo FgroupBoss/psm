@@ -1,4 +1,5 @@
 import React from 'react';
+import { setConfirmImplementation } from '../confirmBridge';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
 export interface ConfirmOptions {
@@ -29,6 +30,11 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       setPending({ ...options, resolve });
     });
   }, []);
+
+  React.useEffect(() => {
+    setConfirmImplementation(confirm);
+    return () => setConfirmImplementation(null);
+  }, [confirm]);
 
   function close(result: boolean) {
     pending?.resolve(result);

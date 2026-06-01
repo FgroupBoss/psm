@@ -1006,6 +1006,11 @@ tbody tr:hover {
   background: var(--theme-table-hover);
 }
 
+/* 列表页统一由 psm-data-table（@psm/ui/a11y.css）提供斑马纹、固定列与行高 */
+.content-panel .psm-data-table tbody td {
+  line-height: 1.4;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

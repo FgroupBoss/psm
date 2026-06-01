@@ -68,7 +68,7 @@ import {
   stringifyJson
 } from './ui-helpers';
 import { AuthBootScreen, LoginView } from './login-view';
-import { AppProviders, ThemeProvider, ThemeToggle } from '@psm/ui';
+import { AppProviders, TableEmptyRow, TableSkeleton, ThemeProvider, ThemeToggle } from '@psm/ui';
 import './styles.css';
 
 const CONFIG_TYPES: Array<{ path: ConfigItemPath; label: string }> = [
@@ -443,10 +443,11 @@ function ConfigRulePanel({ tenantId }: { tenantId: number }) {
 
         {message && <div className="success">{message}</div>}
         {error && <div className="error">{error}</div>}
-        {loading && <div className="empty">正在加载...</div>}
-        {!loading && (
-          <>
-            <table>
+        <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
               <thead>
                 <tr>
                   <th>编码</th>
@@ -497,21 +498,29 @@ function ConfigRulePanel({ tenantId }: { tenantId: number }) {
                   </tr>
                 ))}
                 {records.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="empty">暂无配置项</td>
-                  </tr>
+                  <TableEmptyRow
+                    colSpan={7}
+                    message="暂无配置项"
+                    hasActiveFilters={Boolean(keyword || status || bizScene)}
+                    onClearFilters={() => {
+                      setKeyword('');
+                      setStatus('');
+                      setBizScene('');
+                      setPageNo(1);
+                    }}
+                  />
                 )}
               </tbody>
             </table>
-            <div className="pager">
+          )}
+          </div>
+          <div className="pager">
               <span>共 {total} 条，第 {pageNo} / {totalPages} 页</span>
               <div>
                 <button className="secondary" disabled={pageNo <= 1} onClick={() => setPageNo(pageNo - 1)}>上一页</button>
                 <button className="secondary" disabled={pageNo >= totalPages} onClick={() => setPageNo(pageNo + 1)}>下一页</button>
               </div>
             </div>
-          </>
-        )}
 
         {editing && (
           <ConfigItemDialog
@@ -847,10 +856,12 @@ function AlarmsPanel({ tenantId }: { tenantId: number }) {
           查询
         </button>
       </div>
-      {loading && <div className="empty">加载中…</div>}
-      {!loading && page && (
-        <div className="table-wrap">
-          <table>
+      <div className="table-wrap">
+        <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={8} hasActions />
+          ) : page ? (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>编号</th>
@@ -865,30 +876,43 @@ function AlarmsPanel({ tenantId }: { tenantId: number }) {
               </tr>
             </thead>
             <tbody>
-              {page.records.map((item) => (
-                <tr key={item.id} className={selectedId === item.id ? 'selected-row' : ''}>
-                  <td>{item.alarmNo}</td>
-                  <td>{item.alarmLevel}</td>
-                  <td>
-                    <StatusTag status={item.status} />
-                  </td>
-                  <td>{item.title}</td>
-                  <td>{item.sourceType}</td>
-                  <td>{item.occurrenceCount ?? 1}</td>
-                  <td>{item.hazardId ?? '-'}</td>
-                  <td>{formatTime(item.lastOccurredAt)}</td>
-                  <td>
-                    <button type="button" className="linkish" onClick={() => loadDetail(item.id)}>
-                      详情
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {page.records.length === 0 ? (
+                <TableEmptyRow
+                  colSpan={9}
+                  message="暂无报警数据"
+                  hasActiveFilters={Boolean(keyword || status || alarmLevel)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setStatus('');
+                    setAlarmLevel('');
+                  }}
+                />
+              ) : (
+                page.records.map((item) => (
+                  <tr key={item.id} className={selectedId === item.id ? 'selected-row' : ''}>
+                    <td>{item.alarmNo}</td>
+                    <td>{item.alarmLevel}</td>
+                    <td>
+                      <StatusTag status={item.status} />
+                    </td>
+                    <td>{item.title}</td>
+                    <td>{item.sourceType}</td>
+                    <td>{item.occurrenceCount ?? 1}</td>
+                    <td>{item.hazardId ?? '-'}</td>
+                    <td>{formatTime(item.lastOccurredAt)}</td>
+                    <td>
+                      <button type="button" className="linkish" onClick={() => loadDetail(item.id)}>
+                        详情
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-          {page.records.length === 0 && <div className="empty">暂无报警数据</div>}
+          ) : null}
         </div>
-      )}
+      </div>
 
       {detail && (
         <div className="detail-panel">
@@ -1059,39 +1083,45 @@ function AuditPanel({ tenantId }: { tenantId: number }) {
           刷新
         </button>
       </div>
-      {loading && <div className="empty">正在加载...</div>}
       {error && <div className="error">{error}</div>}
-      {!loading && !error && (
-        <table>
-          <thead>
-            <tr>
-              <th>操作时间</th>
-              <th>操作人</th>
-              <th>动作</th>
-              <th>对象类型</th>
-              <th>对象 ID</th>
-              <th>结果</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(page?.records || []).map((record) => (
-              <tr key={record.id}>
-                <td>{formatTime(record.operatedAt)}</td>
-                <td>{record.operatorName || '-'}</td>
-                <td>{record.action}</td>
-                <td>{record.bizType}</td>
-                <td>{record.bizId || '-'}</td>
-                <td><StatusTag status={record.result} /></td>
-              </tr>
-            ))}
-            {(!page || page.records.length === 0) && (
+      <div className="psm-table-scroll">
+        {loading ? (
+          <TableSkeleton rows={4} columns={6} />
+        ) : (
+          <table className="psm-data-table">
+            <thead>
               <tr>
-                <td colSpan={6} className="empty">暂无审计记录</td>
+                <th>操作时间</th>
+                <th>操作人</th>
+                <th>动作</th>
+                <th>对象类型</th>
+                <th>对象 ID</th>
+                <th>结果</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {(page?.records || []).map((record) => (
+                <tr key={record.id}>
+                  <td>{formatTime(record.operatedAt)}</td>
+                  <td>{record.operatorName || '-'}</td>
+                  <td>{record.action}</td>
+                  <td>{record.bizType}</td>
+                  <td>{record.bizId || '-'}</td>
+                  <td><StatusTag status={record.result} /></td>
+                </tr>
+              ))}
+              {(!page || page.records.length === 0) && (
+                <TableEmptyRow
+                  colSpan={6}
+                  message="暂无审计记录"
+                  hasActiveFilters={Boolean(bizTypePrefix)}
+                  onClearFilters={() => setBizTypePrefix('')}
+                />
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
     </section>
   );
 }

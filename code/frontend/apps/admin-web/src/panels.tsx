@@ -1,5 +1,5 @@
 import React from 'react';
-import { AccessibleTree } from '@psm/ui';
+import { AccessibleTree, TableEmptyRow, TableSkeleton } from '@psm/ui';
 import {
   approveContractorCompany,
   approveContractorWorker,
@@ -219,10 +219,11 @@ export function BaseDataLedgerPanel({ tenantId, view }: { tenantId: number; view
 
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
-        <>
-          <table>
+      <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>编码</th>
@@ -319,14 +320,21 @@ export function BaseDataLedgerPanel({ tenantId, view }: { tenantId: number; view
                 </tr>
               ))}
               {records.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="empty">
-                    暂无数据
-                  </td>
-                </tr>
+                <TableEmptyRow
+                  colSpan={8}
+                  message="暂无主数据"
+                  hasActiveFilters={Boolean(keyword || status)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setStatus('');
+                    setPageNo(1);
+                  }}
+                />
               )}
             </tbody>
           </table>
+          )}
+          </div>
           <div className="pager">
             <span>
               共 {total} 条，第 {pageNo} / {totalPages} 页
@@ -340,8 +348,6 @@ export function BaseDataLedgerPanel({ tenantId, view }: { tenantId: number; view
               </button>
             </div>
           </div>
-        </>
-      )}
 
       {editing && (
         <BaseDataFormDialog
@@ -590,8 +596,11 @@ export function OrgPanel({ tenantId }: { tenantId: number }) {
       </div>
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
+      {loading ? (
+        <div className="psm-table-scroll">
+          <TableSkeleton rows={4} columns={3} hasActions />
+        </div>
+      ) : (
         <AccessibleTree
           nodes={tree}
           getId={(node) => node.id}
@@ -800,10 +809,11 @@ export function UsersPanel({ tenantId }: { tenantId: number }) {
       </div>
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
-        <>
-          <table>
+      <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>用户名</th>
@@ -848,8 +858,21 @@ export function UsersPanel({ tenantId }: { tenantId: number }) {
                   </td>
                 </tr>
               ))}
+              {records.length === 0 && (
+                <TableEmptyRow
+                  colSpan={5}
+                  message="暂无用户"
+                  hasActiveFilters={Boolean(keyword)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setPageNo(1);
+                  }}
+                />
+              )}
             </tbody>
           </table>
+          )}
+          </div>
           <div className="pager">
             <span>
               共 {total} 条，第 {pageNo} / {totalPages} 页
@@ -863,8 +886,7 @@ export function UsersPanel({ tenantId }: { tenantId: number }) {
               </button>
             </div>
           </div>
-        </>
-      )}
+
       {editing && (
         <UserFormDialog
           tenantId={tenantId}
@@ -1063,10 +1085,11 @@ export function RolesPanel({ tenantId }: { tenantId: number }) {
       </div>
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
-        <>
-          <table>
+      <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>角色编码</th>
@@ -1101,8 +1124,21 @@ export function RolesPanel({ tenantId }: { tenantId: number }) {
                   </td>
                 </tr>
               ))}
+              {records.length === 0 && (
+                <TableEmptyRow
+                  colSpan={5}
+                  message="暂无角色"
+                  hasActiveFilters={Boolean(keyword)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setPageNo(1);
+                  }}
+                />
+              )}
             </tbody>
           </table>
+          )}
+          </div>
           <div className="pager">
             <span>
               共 {total} 条，第 {pageNo} / {totalPages} 页
@@ -1116,8 +1152,7 @@ export function RolesPanel({ tenantId }: { tenantId: number }) {
               </button>
             </div>
           </div>
-        </>
-      )}
+
       {editing && (
         <RoleFormDialog
           tenantId={tenantId}
@@ -1259,8 +1294,11 @@ export function MenusPanel({ tenantId }: { tenantId: number }) {
       </div>
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
+      {loading ? (
+        <div className="psm-table-scroll">
+          <TableSkeleton rows={4} columns={3} hasActions />
+        </div>
+      ) : (
         <AccessibleTree
           nodes={tree}
           getId={(node) => node.id}
@@ -1508,10 +1546,11 @@ export function ContractorCompaniesPanel({ tenantId }: { tenantId: number }) {
 
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
-        <>
-          <table>
+      <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>编码</th>
@@ -1575,14 +1614,21 @@ export function ContractorCompaniesPanel({ tenantId }: { tenantId: number }) {
                 </tr>
               ))}
               {records.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="empty">
-                    暂无数据
-                  </td>
-                </tr>
+                <TableEmptyRow
+                  colSpan={5}
+                  message="暂无承包商单位"
+                  hasActiveFilters={Boolean(keyword || status)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setStatus('');
+                    setPageNo(1);
+                  }}
+                />
               )}
             </tbody>
           </table>
+          )}
+          </div>
           <div className="pager">
             <span>
               共 {total} 条，第 {pageNo} / {totalPages} 页
@@ -1599,8 +1645,6 @@ export function ContractorCompaniesPanel({ tenantId }: { tenantId: number }) {
               下一页
             </button>
           </div>
-        </>
-      )}
 
       {editing && (
         <ContractorCompanyFormModal
@@ -1863,7 +1907,7 @@ function ContractorCompanyDetailModal({
                 新增资质
               </button>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>类型</th>
@@ -1899,15 +1943,9 @@ function ContractorCompanyDetailModal({
                     </td>
                   </tr>
                 ))}
-                {quals.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="empty">
-                      暂无资质
-                    </td>
-                  </tr>
-                )}
+                {quals.length === 0 && <TableEmptyRow colSpan={6} message="暂无资质" />}
               </tbody>
-            </table>
+            </table></div>
             {qualForm && (
               <ContractorQualificationForm
                 companyId={company.id}
@@ -2124,10 +2162,11 @@ export function ContractorWorkersPanel({ tenantId }: { tenantId: number }) {
 
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
-      {loading && <div className="empty">正在加载...</div>}
-      {!loading && (
-        <>
-          <table>
+      <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
             <thead>
               <tr>
                 <th>编码</th>
@@ -2159,14 +2198,22 @@ export function ContractorWorkersPanel({ tenantId }: { tenantId: number }) {
                 </tr>
               ))}
               {records.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="empty">
-                    暂无数据
-                  </td>
-                </tr>
+                <TableEmptyRow
+                  colSpan={7}
+                  message="暂无作业人员"
+                  hasActiveFilters={Boolean(keyword || companyId || accessStatus)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setCompanyId('');
+                    setAccessStatus('');
+                    setPageNo(1);
+                  }}
+                />
               )}
             </tbody>
           </table>
+          )}
+          </div>
           <div className="pager">
             <span>
               共 {total} 条，第 {pageNo} / {totalPages} 页
@@ -2183,8 +2230,6 @@ export function ContractorWorkersPanel({ tenantId }: { tenantId: number }) {
               下一页
             </button>
           </div>
-        </>
-      )}
 
       {editing && (
         <ContractorWorkerFormModal
@@ -2225,11 +2270,15 @@ function ContractorCompanyWorkersTab({ tenantId, companyId }: { tenantId: number
   }, [tenantId, companyId]);
 
   if (loading) {
-    return <div className="empty">正在加载人员...</div>;
+    return (
+      <div className="psm-table-scroll">
+        <TableSkeleton rows={4} columns={5} />
+      </div>
+    );
   }
 
   return (
-    <table>
+    <div className="psm-table-scroll"><table className="psm-data-table">
       <thead>
         <tr>
           <th>编码</th>
@@ -2249,15 +2298,9 @@ function ContractorCompanyWorkersTab({ tenantId, companyId }: { tenantId: number
             <td>{complianceLabel(record.trainingStatus)}</td>
           </tr>
         ))}
-        {records.length === 0 && (
-          <tr>
-            <td colSpan={5} className="empty">
-              暂无人员
-            </td>
-          </tr>
-        )}
+        {records.length === 0 && <TableEmptyRow colSpan={5} message="暂无人员" />}
       </tbody>
-    </table>
+    </table></div>
   );
 }
 
@@ -2508,7 +2551,7 @@ function ContractorWorkerDetailModal({
                 新增证书
               </button>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>类型</th>
@@ -2541,7 +2584,7 @@ function ContractorWorkerDetailModal({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             {certForm && (
               <WorkerCertificateInlineForm
                 workerId={worker.id}
@@ -2567,7 +2610,7 @@ function ContractorWorkerDetailModal({
                 新增培训
               </button>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>名称</th>
@@ -2586,7 +2629,7 @@ function ContractorWorkerDetailModal({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             {trainingForm && (
               <WorkerTrainingInlineForm
                 workerId={worker.id}
@@ -2622,7 +2665,7 @@ function ContractorWorkerDetailModal({
                 登记违章
               </button>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>时间</th>
@@ -2638,15 +2681,9 @@ function ContractorWorkerDetailModal({
                     <td>{item.severity || '-'}</td>
                   </tr>
                 ))}
-                {violations.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="empty">
-                      暂无违章记录
-                    </td>
-                  </tr>
-                )}
+                {violations.length === 0 && <TableEmptyRow colSpan={3} message="暂无违章记录" />}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
         {tab === 'check' && (
@@ -2964,7 +3001,11 @@ export function MajorHazardsPanel({ tenantId }: { tenantId: number }) {
       {error && <p className="error">{error}</p>}
 
       <div className="table-wrap">
-        <table>
+        <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={5} hasActions />
+          ) : (
+          <table className="psm-data-table">
           <thead>
             <tr>
               <th>编码</th>
@@ -2976,15 +3017,19 @@ export function MajorHazardsPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={6}>加载中...</td>
-              </tr>
-            ) : records.length === 0 ? (
-              <tr>
-                <td colSpan={6}>暂无数据</td>
-              </tr>
-            ) : (
+              {records.length === 0 ? (
+                <TableEmptyRow
+                  colSpan={6}
+                  message="暂无危险源"
+                  hasActiveFilters={Boolean(keyword || status || level)}
+                  onClearFilters={() => {
+                    setKeyword('');
+                    setStatus('');
+                    setLevel('');
+                    setPageNo(1);
+                  }}
+                />
+              ) : (
               records.map((record) => (
                 <tr key={record.id}>
                   <td>{record.hazardNo}</td>
@@ -3021,9 +3066,11 @@ export function MajorHazardsPanel({ tenantId }: { tenantId: number }) {
                   </td>
                 </tr>
               ))
-            )}
+              )}
           </tbody>
         </table>
+          )}
+        </div>
       </div>
 
       <div className="pager">
@@ -3465,7 +3512,7 @@ function MajorHazardDetailModal({
                 绑定点位
               </button>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>点位ID</th>
@@ -3476,9 +3523,7 @@ function MajorHazardDetailModal({
               </thead>
               <tbody>
                 {points.length === 0 ? (
-                  <tr>
-                    <td colSpan={4}>暂无绑定点位</td>
-                  </tr>
+                  <TableEmptyRow colSpan={4} message="暂无绑定点位" />
                 ) : (
                   points.map((point) => (
                     <tr key={point.id}>
@@ -3504,7 +3549,7 @@ function MajorHazardDetailModal({
                   ))
                 )}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 
@@ -3573,7 +3618,7 @@ function MajorHazardDetailModal({
                 </button>
               </div>
             </div>
-            <table>
+            <div className="psm-table-scroll"><table className="psm-data-table">
               <thead>
                 <tr>
                   <th>分类</th>
@@ -3584,9 +3629,7 @@ function MajorHazardDetailModal({
               </thead>
               <tbody>
                 {attachments.length === 0 ? (
-                  <tr>
-                    <td colSpan={4}>暂无附件</td>
-                  </tr>
+                  <TableEmptyRow colSpan={4} message="暂无附件" />
                 ) : (
                   attachments.map((item) => (
                     <tr key={item.id}>
@@ -3612,7 +3655,7 @@ function MajorHazardDetailModal({
                   ))
                 )}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 
@@ -3623,7 +3666,7 @@ function MajorHazardDetailModal({
                 <p>暂无关联报警。</p>
               </div>
             ) : (
-              <table>
+              <div className="psm-table-scroll"><table className="psm-data-table">
                 <thead>
                   <tr>
                     <th>编号</th>
@@ -3648,7 +3691,7 @@ function MajorHazardDetailModal({
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
             <p className="hint">完整处置请前往左侧「实时报警」菜单。</p>
           </div>
@@ -3658,7 +3701,7 @@ function MajorHazardDetailModal({
           <div>
             {permits.length === 0 && <div className="empty-state">暂无关联作业票</div>}
             {permits.length > 0 && (
-              <table className="data-table">
+              <div className="psm-table-scroll"><table className="psm-data-table">
                 <thead>
                   <tr>
                     <th>编号</th>
@@ -3679,7 +3722,7 @@ function MajorHazardDetailModal({
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
             <p className="hint">完整流程请前往「危险工作票 → 作业票列表」。</p>
           </div>

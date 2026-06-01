@@ -1,4 +1,5 @@
 import React from 'react';
+import { TableEmptyRow, TableSkeleton } from '@psm/ui';
 import {
   acceptWorkPermit,
   addWorkPermitGasTest,
@@ -344,39 +345,54 @@ export function WorkPermitsPanel({ tenantId }: { tenantId: number }) {
       </div>
       {error && <div className="error-banner">{error}</div>}
       {message && <div className="success-banner">{message}</div>}
-      {loading && <div className="empty">加载中...</div>}
-      {!loading && page && (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>编号</th>
-              <th>类型</th>
-              <th>状态</th>
-              <th>标题</th>
-              <th>更新时间</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {page.records.map((row) => (
-              <tr key={row.id} className={selectedId === row.id ? 'selected-row' : ''}>
-                <td>{row.permitNo}</td>
-                <td>{WORK_TYPE_LABELS[row.workType] || row.workType}</td>
-                <td>
-                  <StatusTag status={row.status} />
-                </td>
-                <td>{row.title || '-'}</td>
-                <td>{formatTime(row.updatedAt)}</td>
-                <td>
-                  <button type="button" className="linkish" onClick={() => openDetail(row.id)}>
-                    详情
-                  </button>
-                </td>
+      <div className="psm-table-scroll">
+        {loading ? (
+          <TableSkeleton rows={4} columns={5} hasActions />
+        ) : page ? (
+          <table className="psm-data-table">
+            <thead>
+              <tr>
+                <th>编号</th>
+                <th>类型</th>
+                <th>状态</th>
+                <th>标题</th>
+                <th>更新时间</th>
+                <th>操作</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {page.records.length === 0 ? (
+                <TableEmptyRow
+                  colSpan={6}
+                  message="暂无作业票"
+                  hasActiveFilters={Boolean(status || workType)}
+                  onClearFilters={() => {
+                    setStatus('');
+                    setWorkType('');
+                  }}
+                />
+              ) : (
+                page.records.map((row) => (
+                  <tr key={row.id} className={selectedId === row.id ? 'selected-row' : ''}>
+                    <td>{row.permitNo}</td>
+                    <td>{WORK_TYPE_LABELS[row.workType] || row.workType}</td>
+                    <td>
+                      <StatusTag status={row.status} />
+                    </td>
+                    <td>{row.title || '-'}</td>
+                    <td>{formatTime(row.updatedAt)}</td>
+                    <td className="actions">
+                      <button type="button" className="linkish" onClick={() => openDetail(row.id)}>
+                        详情
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        ) : null}
+      </div>
       {detail && selectedId && (
         <div className="detail-panel">
           <h3>

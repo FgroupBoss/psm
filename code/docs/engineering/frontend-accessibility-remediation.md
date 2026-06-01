@@ -46,6 +46,12 @@
 | 24 | 语言声明 | 3.1.1 页面语言 | `index.html` 保持 `lang="zh-CN"` | 已有 |
 | 25 | 树形导航键盘 | 2.1.1、4.1.2 | `role="tree"` + 方向键移动/展开收起；选中节点背景+轮廓；深度>3 横向滚动 | `AccessibleTree` |
 | 26 | 树拖拽排序 | 3.3.4 | 可选拖动手柄 + 占位线 + Esc 取消提示（`role="status"`） | `AccessibleTree` `draggable` |
+| 27 | 列表斑马纹/悬停 | 1.4.3 对比度 | 偶数行底色 + hover 高亮，`line-height: 1.4` | `psm-data-table` |
+| 28 | 固定列 | 1.4.10 | 多选列 `sticky left`、操作列 `sticky right` | `psm-data-table` |
+| 29 | 空状态插画 | 3.3.2 | `TableEmptyState` + 重置筛选按钮 | `TableEmptyState` |
+| 30 | 骨架屏 | 4.1.3 | 加载时 3~5 行 `TableSkeleton` 占位 | `TableSkeleton` |
+| 31 | 危险操作确认 | 3.3.4 | `showConfirm` 红色 alertdialog，替代 `window.confirm` | `confirmBridge` |
+| 32 | 操作按钮触达 | 2.5.5 | 行内按钮最小 44px，`focus-visible` 轮廓 | `TableRowActions` |
 
 ---
 
@@ -126,8 +132,10 @@ await run(async () => { /* 批量 API */ });
 |------|------|------|
 | P0 | `@psm/ui` 组件库 + `ContractorCompaniesPanel` 试点 | ✅ 已完成 |
 | P1 | `panels.tsx` 组织树/菜单树 → `AccessibleTree` | ✅ 已完成 |
-| P1 | `panels.tsx` 其余 Panel（IAM、主数据、作业人员） | 待办 |
-| P1 | `phase3-panels.tsx` `LedgerTable` → `DataTable` | 待办 |
+| P1 | 全站列表 `psm-data-table` 样式/骨架屏/固定列 | ✅ 已完成 |
+| P1 | `phase3-panels.tsx` `LedgerTable` → `DataTable` | ✅ 已完成 |
+| P1 | 全站列表空状态插画 + 重置筛选 | ✅ 已完成 |
+| P1 | `panels.tsx` 其余 Panel 迁移 `DataTable` | 待办（样式与空状态已全局生效） |
 | P2 | `work-permit-panel.tsx` 多步骤表单 | 待办 |
 | P2 | `login-view.tsx` 接入 `useDebouncedSubmit`（已有 a11y 基线） | 待办 |
 | P3 | `mobile-site` 全屏表单 + 触屏优化 | 待办 |

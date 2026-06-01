@@ -1,4 +1,5 @@
 import React from 'react';
+import { showConfirm } from '@psm/ui';
 
 export function StatusTag({ status }: { status: string }) {
   const enabled =
@@ -10,10 +11,18 @@ export function StatusTag({ status }: { status: string }) {
   return <span className={`status-tag ${enabled ? 'enabled' : 'disabled'}`}>{status}</span>;
 }
 
-export function confirmAction(message: string, action: () => void) {
-  if (window.confirm(message)) {
-    action();
-  }
+export function confirmAction(message: string, action: () => void | Promise<void>) {
+  const isDanger = /删除|停权|禁用|移除|作废|拉黑|拒绝|关闭|清空/.test(message);
+  void showConfirm({
+    title: isDanger ? '危险操作' : '请确认',
+    message,
+    variant: isDanger ? 'danger' : 'default',
+    confirmLabel: isDanger ? '确认执行' : '确认'
+  }).then((ok) => {
+    if (ok) {
+      void action();
+    }
+  });
 }
 
 export function errorMessage(err: unknown, fallback: string) {

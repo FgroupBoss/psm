@@ -1,5 +1,5 @@
 import React from 'react';
-import { AccessibleTree } from '@psm/ui';
+import { AccessibleTree, TableEmptyRow, TableSkeleton } from '@psm/ui';
 import {
   completeInspectionTask,
   confirmHazard,
@@ -204,34 +204,48 @@ export function DualPreventionHazardsPanel({ tenantId }: { tenantId: number }) {
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
       <div className="split-layout">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>编号</th>
-              <th>等级</th>
-              <th>状态</th>
-              <th>来源</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={4}>加载中...</td>
-              </tr>
-            )}
-            {page?.records.map((row) => (
-              <tr key={row.id} className={selectedId === row.id ? 'selected' : ''} onClick={() => openDetail(row.id)}>
-                <td>{row.hazardNo || row.id}</td>
-                <td>{row.hazardLevel}</td>
-                <td>
-                  <StatusTag status={row.status} />
-                  {row.overdueFlag === 1 && <span className="tag-warn">逾期</span>}
-                </td>
-                <td>{row.sourceType}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="psm-table-scroll">
+          {loading ? (
+            <TableSkeleton rows={4} columns={4} />
+          ) : (
+            <table className="psm-data-table">
+              <thead>
+                <tr>
+                  <th>编号</th>
+                  <th>等级</th>
+                  <th>状态</th>
+                  <th>来源</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!page?.records.length ? (
+                  <TableEmptyRow
+                    colSpan={4}
+                    message="暂无隐患"
+                    hasActiveFilters={Boolean(status)}
+                    onClearFilters={() => setStatus('')}
+                  />
+                ) : (
+                  page.records.map((row) => (
+                    <tr
+                      key={row.id}
+                      className={selectedId === row.id ? 'selected' : ''}
+                      onClick={() => openDetail(row.id)}
+                    >
+                      <td>{row.hazardNo || row.id}</td>
+                      <td>{row.hazardLevel}</td>
+                      <td>
+                        <StatusTag status={row.status} />
+                        {row.overdueFlag === 1 && <span className="tag-warn">逾期</span>}
+                      </td>
+                      <td>{row.sourceType}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
         {detail && (
           <div className="detail-card">
             <h3>{detail.hazardNo || detail.id}</h3>
@@ -343,7 +357,7 @@ export function InspectionPanel({ tenantId }: { tenantId: number }) {
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
       {tab === 'plans' ? (
-        <table className="data-table">
+        <div className="psm-table-scroll"><table className="psm-data-table">
           <thead>
             <tr>
               <th>计划</th>
@@ -352,20 +366,24 @@ export function InspectionPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {plans?.records.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  {p.planName} ({p.planCode})
-                </td>
-                <td>{p.cycleType}</td>
-                <td>{p.majorHazardId || '-'}</td>
-              </tr>
-            ))}
+            {plans?.records.length ? (
+              plans.records.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    {p.planName} ({p.planCode})
+                  </td>
+                  <td>{p.cycleType}</td>
+                  <td>{p.majorHazardId || '-'}</td>
+                </tr>
+              ))
+            ) : (
+              <TableEmptyRow colSpan={3} message="暂无巡检计划" />
+            )}
           </tbody>
-        </table>
+        </table></div>
       ) : (
         <div className="split-layout">
-          <table className="data-table">
+          <div className="psm-table-scroll"><table className="psm-data-table">
             <thead>
               <tr>
                 <th>任务号</th>
@@ -375,18 +393,22 @@ export function InspectionPanel({ tenantId }: { tenantId: number }) {
               </tr>
             </thead>
             <tbody>
-              {tasks?.records.map((t) => (
-                <tr key={t.id} className={selectedId === t.id ? 'selected' : ''} onClick={() => openTask(t.id)}>
-                  <td>{t.taskNo || t.id}</td>
-                  <td>
-                    <StatusTag status={t.status} />
-                  </td>
-                  <td>{formatTime(t.scheduledStart)}</td>
-                  <td>{t.abnormalCount ?? 0}</td>
-                </tr>
-              ))}
+              {tasks?.records.length ? (
+                tasks.records.map((t) => (
+                  <tr key={t.id} className={selectedId === t.id ? 'selected' : ''} onClick={() => openTask(t.id)}>
+                    <td>{t.taskNo || t.id}</td>
+                    <td>
+                      <StatusTag status={t.status} />
+                    </td>
+                    <td>{formatTime(t.scheduledStart)}</td>
+                    <td>{t.abnormalCount ?? 0}</td>
+                  </tr>
+                ))
+              ) : (
+                <TableEmptyRow colSpan={4} message="暂无巡检任务" />
+              )}
             </tbody>
-          </table>
+          </table></div>
           {detail && (
             <div className="detail-card">
               <h3>{detail.taskNo}</h3>
@@ -440,7 +462,7 @@ export function LocationPanel({ tenantId }: { tenantId: number }) {
       </div>
       {error && <div className="error">{error}</div>}
       {tab === 'tags' && (
-        <table className="data-table">
+        <div className="psm-table-scroll"><table className="psm-data-table">
           <thead>
             <tr>
               <th>标签号</th>
@@ -449,18 +471,22 @@ export function LocationPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {tags?.records.map((t) => (
-              <tr key={t.id}>
-                <td>{t.tagNo}</td>
-                <td>{t.tagType}</td>
-                <td>{t.status}</td>
-              </tr>
-            ))}
+            {tags?.records.length ? (
+              tags.records.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.tagNo}</td>
+                  <td>{t.tagType}</td>
+                  <td>{t.status}</td>
+                </tr>
+              ))
+            ) : (
+              <TableEmptyRow colSpan={3} message="暂无定位标签" />
+            )}
           </tbody>
-        </table>
+        </table></div>
       )}
       {tab === 'events' && (
-        <table className="data-table">
+        <div className="psm-table-scroll"><table className="psm-data-table">
           <thead>
             <tr>
               <th>类型</th>
@@ -469,18 +495,22 @@ export function LocationPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {events?.records.map((e) => (
-              <tr key={e.id}>
-                <td>{e.eventType}</td>
-                <td>{e.tagNo}</td>
-                <td>{formatTime(e.eventTime)}</td>
-              </tr>
-            ))}
+            {events?.records.length ? (
+              events.records.map((e) => (
+                <tr key={e.id}>
+                  <td>{e.eventType}</td>
+                  <td>{e.tagNo}</td>
+                  <td>{formatTime(e.eventTime)}</td>
+                </tr>
+              ))
+            ) : (
+              <TableEmptyRow colSpan={3} message="暂无定位事件" />
+            )}
           </tbody>
-        </table>
+        </table></div>
       )}
       {tab === 'visitors' && (
-        <table className="data-table">
+        <div className="psm-table-scroll"><table className="psm-data-table">
           <thead>
             <tr>
               <th>访客</th>
@@ -489,15 +519,19 @@ export function LocationPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {visitors?.records.map((v) => (
-              <tr key={v.id}>
-                <td>{v.visitorName}</td>
-                <td>{v.gateName}</td>
-                <td>{formatTime(v.accessTime)}</td>
-              </tr>
-            ))}
+            {visitors?.records.length ? (
+              visitors.records.map((v) => (
+                <tr key={v.id}>
+                  <td>{v.visitorName}</td>
+                  <td>{v.gateName}</td>
+                  <td>{formatTime(v.accessTime)}</td>
+                </tr>
+              ))
+            ) : (
+              <TableEmptyRow colSpan={3} message="暂无访客记录" />
+            )}
           </tbody>
-        </table>
+        </table></div>
       )}
     </section>
   );
@@ -546,7 +580,7 @@ export function VideoPanel({ tenantId }: { tenantId: number }) {
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
       <div className="split-layout">
-        <table className="data-table">
+        <div className="psm-table-scroll"><table className="psm-data-table">
           <thead>
             <tr>
               <th>事件</th>
@@ -555,17 +589,21 @@ export function VideoPanel({ tenantId }: { tenantId: number }) {
             </tr>
           </thead>
           <tbody>
-            {events?.records.map((e) => (
-              <tr key={e.id} className={selected?.id === e.id ? 'selected' : ''} onClick={() => setSelected(e)}>
-                <td>
-                  {e.title || e.eventType} ({e.eventNo})
-                </td>
-                <td>{e.severity}</td>
-                <td>{e.status}</td>
-              </tr>
-            ))}
+            {events?.records.length ? (
+              events.records.map((e) => (
+                <tr key={e.id} className={selected?.id === e.id ? 'selected' : ''} onClick={() => setSelected(e)}>
+                  <td>
+                    {e.title || e.eventType} ({e.eventNo})
+                  </td>
+                  <td>{e.severity}</td>
+                  <td>{e.status}</td>
+                </tr>
+              ))
+            ) : (
+              <TableEmptyRow colSpan={3} message="暂无视频 AI 事件" />
+            )}
           </tbody>
-        </table>
+        </table></div>
         {selected && (
           <div className="detail-card">
             <h3>{selected.title || selected.eventType}</h3>
@@ -616,7 +654,7 @@ export function SimopsPanel({ tenantId }: { tenantId: number }) {
       </div>
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
-      <table className="data-table">
+      <div className="psm-table-scroll"><table className="psm-data-table">
         <thead>
           <tr>
             <th>作业票</th>
@@ -627,32 +665,36 @@ export function SimopsPanel({ tenantId }: { tenantId: number }) {
           </tr>
         </thead>
         <tbody>
-          {conflicts?.records.map((c) => (
-            <tr key={c.id}>
-              <td>{c.workPermitId}</td>
-              <td>{c.scanStage}</td>
-              <td>
-                <StatusTag status={c.finalAction || '-'} />
-              </td>
-              <td>{c.conflictCount ?? 0}</td>
-              <td>
-                {c.finalAction === 'COORDINATE' && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      coordinateSimopsConflict(c.id, { tenantId, decision: 'APPROVED', opinion: 'Web协调通过' })
-                        .then(() => setMessage('协调已通过'))
-                        .catch((err: unknown) => setError(errorMessage(err, '协调失败')))
-                    }
-                  >
-                    批准协调
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {conflicts?.records.length ? (
+            conflicts.records.map((c) => (
+              <tr key={c.id}>
+                <td>{c.workPermitId}</td>
+                <td>{c.scanStage}</td>
+                <td>
+                  <StatusTag status={c.finalAction || '-'} />
+                </td>
+                <td>{c.conflictCount ?? 0}</td>
+                <td className="actions">
+                  {c.finalAction === 'COORDINATE' && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        coordinateSimopsConflict(c.id, { tenantId, decision: 'APPROVED', opinion: 'Web协调通过' })
+                          .then(() => setMessage('协调已通过'))
+                          .catch((err: unknown) => setError(errorMessage(err, '协调失败')))
+                      }
+                    >
+                      批准协调
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <TableEmptyRow colSpan={5} message="暂无交叉作业冲突" />
+          )}
         </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }
@@ -695,7 +737,7 @@ export function IntegrationRegPanel({ tenantId }: { tenantId: number }) {
       </div>
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
-      <table className="data-table">
+      <div className="psm-table-scroll"><table className="psm-data-table">
         <thead>
           <tr>
             <th>任务号</th>
@@ -706,23 +748,27 @@ export function IntegrationRegPanel({ tenantId }: { tenantId: number }) {
           </tr>
         </thead>
         <tbody>
-          {tasks?.records.map((t) => (
-            <tr key={t.id}>
-              <td>{t.taskNo || t.id}</td>
-              <td>{t.platformCode}</td>
-              <td>{t.dataDomain}</td>
-              <td>{t.status}</td>
-              <td>
-                {t.status === 'FAILED' && (
-                  <button type="button" className="secondary" onClick={() => retryRegReportTask(t.id, tenantId).then(load)}>
-                    重试
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {tasks?.records.length ? (
+            tasks.records.map((t) => (
+              <tr key={t.id}>
+                <td>{t.taskNo || t.id}</td>
+                <td>{t.platformCode}</td>
+                <td>{t.dataDomain}</td>
+                <td>{t.status}</td>
+                <td className="actions">
+                  {t.status === 'FAILED' && (
+                    <button type="button" className="secondary" onClick={() => retryRegReportTask(t.id, tenantId).then(load)}>
+                      重试
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <TableEmptyRow colSpan={5} message="暂无上报任务" />
+          )}
         </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }

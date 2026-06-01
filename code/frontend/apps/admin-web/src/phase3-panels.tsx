@@ -35,6 +35,7 @@ import type {
   PhaRecommendationRecord,
   PssrProjectRecord
 } from '@psm/domain-types';
+import { DataTable, TableEmptyRow, TableSkeleton } from '@psm/ui';
 import { errorMessage, formatTime, StatusTag } from './ui-helpers';
 
 function useListLoader<T>(loader: () => Promise<T>, deps: React.DependencyList) {
@@ -75,32 +76,15 @@ function LedgerTable<T extends { id: number }>(props: {
         {props.toolbar}
       </div>
       {props.error && <div className="error">{props.error}</div>}
-      <table className="data-table">
-        <thead>
-          <tr>
-            {props.columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
-            ))}
-            {props.actions && <th>操作</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {props.loading && (
-            <tr>
-              <td colSpan={props.columns.length + (props.actions ? 1 : 0)}>加载中...</td>
-            </tr>
-          )}
-          {!props.loading &&
-            props.rows.map((row) => (
-              <tr key={row.id}>
-                {props.columns.map((col) => (
-                  <td key={col.key}>{col.render(row)}</td>
-                ))}
-                {props.actions && <td>{props.actions(row)}</td>}
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <DataTable
+        caption={props.title}
+        columns={props.columns}
+        rows={props.rows}
+        loading={props.loading}
+        rowActions={props.actions}
+        emptyMessage="暂无数据"
+        skeletonRows={4}
+      />
     </section>
   );
 }

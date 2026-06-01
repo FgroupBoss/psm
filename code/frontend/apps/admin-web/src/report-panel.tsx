@@ -1,4 +1,5 @@
 import React from 'react';
+import { TableEmptyRow, TableSkeleton } from '@psm/ui';
 import {
   createAcceptanceTestRun,
   createReportExport,
@@ -139,7 +140,11 @@ export function ReportOverviewPanel({ tenantId }: { tenantId: number }) {
       </div>
       {error && <div className="error-banner">{error}</div>}
       {message && <div className="success-banner">{message}</div>}
-      {loading && <div className="empty">加载中...</div>}
+      {loading && (
+        <div className="psm-table-scroll">
+          <TableSkeleton rows={4} columns={5} />
+        </div>
+      )}
       {!loading && tab === 'work' && workSummary && (
         <>
           <div className="metric-grid">
@@ -325,7 +330,7 @@ export function AcceptancePanel({ tenantId }: { tenantId: number }) {
         </button>
       </div>
       <h3>用例</h3>
-      <table className="data-table">
+      <div className="psm-table-scroll"><table className="psm-data-table">
         <thead>
           <tr>
             <th>编码</th>
@@ -344,9 +349,9 @@ export function AcceptancePanel({ tenantId }: { tenantId: number }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <h3>执行记录</h3>
-      <table className="data-table">
+      <div className="psm-table-scroll"><table className="psm-data-table">
         <thead>
           <tr>
             <th>用例ID</th>
@@ -365,7 +370,7 @@ export function AcceptancePanel({ tenantId }: { tenantId: number }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }
@@ -381,24 +386,30 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 
 function DetailTable({ headers, rows }: { headers: string[]; rows: Array<Array<string | number>> }) {
   return (
-    <table className="data-table">
-      <thead>
-        <tr>
-          {headers.map((h) => (
-            <th key={h}>{h}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, index) => (
-          <tr key={index}>
-            {row.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
+    <div className="psm-table-scroll">
+      <table className="psm-data-table">
+        <thead>
+          <tr>
+            {headers.map((h) => (
+              <th key={h}>{h}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <TableEmptyRow colSpan={headers.length} message="暂无明细数据" />
+          ) : (
+            rows.map((row, index) => (
+              <tr key={index}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell}</td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

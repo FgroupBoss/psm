@@ -1,4 +1,7 @@
 import React from 'react';
+import { TableEmptyState } from './TableEmptyState';
+import { TableRowActions } from './TableRowActions';
+import { TableSkeleton } from './TableSkeleton';
 
 export type SortDirection = 'asc' | 'desc' | 'none';
 
@@ -18,6 +21,8 @@ export interface DataTableProps<T extends { id: number | string }> {
   columns: Array<DataTableColumn<T>>;
   rows: T[];
   loading?: boolean;
+  /** 骨架屏行数（3~5） */
+  skeletonRows?: number;
   /** 行级操作列 */
   rowActions?: (row: T) => React.ReactNode;
   /** 多选 */
@@ -65,13 +70,24 @@ function ariaSort(dir: SortDirection): 'ascending' | 'descending' | 'none' | und
   return dir === 'none' ? 'none' : undefined;
 }
 
-/** WCAG 友好数据表格：排序、分页、多选、固定表头与操作列。 */
+function wrapRowActions(node: React.ReactNode) {
+  if (node == null) {
+    return null;
+  }
+  if (React.isValidElement(node) && node.type === TableRowActions) {
+    return node;
+  }
+  return <TableRowActions>{node}</TableRowActions>;
+}
+
+/** WCAG 友好数据表格：排序、分页、多选、斑马纹、固定列、骨架屏与空状态。 */
 export function DataTable<T extends { id: number | string }>(props: DataTableProps<T>) {
   const {
     caption,
     columns,
     rows,
     loading,
+    skeletonRows = 4,
     rowActions,
     selectable,
     selectedIds = new Set(),
@@ -104,6 +120,7 @@ export function DataTable<T extends { id: number | string }>(props: DataTablePro
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const colCount = columns.length + (rowActions ? 1 : 0) + (selectable ? 1 : 0);
   const allSelected = sortedRows.length > 0 && sortedRows.every((r) => selectedIds.has(r.id));
+  const showEmpty = !loading && sortedRows.length === 0;
 
   function toggleAll() {
     if (!onSelectionChange) return;
@@ -148,65 +165,69 @@ export function DataTable<T extends { id: number | string }>(props: DataTablePro
       )}
 
       <div className="psm-table-scroll">
-        <table className="psm-data-table">
-          <caption className="psm-sr-only">{caption}</caption>
-          <thead>
-            <tr>
-              {selectable && (
-                <th scope="col" className="psm-data-table__check-col">
-                  <input
-                    type="checkbox"
-                    aria-label={allSelected ? '取消全选' : '全选当前页'}
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    disabled={loading || sortedRows.length === 0}
-                  />
-                </th>
-              )}
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  scope="col"
-                  style={col.minWidth ? { minWidth: col.minWidth } : undefined}
-                  aria-sort={col.sortable ? ariaSort(sortKey === col.key ? sortDir : 'none') : undefined}
-                >
-                  {col.sortable ? (
-                    <button
-                      type="button"
-                      className="psm-sort-btn"
-                      onClick={() => handleSort(col.key)}
-                      aria-label={`按${col.label}排序`}
-                    >
-                      {col.label}
-                      <span aria-hidden="true" className="psm-sort-icon">
-                        {sortKey === col.key ? (sortDir === 'asc' ? '↑' : sortDir === 'desc' ? '↓' : '↕') : '↕'}
-                      </span>
-                    </button>
-                  ) : (
-                    col.label
-                  )}
-                </th>
-              ))}
-              {rowActions && (
-                <th scope="col" className="psm-data-table__actions-col">
-                  操作
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
+        {loading ? (
+          <TableSkeleton
+            rows={skeletonRows}
+            columns={columns.length}
+            selectable={selectable}
+            hasActions={Boolean(rowActions)}
+          />
+        ) : showEmpty ? (
+          <TableEmptyState
+            message={emptyMessage}
+            hasActiveFilters={hasActiveFilters}
+            onClearFilters={onClearFilters}
+          />
+        ) : (
+          <table className="psm-data-table">
+            <caption className="psm-sr-only">{caption}</caption>
+            <thead>
               <tr>
-                <td colSpan={colCount}>
-                  <div className="psm-table-loading" role="status" aria-live="polite">
-                    正在加载…
-                  </div>
-                </td>
+                {selectable && (
+                  <th scope="col" className="psm-data-table__check-col">
+                    <input
+                      type="checkbox"
+                      aria-label={allSelected ? '取消全选' : '全选当前页'}
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      disabled={sortedRows.length === 0}
+                    />
+                  </th>
+                )}
+                {columns.map((col) => (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    style={col.minWidth ? { minWidth: col.minWidth } : undefined}
+                    aria-sort={col.sortable ? ariaSort(sortKey === col.key ? sortDir : 'none') : undefined}
+                  >
+                    {col.sortable ? (
+                      <button
+                        type="button"
+                        className="psm-sort-btn"
+                        onClick={() => handleSort(col.key)}
+                        aria-label={`按${col.label}排序`}
+                      >
+                        {col.label}
+                        <span aria-hidden="true" className="psm-sort-icon">
+                          {sortKey === col.key ? (sortDir === 'asc' ? '↑' : sortDir === 'desc' ? '↓' : '↕') : '↕'}
+                        </span>
+                      </button>
+                    ) : (
+                      col.label
+                    )}
+                  </th>
+                ))}
+                {rowActions && (
+                  <th scope="col" className="psm-data-table__actions-col">
+                    操作
+                  </th>
+                )}
               </tr>
-            )}
-            {!loading &&
-              sortedRows.map((row) => (
-                <tr key={row.id}>
+            </thead>
+            <tbody>
+              {sortedRows.map((row, rowIndex) => (
+                <tr key={row.id} className={rowIndex % 2 === 1 ? 'psm-data-table__row--alt' : undefined}>
                   {selectable && (
                     <td className="psm-data-table__check-col">
                       <input
@@ -220,25 +241,14 @@ export function DataTable<T extends { id: number | string }>(props: DataTablePro
                   {columns.map((col) => (
                     <td key={col.key}>{col.render(row)}</td>
                   ))}
-                  {rowActions && <td className="psm-data-table__actions-col">{rowActions(row)}</td>}
+                  {rowActions && (
+                    <td className="psm-data-table__actions-col">{wrapRowActions(rowActions(row))}</td>
+                  )}
                 </tr>
               ))}
-            {!loading && sortedRows.length === 0 && (
-              <tr>
-                <td colSpan={colCount}>
-                  <div className="psm-table-empty" role="status">
-                    <p>{emptyMessage}</p>
-                    {hasActiveFilters && onClearFilters && (
-                      <button type="button" className="psm-btn psm-btn--secondary" onClick={onClearFilters}>
-                        清除筛选
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        )}
       </div>
 
       {onPageChange && (
