@@ -1,4 +1,5 @@
 import React from 'react';
+import { AccessibleTree } from '@psm/ui';
 import {
   approveContractorCompany,
   approveContractorWorker,
@@ -591,32 +592,41 @@ export function OrgPanel({ tenantId }: { tenantId: number }) {
       {error && <div className="error">{error}</div>}
       {loading && <div className="empty">正在加载...</div>}
       {!loading && (
-        <table>
-          <thead>
-            <tr>
-              <th>组织名称</th>
-              <th>编码</th>
-              <th>类型</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <OrgTreeRows
-              nodes={tree}
-              onAddChild={(node) => {
-                setParentId(node.id);
-                setEditing('new');
-              }}
-              onEdit={(node) => setEditing(node)}
-              onDelete={(node) =>
-                confirmAction('确认删除该组织？', () =>
-                  run(() => deleteOrg(node.id, tenantId), '组织已删除', load)
-                )
-              }
-            />
-          </tbody>
-        </table>
+        <AccessibleTree
+          nodes={tree}
+          getId={(node) => node.id}
+          getChildren={(node) => node.children}
+          getLabel={(node) => node.orgName}
+          ariaLabel="组织树"
+          defaultExpandAll
+          emptyMessage="暂无组织"
+          columns={[
+            { key: 'code', header: '编码', render: (node) => node.orgCode },
+            { key: 'type', header: '类型', render: (node) => node.orgType },
+            { key: 'status', header: '状态', render: (node) => <StatusTag status={node.status} /> }
+          ]}
+          rowActions={(node) => (
+            <>
+              <button type="button" className="secondary" onClick={() => { setParentId(node.id); setEditing('new'); }}>
+                子级
+              </button>
+              <button type="button" className="secondary" onClick={() => setEditing(node)}>
+                编辑
+              </button>
+              <button
+                type="button"
+                className="danger"
+                onClick={() =>
+                  confirmAction('确认删除该组织？', () =>
+                    run(() => deleteOrg(node.id, tenantId), '组织已删除', load)
+                  )
+                }
+              >
+                删除
+              </button>
+            </>
+          )}
+        />
       )}
       {editing && (
         <OrgFormDialog
@@ -632,51 +642,6 @@ export function OrgPanel({ tenantId }: { tenantId: number }) {
         />
       )}
     </section>
-  );
-}
-
-function OrgTreeRows({
-  nodes,
-  depth = 0,
-  onAddChild,
-  onEdit,
-  onDelete
-}: {
-  nodes: OrgTreeNode[];
-  depth?: number;
-  onAddChild: (node: OrgTreeNode) => void;
-  onEdit: (node: OrgTreeNode) => void;
-  onDelete: (node: OrgTreeNode) => void;
-}) {
-  return (
-    <>
-      {nodes.map((node) => (
-        <React.Fragment key={node.id}>
-          <tr>
-            <td style={{ paddingLeft: `${depth * 20 + 12}px` }}>{node.orgName}</td>
-            <td>{node.orgCode}</td>
-            <td>{node.orgType}</td>
-            <td>
-              <StatusTag status={node.status} />
-            </td>
-            <td className="actions">
-              <button type="button" className="secondary" onClick={() => onAddChild(node)}>
-                子级
-              </button>
-              <button type="button" className="secondary" onClick={() => onEdit(node)}>
-                编辑
-              </button>
-              <button type="button" className="danger" onClick={() => onDelete(node)}>
-                删除
-              </button>
-            </td>
-          </tr>
-          {node.children && node.children.length > 0 && (
-            <OrgTreeRows nodes={node.children} depth={depth + 1} onAddChild={onAddChild} onEdit={onEdit} onDelete={onDelete} />
-          )}
-        </React.Fragment>
-      ))}
-    </>
   );
 }
 
@@ -1296,30 +1261,41 @@ export function MenusPanel({ tenantId }: { tenantId: number }) {
       {error && <div className="error">{error}</div>}
       {loading && <div className="empty">正在加载...</div>}
       {!loading && (
-        <table>
-          <thead>
-            <tr>
-              <th>菜单名称</th>
-              <th>编码</th>
-              <th>路由</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <MenuTreeRows
-              nodes={tree}
-              onAddChild={(node) => {
-                setParentId(node.id);
-                setEditing('new');
-              }}
-              onEdit={(node) => setEditing(node)}
-              onDelete={(node) =>
-                confirmAction('确认删除该菜单？', () => run(() => deleteMenu(node.id, tenantId), '菜单已删除', load))
-              }
-            />
-          </tbody>
-        </table>
+        <AccessibleTree
+          nodes={tree}
+          getId={(node) => node.id}
+          getChildren={(node) => node.children}
+          getLabel={(node) => node.resourceName}
+          ariaLabel="菜单资源树"
+          defaultExpandAll
+          emptyMessage="暂无菜单"
+          columns={[
+            { key: 'code', header: '编码', render: (node) => node.resourceCode },
+            { key: 'route', header: '路由', render: (node) => node.routePath || '-' },
+            { key: 'status', header: '状态', render: (node) => <StatusTag status={node.status} /> }
+          ]}
+          rowActions={(node) => (
+            <>
+              <button type="button" className="secondary" onClick={() => { setParentId(node.id); setEditing('new'); }}>
+                子级
+              </button>
+              <button type="button" className="secondary" onClick={() => setEditing(node)}>
+                编辑
+              </button>
+              <button
+                type="button"
+                className="danger"
+                onClick={() =>
+                  confirmAction('确认删除该菜单？', () =>
+                    run(() => deleteMenu(node.id, tenantId), '菜单已删除', load)
+                  )
+                }
+              >
+                删除
+              </button>
+            </>
+          )}
+        />
       )}
       {editing && (
         <MenuFormDialog
@@ -1332,51 +1308,6 @@ export function MenusPanel({ tenantId }: { tenantId: number }) {
         />
       )}
     </section>
-  );
-}
-
-function MenuTreeRows({
-  nodes,
-  depth = 0,
-  onAddChild,
-  onEdit,
-  onDelete
-}: {
-  nodes: MenuTreeNode[];
-  depth?: number;
-  onAddChild: (node: MenuTreeNode) => void;
-  onEdit: (node: MenuTreeNode) => void;
-  onDelete: (node: MenuTreeNode) => void;
-}) {
-  return (
-    <>
-      {nodes.map((node) => (
-        <React.Fragment key={node.id}>
-          <tr>
-            <td style={{ paddingLeft: `${depth * 20 + 12}px` }}>{node.resourceName}</td>
-            <td>{node.resourceCode}</td>
-            <td>{node.routePath || '-'}</td>
-            <td>
-              <StatusTag status={node.status} />
-            </td>
-            <td className="actions">
-              <button type="button" className="secondary" onClick={() => onAddChild(node)}>
-                子级
-              </button>
-              <button type="button" className="secondary" onClick={() => onEdit(node)}>
-                编辑
-              </button>
-              <button type="button" className="danger" onClick={() => onDelete(node)}>
-                删除
-              </button>
-            </td>
-          </tr>
-          {node.children && node.children.length > 0 && (
-            <MenuTreeRows nodes={node.children} depth={depth + 1} onAddChild={onAddChild} onEdit={onEdit} onDelete={onDelete} />
-          )}
-        </React.Fragment>
-      ))}
-    </>
   );
 }
 

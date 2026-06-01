@@ -68,7 +68,7 @@ import {
   stringifyJson
 } from './ui-helpers';
 import { AuthBootScreen, LoginView } from './login-view';
-import { ThemeProvider, ThemeToggle } from '@psm/ui';
+import { AppProviders, ThemeProvider, ThemeToggle } from '@psm/ui';
 import './styles.css';
 
 const CONFIG_TYPES: Array<{ path: ConfigItemPath; label: string }> = [
@@ -252,8 +252,12 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   }
 
   return (
-    <main className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-      <aside className="sidebar">
+    <>
+      <a href="#main-content" className="psm-skip-link">
+        跳转到主内容
+      </a>
+      <main className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+      <aside className="sidebar" aria-label="主导航">
         <div className="sidebar-header">
           <div className="brand">
             <i className="fa-solid fa-shield-halved brand__icon" aria-hidden="true" />
@@ -282,6 +286,7 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
                   className={`nav-item ${view === item.view ? 'active' : ''}`}
                   onClick={() => setView(item.view)}
                   title={sidebarCollapsed ? item.label : undefined}
+                  aria-current={view === item.view ? 'page' : undefined}
                 >
                   <i className={`fa-solid ${navIconFor(item.view)} nav-item__icon`} aria-hidden="true" />
                   <span className="nav-item__label">{item.label}</span>
@@ -291,7 +296,7 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
           ))}
         </nav>
       </aside>
-      <section className="workspace">
+      <section className="workspace" id="main-content" tabIndex={-1}>
         <header className="topbar">
           <div className="topbar__leading">
             <button
@@ -320,6 +325,7 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
         {renderWorkspace()}
       </section>
     </main>
+    </>
   );
 }
 
@@ -1092,6 +1098,8 @@ function AuditPanel({ tenantId }: { tenantId: number }) {
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <ThemeProvider>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </ThemeProvider>
 );

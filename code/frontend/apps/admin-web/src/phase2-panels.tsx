@@ -1,4 +1,5 @@
 import React from 'react';
+import { AccessibleTree } from '@psm/ui';
 import {
   completeInspectionTask,
   confirmHazard,
@@ -67,20 +68,6 @@ function useListLoader<T>(loader: () => Promise<T>, deps: React.DependencyList) 
   return { data, loading, error, reload, setError };
 }
 
-function TreeList({ nodes, depth = 0 }: { nodes: RiskUnitTreeNode[]; depth?: number }) {
-  return (
-    <ul className="tree-list" style={{ paddingLeft: depth ? 16 : 0 }}>
-      {nodes.map((node) => (
-        <li key={node.id}>
-          <span>{node.unitName}</span>
-          {node.riskLevel && <StatusTag status={node.riskLevel} />}
-          {node.children && node.children.length > 0 && <TreeList nodes={node.children} depth={depth + 1} />}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function DualPreventionRiskPanel({ tenantId }: { tenantId: number }) {
   const [colorMap, setColorMap] = React.useState<Record<string, number>>({});
   const { data: tree, loading, error, reload } = useListLoader(() => fetchRiskUnitTree(tenantId), [tenantId]);
@@ -117,7 +104,24 @@ export function DualPreventionRiskPanel({ tenantId }: { tenantId: number }) {
         <div className="detail-card">
           <h3>风险单元树</h3>
           {loading && <p>加载中...</p>}
-          {tree && tree.length > 0 ? <TreeList nodes={tree} /> : !loading && <p className="hint">暂无风险单元</p>}
+          {tree && tree.length > 0 ? (
+            <AccessibleTree
+              nodes={tree}
+              getId={(node) => node.id}
+              getChildren={(node) => node.children}
+              getLabel={(node) => (
+                <>
+                  {node.unitName}
+                  {node.riskLevel ? <StatusTag status={node.riskLevel} /> : null}
+                </>
+              )}
+              ariaLabel="风险单元树"
+              defaultExpandAll
+              emptyMessage="暂无风险单元"
+            />
+          ) : (
+            !loading && <p className="hint">暂无风险单元</p>
+          )}
         </div>
       </div>
     </section>

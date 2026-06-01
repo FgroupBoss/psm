@@ -1,0 +1,716 @@
+/* ── WCAG 2.1 AA 可访问性基础样式 ── */
+
+.psm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.psm-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 10000;
+  padding: 12px 20px;
+  background: var(--color-primary, #0a84ff);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.psm-skip-link:focus {
+  top: 16px;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* focus-visible：键盘用户可见焦点环，鼠标点击不显示 */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(10, 132, 255, 0.85);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── 表单字段 ── */
+.psm-field {
+  display: grid;
+  gap: 6px;
+}
+
+.psm-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text, #1d1d1f);
+}
+
+.psm-field__required {
+  color: #ff453a;
+  margin-left: 2px;
+}
+
+.psm-field__input {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--theme-border, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  font: inherit;
+  font-size: 15px;
+  background: var(--theme-input-bg, rgba(255, 255, 255, 0.72));
+  color: var(--color-text, #1d1d1f);
+}
+
+.psm-field--error .psm-field__input {
+  border-color: #ff453a;
+  box-shadow: 0 0 0 2px rgba(255, 69, 58, 0.25);
+}
+
+.psm-field__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted, #6e6e73);
+}
+
+.psm-field__error {
+  margin: 0;
+  font-size: 13px;
+  color: #ff453a;
+  font-weight: 500;
+}
+
+textarea.psm-field__input {
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ── 按钮 ── */
+.psm-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-primary, #0a84ff), var(--color-secondary, #5e5ce6));
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.psm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.psm-btn--secondary {
+  background: var(--glass-bg, rgba(255, 255, 255, 0.55));
+  color: var(--color-text, #1d1d1f);
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.psm-btn--danger {
+  background: linear-gradient(135deg, #ff453a, #bf5af2);
+}
+
+.psm-btn--warning {
+  background: linear-gradient(135deg, #ff9f0a, #ff453a);
+}
+
+.psm-icon-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--color-text, #1d1d1f);
+  font-size: 22px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ── 数据表格 ── */
+.psm-table-wrap {
+  display: grid;
+  gap: 12px;
+}
+
+.psm-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.psm-table-batch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(10, 132, 255, 0.1);
+  font-size: 14px;
+}
+
+.psm-table-scroll {
+  overflow: auto;
+  max-height: min(70vh, 640px);
+  border-radius: 16px;
+  border: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+  -webkit-overflow-scrolling: touch;
+}
+
+.psm-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.psm-data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--theme-modal-bg, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--theme-border, rgba(0, 0, 0, 0.1));
+  white-space: nowrap;
+}
+
+.psm-data-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--theme-border, rgba(0, 0, 0, 0.06));
+  vertical-align: middle;
+}
+
+.psm-data-table__actions-col {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: inherit;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+  min-width: 160px;
+}
+
+.psm-data-table thead .psm-data-table__actions-col {
+  z-index: 3;
+  background: var(--theme-modal-bg, rgba(255, 255, 255, 0.95));
+}
+
+.psm-data-table__check-col {
+  width: 48px;
+  text-align: center;
+}
+
+.psm-data-table__check-col input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  min-height: unset;
+  cursor: pointer;
+  accent-color: var(--color-primary, #0a84ff);
+}
+
+.psm-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.psm-sort-btn:hover {
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.psm-sort-icon {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.psm-table-empty,
+.psm-table-loading {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-text-muted, #6e6e73);
+}
+
+.psm-table-empty p {
+  margin: 0 0 12px;
+}
+
+.psm-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+}
+
+.psm-pager__info {
+  font-size: 13px;
+  color: var(--color-text-muted, #6e6e73);
+  margin-right: auto;
+}
+
+/* ── 模态框 ── */
+.psm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--theme-modal-backdrop, rgba(0, 0, 0, 0.45));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.psm-modal {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--theme-modal-bg, rgba(255, 255, 255, 0.95));
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
+  color: var(--color-text, #1d1d1f);
+}
+
+.psm-modal--wide {
+  width: min(960px, 100%);
+}
+
+.psm-modal header,
+.psm-modal footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+}
+
+.psm-modal footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+  border-bottom: 0;
+}
+
+.psm-modal header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.psm-modal__body {
+  padding: 16px 20px;
+}
+
+.psm-confirm__message {
+  margin: 0;
+  padding: 0 20px 16px;
+  line-height: 1.6;
+}
+
+/* ── Toast ── */
+.psm-toast-region {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  display: grid;
+  gap: 8px;
+  max-width: min(400px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.psm-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  animation: psmToastIn 0.25s ease;
+}
+
+@keyframes psmToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.psm-toast--success {
+  background: rgba(48, 209, 88, 0.95);
+  color: #fff;
+}
+
+.psm-toast--error {
+  background: rgba(255, 69, 58, 0.95);
+  color: #fff;
+}
+
+.psm-toast--warning {
+  background: rgba(255, 159, 10, 0.95);
+  color: #fff;
+}
+
+.psm-toast--info {
+  background: rgba(10, 132, 255, 0.95);
+  color: #fff;
+}
+
+.psm-toast__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ── 进度条 ── */
+.psm-progress {
+  padding: 8px 0;
+}
+
+.psm-progress__track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(128, 128, 128, 0.2);
+  overflow: hidden;
+}
+
+.psm-progress__fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--color-primary, #0a84ff), var(--color-secondary, #5e5ce6));
+  transition: width 0.2s ease;
+}
+
+/* ── 触屏优化：增大可点击区域 ── */
+@media (pointer: coarse) {
+  .psm-btn,
+  .psm-sort-btn,
+  .psm-icon-btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .psm-data-table__check-col input[type='checkbox'] {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* 表单网格（模态内复用 admin-web 布局） */
+.psm-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.psm-form-grid .psm-field.wide {
+  grid-column: 1 / -1;
+}
+
+.psm-table-toolbar .psm-field {
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 240px;
+}
+
+.psm-modal-inline-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+}
+
+.content-panel .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.content-panel .actions .psm-btn {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+@media (pointer: coarse) {
+  .content-panel .actions .psm-btn {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  .psm-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .psm-table-scroll {
+    max-height: none;
+  }
+
+  .psm-toast-region {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+}
+
+/* ── 可访问树（组织树 / 菜单树） ── */
+.psm-tree-grid {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.psm-tree-grid__header {
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--theme-modal-bg, rgba(255, 255, 255, 0.95));
+  border-bottom: 1px solid var(--theme-border, rgba(0, 0, 0, 0.1));
+}
+
+.psm-tree-grid__actions-header {
+  text-align: right;
+}
+
+.psm-tree-scroll {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--theme-input-bg, rgba(255, 255, 255, 0.4));
+}
+
+.psm-tree-scroll--deep {
+  overflow-x: auto;
+}
+
+.psm-tree-inner {
+  min-width: min(100%, max-content);
+}
+
+.psm-tree-row {
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 6px;
+  border-bottom: 1px solid var(--theme-border, rgba(0, 0, 0, 0.05));
+  min-height: 44px;
+}
+
+.psm-tree-row--deep .psm-tree-label-cell {
+  box-shadow: inset calc((var(--depth, 3) - 3) * 1px) 0 0 rgba(10, 132, 255, 0.08);
+}
+
+.psm-tree-row--focused {
+  z-index: 1;
+}
+
+.psm-tree-row--selected {
+  background: rgba(10, 132, 255, 0.1);
+}
+
+.psm-tree-row--focused .psm-tree-label {
+  outline: 3px solid rgba(10, 132, 255, 0.85);
+  outline-offset: 1px;
+  background: rgba(10, 132, 255, 0.14);
+}
+
+.psm-tree-row--selected .psm-tree-label {
+  background: rgba(10, 132, 255, 0.2);
+  box-shadow: inset 3px 0 0 var(--color-primary, #0a84ff);
+  font-weight: 600;
+}
+
+.psm-tree-row--dragging {
+  opacity: 0.45;
+}
+
+.psm-tree-label-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.psm-tree-expand {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted, #6e6e73);
+  font-size: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.psm-tree-expand--leaf {
+  display: inline-block;
+  pointer-events: none;
+}
+
+.psm-tree-label {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text, #1d1d1f);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.psm-tree-cell {
+  font-size: 14px;
+  color: var(--color-text, #1d1d1f);
+  padding: 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psm-tree-grid__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.psm-tree-drag-handle {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.12);
+  color: var(--color-text-muted, #6e6e73);
+  cursor: grab;
+  touch-action: manipulation;
+}
+
+.psm-tree-drag-handle:active {
+  cursor: grabbing;
+}
+
+.psm-tree-drop-placeholder {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-primary, #0a84ff);
+  box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.25);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.psm-tree-drop-placeholder--before {
+  top: 0;
+}
+
+.psm-tree-drop-placeholder--after {
+  bottom: 0;
+}
+
+.psm-tree-drag-hint {
+  margin: 8px 12px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--color-text-muted, #6e6e73);
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.psm-tree-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-text-muted, #6e6e73);
+}
+
+@media (pointer: coarse) {
+  .psm-tree-expand,
+  .psm-tree-drag-handle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .psm-tree-label {
+    min-height: 44px;
+  }
+}
