@@ -17,7 +17,10 @@ import com.fgroupboss.ai.psm.operation.api.workpermit.dto.SitePermitRequest;
 import com.fgroupboss.ai.psm.operation.workpermit.model.dto.WorkPermitRequest;
 import com.fgroupboss.ai.psm.operation.workpermit.model.dto.WorkPermitWorkerRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.GasTestVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalProgressVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalTaskVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO;
+import com.fgroupboss.ai.psm.operation.client.dto.hotwork.HotWorkWorkflowSummaryDTO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MonitorRecordVO;
 import com.fgroupboss.ai.psm.operation.workpermit.model.vo.PreCheckResultVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.RiskAnalysisVO;
@@ -30,6 +33,7 @@ import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitWorkerVO;
 import com.fgroupboss.ai.psm.operation.workpermit.service.WorkPermitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -172,7 +176,7 @@ public class WorkPermitController {
                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.approve(tenantId, id, defaultAction(request),
+        return ResponseVO.success(workPermitService.approve(tenantId, id, enrichAction(request, userId),
                 operator(userId, username, operator)));
     }
 
@@ -186,7 +190,7 @@ public class WorkPermitController {
                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.returnPermit(tenantId, id, defaultAction(request),
+        return ResponseVO.success(workPermitService.returnPermit(tenantId, id, enrichAction(request, userId),
                 operator(userId, username, operator)));
     }
 
@@ -200,7 +204,7 @@ public class WorkPermitController {
                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.reject(tenantId, id, defaultAction(request),
+        return ResponseVO.success(workPermitService.reject(tenantId, id, enrichAction(request, userId),
                 operator(userId, username, operator)));
     }
 
@@ -393,8 +397,50 @@ public class WorkPermitController {
         return ResponseVO.success(workPermitService.syncMobileDraft(request));
     }
 
+    @GetMapping("/hot-work/available-workflows")
+    public ResponseVO<List<HotWorkWorkflowSummaryDTO>> listAvailableHotWorkWorkflows(
+            @RequestParam Long tenantId,
+            @RequestParam(required = false) String hotWorkLevel,
+            @RequestParam(required = false) Long areaId) {
+        return ResponseVO.success(workPermitService.listAvailableHotWorkWorkflows(tenantId, hotWorkLevel, areaId));
+    }
+
+    @GetMapping("/{id}/approval/progress")
+    public ResponseVO<HotWorkApprovalProgressVO> getHotWorkApprovalProgress(@PathVariable Long id,
+                                                                            @RequestParam Long tenantId) {
+        return ResponseVO.success(workPermitService.getHotWorkApprovalProgress(tenantId, id));
+    }
+
+    @GetMapping("/{id}/approval/tasks/mine")
+    public ResponseVO<List<HotWorkApprovalTaskVO>> listHotWorkApprovalTasks(
+            @PathVariable Long id,
+            @RequestParam Long tenantId,
+            @RequestParam(required = false) Long assigneeUserId) {
+        return ResponseVO.success(workPermitService.listHotWorkApprovalTasks(tenantId, id, assigneeUserId));
+    }
+
     private PermitActionRequest defaultAction(PermitActionRequest request) {
         return request == null ? new PermitActionRequest() : request;
+    }
+
+    private PermitActionRequest enrichAction(PermitActionRequest request, String userId) {
+        PermitActionRequest action = defaultAction(request);
+        Long operatorUserId = parseUserId(userId);
+        if (operatorUserId != null) {
+            action.setOperatorUserId(operatorUserId);
+        }
+        return action;
+    }
+
+    private Long parseUserId(String userId) {
+        if (!StringUtils.hasText(userId)) {
+            return null;
+        }
+        try {
+            return Long.parseLong(userId.trim());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     private String operator(String userId, String username, String fallback) {

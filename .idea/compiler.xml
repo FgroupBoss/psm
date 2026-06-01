@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <option name="BUILD_PROCESS_HEAP_SIZE" value="7000" />
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -31,8 +32,6 @@
       <module name="psm-gateway" target="1.8" />
       <module name="psm-governance-service" target="1.8" />
       <module name="psm-iam-service" target="1.8" />
-      <module name="psm-identity-service" target="1.8" />
-      <module name="psm-incident-governance-service" target="1.8" />
       <module name="psm-incident-service" target="1.8" />
       <module name="psm-inspection-service" target="1.8" />
       <module name="psm-integration-service" target="1.8" />
@@ -42,14 +41,10 @@
       <module name="psm-mobile-bff" target="1.8" />
       <module name="psm-moc-service" target="1.8" />
       <module name="psm-notification-service" target="1.8" />
-      <module name="psm-operation-control-service" target="1.8" />
       <module name="psm-pha-service" target="1.8" />
       <module name="psm-platform-api" target="1.8" />
-      <module name="psm-process-safety-service" target="1.8" />
       <module name="psm-pssr-service" target="1.8" />
-      <module name="psm-realtime-perception-service" target="1.8" />
       <module name="psm-report-service" target="1.8" />
-      <module name="psm-risk-control-service" target="1.8" />
       <module name="psm-video-service" target="1.8" />
       <module name="psm-work-permit-service" target="1.8" />
     </bytecodeTargetLevel>

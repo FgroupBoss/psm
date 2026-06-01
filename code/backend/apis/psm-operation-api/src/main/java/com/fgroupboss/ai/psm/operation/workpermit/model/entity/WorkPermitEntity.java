@@ -16,6 +16,10 @@ public class WorkPermitEntity {
     private Long tenantId;
     private String permitNo;
     private String workType;
+    private String hotWorkLevel;
+    private Long workflowTemplateId;
+    private Integer workflowTemplateVersion;
+    private String workflowTemplateName;
     private String status;
     private String title;
     private String workContent;

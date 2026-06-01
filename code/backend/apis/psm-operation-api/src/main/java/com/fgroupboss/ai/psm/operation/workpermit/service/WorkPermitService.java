@@ -15,6 +15,8 @@ import com.fgroupboss.ai.psm.operation.workpermit.model.dto.WorkPermitRequest;
 import com.fgroupboss.ai.psm.operation.workpermit.model.dto.WorkPermitWorkerRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.AcceptanceRecordVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.GasTestVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalProgressVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalTaskVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MobileDraftSyncResultVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.MonitorRecordVO;
 import com.fgroupboss.ai.psm.operation.workpermit.model.vo.PreCheckResultVO;
@@ -26,6 +28,8 @@ import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitDetailVO;
 import com.fgroupboss.ai.psm.operation.workpermit.model.vo.WorkPermitHealthVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitWorkerVO;
+
+import com.fgroupboss.ai.psm.operation.client.dto.hotwork.HotWorkWorkflowSummaryDTO;
 
 import java.util.List;
 
@@ -92,5 +96,11 @@ public interface WorkPermitService {
     List<TimelineItemVO> timeline(Long tenantId, Long id);
 
     MobileDraftSyncResultVO syncMobileDraft(MobileDraftSyncRequest request);
+
+    List<HotWorkWorkflowSummaryDTO> listAvailableHotWorkWorkflows(Long tenantId, String hotWorkLevel, Long areaId);
+
+    HotWorkApprovalProgressVO getHotWorkApprovalProgress(Long tenantId, Long id);
+
+    List<HotWorkApprovalTaskVO> listHotWorkApprovalTasks(Long tenantId, Long id, Long assigneeUserId);
 }
 

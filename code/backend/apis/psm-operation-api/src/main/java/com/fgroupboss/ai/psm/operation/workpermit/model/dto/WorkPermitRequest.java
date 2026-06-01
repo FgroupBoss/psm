@@ -12,6 +12,10 @@ public class WorkPermitRequest {
     private Long tenantId;
     @NotNull(message = "workType is required")
     private String workType;
+    private String hotWorkLevel;
+    private Long workflowTemplateId;
+    private Integer workflowTemplateVersion;
+    private String workflowTemplateName;
     private String title;
     private String workContent;
     private Long areaId;

@@ -68,6 +68,14 @@ import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitDetailVO;
 import com.fgroupboss.ai.psm.operation.workpermit.model.vo.WorkPermitHealthVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitVO;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.WorkPermitWorkerVO;
+import com.fgroupboss.ai.psm.operation.client.HotWorkWorkflowApi;
+import com.fgroupboss.ai.psm.operation.client.dto.hotwork.HotWorkWorkflowQueryDTO;
+import com.fgroupboss.ai.psm.operation.client.dto.hotwork.HotWorkWorkflowSummaryDTO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalProgressVO;
+import com.fgroupboss.ai.psm.operation.api.workpermit.vo.HotWorkApprovalTaskVO;
+import com.fgroupboss.ai.psm.operation.workpermit.hotwork.service.HotWorkApprovalEngine;
+import com.fgroupboss.ai.psm.operation.workpermit.specialty.SpecialtyCheckPoint;
+import com.fgroupboss.ai.psm.operation.workpermit.specialty.WorkPermitSpecialtyCoordinator;
 import com.fgroupboss.ai.psm.operation.workpermit.service.SimopsService;
 import com.fgroupboss.ai.psm.operation.workpermit.service.WorkPermitService;
 import com.fgroupboss.ai.psm.operation.workpermit.support.DefaultSafetyMeasuresSupport;
@@ -120,6 +128,9 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     private final DualPreventionAreaHazardClient dualPreventionAreaHazardClient;
     private final LocationHeadcountClient locationHeadcountClient;
     private final SimopsService simopsService;
+    private final HotWorkApprovalEngine hotWorkApprovalEngine;
+    private final HotWorkWorkflowApi hotWorkWorkflowClient;
+    private final WorkPermitSpecialtyCoordinator specialtyCoordinator;
 
     @Value("${psm.gas-test-valid-minutes:30}")
     private int gasTestValidMinutes;
@@ -200,6 +211,7 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         detail.setSiteConfirms(listSiteConfirms(tenantId, id));
         detail.setMonitorRecords(listMonitorRecords(tenantId, id));
         detail.setAcceptanceRecords(listAcceptanceRecords(tenantId, id));
+        specialtyCoordinator.enrichDetail(tenantId, entity, detail);
         return detail;
     }
 
@@ -221,6 +233,7 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         entity.setDeleted(0);
         workPermitMapper.insert(entity);
         defaultSafetyMeasuresSupport.seedDefaultMeasures(entity.getTenantId(), entity.getId(), entity.getWorkType());
+        hotWorkApprovalEngine.validateWorkflowSelection(entity);
         auditSupport.writeStatusChange(entity.getTenantId(), entity.getId(), "CREATE", null,
                 operator, null, entity.getStatus());
         return toVO(entity);
@@ -235,6 +248,7 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         WorkPermitEntity entity = requirePermit(request.getTenantId(), id);
         assertEditable(entity);
         applyPermitRequest(entity, request);
+        hotWorkApprovalEngine.validateWorkflowSelection(entity);
         entity.setUpdatedBy(normalizeOperator(operator));
         workPermitMapper.updateById(entity);
         return toVO(entity);
@@ -299,11 +313,16 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     @Transactional
     public WorkPermitVO submit(Long tenantId, Long id, String operator) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
+        hotWorkApprovalEngine.validateWorkflowSelection(entity);
         PreCheckResultVO check = runPreCheck(entity, PermitCheckPoint.SUBMIT, false);
         if (!check.isPassed()) {
             throw new BusinessException(409, joinReasons(check.getReasons()));
         }
-        return transition(entity, WorkPermitStatusTransition::submitTarget, "SUBMIT", null, operator);
+        WorkPermitVO result = transition(entity, WorkPermitStatusTransition::submitTarget, "SUBMIT", null, operator);
+        if (hotWorkApprovalEngine.supportsMultiNode(entity)) {
+            hotWorkApprovalEngine.startOnSubmit(entity, operator);
+        }
+        return result;
     }
 
     /**
@@ -313,6 +332,12 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     @Transactional
     public WorkPermitVO approve(Long tenantId, Long id, PermitActionRequest request, String operator) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
+        if (hotWorkApprovalEngine.supportsMultiNode(entity)) {
+            if (request != null && !StringUtils.hasText(request.getAction())) {
+                request.setAction("APPROVE");
+            }
+            return handleMultiNodeAction(entity, request, operator);
+        }
         WorkPermitVO result = transition(entity, WorkPermitStatusTransition::approveTarget, "APPROVE",
                 actionOpinion(request), operator);
         saveApprovalRecord(tenantId, id, "APPROVE", request, operator);
@@ -326,6 +351,12 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     @Transactional
     public WorkPermitVO returnPermit(Long tenantId, Long id, PermitActionRequest request, String operator) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
+        if (hotWorkApprovalEngine.supportsMultiNode(entity)) {
+            if (request != null) {
+                request.setAction("RETURN");
+            }
+            return handleMultiNodeAction(entity, request, operator);
+        }
         WorkPermitVO result = transition(entity, WorkPermitStatusTransition::returnTarget, "RETURN",
                 actionOpinion(request), operator);
         saveApprovalRecord(tenantId, id, "RETURN", request, operator);
@@ -341,6 +372,13 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         WorkPermitEntity entity = requirePermit(tenantId, id);
         String reason = resolveReason(request);
         entity.setRejectReason(reason);
+        if (hotWorkApprovalEngine.supportsMultiNode(entity)) {
+            if (request != null) {
+                request.setAction("REJECT");
+            }
+            workPermitMapper.updateById(entity);
+            return handleMultiNodeAction(entity, request, operator);
+        }
         WorkPermitVO result = transition(entity, WorkPermitStatusTransition::rejectTarget, "REJECT", reason, operator);
         saveApprovalRecord(tenantId, id, "REJECT", request, operator);
         archivePermit(entity, operator);
@@ -552,6 +590,13 @@ public class WorkPermitServiceImpl implements WorkPermitService {
     @Transactional
     public WorkPermitVO resume(Long tenantId, Long id, PermitActionRequest request, String operator) {
         WorkPermitEntity entity = requirePermit(tenantId, id);
+        PreCheckResultVO check = new PreCheckResultVO();
+        check.setPassed(true);
+        specialtyCoordinator.applyPreCheck(entity, SpecialtyCheckPoint.RESUME, check);
+        check.setPassed(computePassed(check.getReasons()));
+        if (!check.isPassed()) {
+            throw new BusinessException(409, joinReasons(check.getReasons()));
+        }
         return transition(entity, WorkPermitStatusTransition::resumeTarget, "RESUME", actionOpinion(request), operator);
     }
 
@@ -671,6 +716,56 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         return result;
     }
 
+    @Override
+    public List<HotWorkWorkflowSummaryDTO> listAvailableHotWorkWorkflows(Long tenantId, String hotWorkLevel, Long areaId) {
+        requireTenantId(tenantId);
+        HotWorkWorkflowQueryDTO query = new HotWorkWorkflowQueryDTO();
+        query.setTenantId(tenantId);
+        query.setHotWorkLevel(hotWorkLevel);
+        query.setAreaId(areaId);
+        return hotWorkWorkflowClient.listAvailable(query);
+    }
+
+    @Override
+    public HotWorkApprovalProgressVO getHotWorkApprovalProgress(Long tenantId, Long id) {
+        requirePermit(tenantId, id);
+        return hotWorkApprovalEngine.getProgress(tenantId, id);
+    }
+
+    @Override
+    public List<HotWorkApprovalTaskVO> listHotWorkApprovalTasks(Long tenantId, Long id, Long assigneeUserId) {
+        requirePermit(tenantId, id);
+        return hotWorkApprovalEngine.listPendingTasks(tenantId, id, assigneeUserId);
+    }
+
+    private WorkPermitVO handleMultiNodeAction(WorkPermitEntity entity, PermitActionRequest request, String operator) {
+        WorkPermitStatus target = hotWorkApprovalEngine.actOnTask(entity, request, operator,
+                request == null ? null : request.getOperatorUserId());
+        if (target == WorkPermitStatus.APPROVING) {
+            return toVO(entity);
+        }
+        String actionLabel = normalizeActionLabel(request == null ? null : request.getAction());
+        String remark = actionOpinion(request);
+        if (target == WorkPermitStatus.CLOSED) {
+            archivePermit(entity, operator);
+            return transition(entity, WorkPermitStatusTransition::rejectTarget, actionLabel, remark, operator);
+        }
+        if (target == WorkPermitStatus.RETURNED) {
+            return transition(entity, WorkPermitStatusTransition::returnTarget, actionLabel, remark, operator);
+        }
+        if (target == WorkPermitStatus.PENDING_SITE_PERMIT) {
+            return transition(entity, WorkPermitStatusTransition::approveTarget, "APPROVE", remark, operator);
+        }
+        throw new BusinessException(500, "unexpected approval state");
+    }
+
+    private String normalizeActionLabel(String action) {
+        if (!StringUtils.hasText(action)) {
+            return "APPROVE";
+        }
+        return action.trim().toUpperCase();
+    }
+
     private PreCheckResultVO runPreCheck(WorkPermitEntity permit, PermitCheckPoint checkPoint, boolean throwOnUpstreamFailure) {
         PreCheckResultVO result = new PreCheckResultVO();
         result.setPassed(true);
@@ -680,11 +775,22 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         checkAreaOpenHazards(permit, throwOnUpstreamFailure, result);
         if (checkPoint == PermitCheckPoint.SITE_PERMIT) {
             checkAreaAlarm(permit, throwOnUpstreamFailure, result);
-            checkGasTest(permit, result);
+            if (!specialtyCoordinator.skipGasTestAtSitePermit(permit)) {
+                checkGasTest(permit, result);
+            }
             checkAreaHeadcount(permit, result);
         }
+        applySpecialtyPreCheck(permit, checkPoint, result);
         result.setPassed(computePassed(result.getReasons()));
         return result;
+    }
+
+    private void applySpecialtyPreCheck(WorkPermitEntity permit, PermitCheckPoint checkPoint, PreCheckResultVO result) {
+        if (checkPoint == PermitCheckPoint.SUBMIT) {
+            specialtyCoordinator.applyPreCheck(permit, SpecialtyCheckPoint.SUBMIT, result);
+        } else if (checkPoint == PermitCheckPoint.SITE_PERMIT) {
+            specialtyCoordinator.applyPreCheck(permit, SpecialtyCheckPoint.SITE_PERMIT, result);
+        }
     }
 
     private boolean computePassed(List<String> reasons) {
@@ -1123,6 +1229,10 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         entity.setSupervisorUserId(request.getSupervisorUserId());
         entity.setPermitIssuerUserId(request.getPermitIssuerUserId());
         entity.setGuardianUserId(request.getGuardianUserId());
+        entity.setHotWorkLevel(normalizeText(request.getHotWorkLevel()));
+        entity.setWorkflowTemplateId(request.getWorkflowTemplateId());
+        entity.setWorkflowTemplateVersion(request.getWorkflowTemplateVersion());
+        entity.setWorkflowTemplateName(normalizeText(request.getWorkflowTemplateName()));
     }
 
     private String generatePermitNo() {
@@ -1183,6 +1293,10 @@ public class WorkPermitServiceImpl implements WorkPermitService {
         vo.setSupervisorUserId(entity.getSupervisorUserId());
         vo.setPermitIssuerUserId(entity.getPermitIssuerUserId());
         vo.setGuardianUserId(entity.getGuardianUserId());
+        vo.setHotWorkLevel(entity.getHotWorkLevel());
+        vo.setWorkflowTemplateId(entity.getWorkflowTemplateId());
+        vo.setWorkflowTemplateVersion(entity.getWorkflowTemplateVersion());
+        vo.setWorkflowTemplateName(entity.getWorkflowTemplateName());
         vo.setRejectReason(entity.getRejectReason());
         vo.setCreatedBy(entity.getCreatedBy());
         vo.setUpdatedBy(entity.getUpdatedBy());

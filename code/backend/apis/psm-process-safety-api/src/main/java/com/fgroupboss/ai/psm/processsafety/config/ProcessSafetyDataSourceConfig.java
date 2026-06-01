@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
         "com.fgroupboss.ai.psm.processsafety.moc.mapper",
         "com.fgroupboss.ai.psm.processsafety.pssr.mapper",
         "com.fgroupboss.ai.psm.processsafety.barrier.mapper",
-        "com.fgroupboss.ai.psm.processsafety.configrule.mapper"
+        "com.fgroupboss.ai.psm.processsafety.configrule.mapper",
+        "com.fgroupboss.ai.psm.processsafety.configrule.hotwork.mapper"
 })
 public class ProcessSafetyDataSourceConfig {
 }

@@ -69,6 +69,17 @@ import type {
   WorkPermitRequest,
   WorkPermitWorkerRequest,
   WorkPermitWorkerRecord,
+  HotWorkWorkflowSummary,
+  HotWorkApprovalProgress,
+  HotWorkApprovalTaskRecord,
+  PermitActionPayload,
+  HeightWorkDetail,
+  HeightWorkDetailRequest,
+  HeightWorkFlowProgress,
+  HeightWorkHazardFactor,
+  HeightWorkPreCheckResult,
+  HeightWorkProtectionCheckRequest,
+  HeightWorkEnvironmentCheckRequest,
   RiskAnalysisRecord,
   SafetyMeasureRecord,
   GasTestRecord,
@@ -961,6 +972,115 @@ export async function fetchWorkPermitDetail(id: number, tenantId: number): Promi
   return request<WorkPermitDetailRecord>(`${WORK_PERMIT_API.base}/${id}?tenantId=${tenantId}`);
 }
 
+export async function fetchAvailableHotWorkWorkflows(
+  tenantId: number,
+  hotWorkLevel?: string,
+  areaId?: number
+): Promise<HotWorkWorkflowSummary[]> {
+  const params = new URLSearchParams({ tenantId: String(tenantId) });
+  if (hotWorkLevel) params.set('hotWorkLevel', hotWorkLevel);
+  if (areaId != null) params.set('areaId', String(areaId));
+  return request<HotWorkWorkflowSummary[]>(`${WORK_PERMIT_API.hotWorkAvailableWorkflows}?${params.toString()}`);
+}
+
+export async function fetchHotWorkApprovalProgress(id: number, tenantId: number): Promise<HotWorkApprovalProgress> {
+  return request<HotWorkApprovalProgress>(`${WORK_PERMIT_API.base}/${id}/approval/progress?tenantId=${tenantId}`);
+}
+
+export async function fetchHotWorkApprovalTasks(
+  id: number,
+  tenantId: number,
+  assigneeUserId?: number
+): Promise<HotWorkApprovalTaskRecord[]> {
+  const params = new URLSearchParams({ tenantId: String(tenantId) });
+  if (assigneeUserId != null) params.set('assigneeUserId', String(assigneeUserId));
+  return request<HotWorkApprovalTaskRecord[]>(`${WORK_PERMIT_API.base}/${id}/approval/tasks/mine?${params.toString()}`);
+}
+
+export async function saveHeightWorkDetail(id: number, payload: HeightWorkDetailRequest): Promise<HeightWorkDetail> {
+  return request<HeightWorkDetail>(`${WORK_PERMIT_API.heightWorkBase(id)}/detail`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchHeightWorkFlowProgress(id: number, tenantId: number): Promise<HeightWorkFlowProgress> {
+  return request<HeightWorkFlowProgress>(`${WORK_PERMIT_API.heightWorkBase(id)}/flow-progress?tenantId=${tenantId}`);
+}
+
+export async function addHeightWorkHazardFactor(
+  id: number,
+  tenantId: number,
+  payload: { factorCode: string; factorName?: string; controlMeasure?: string }
+): Promise<HeightWorkHazardFactor> {
+  return request<HeightWorkHazardFactor>(`${WORK_PERMIT_API.heightWorkBase(id)}/hazard-factors`, {
+    method: 'POST',
+    body: JSON.stringify({ tenantId, hitSource: 'MANUAL', ...payload })
+  });
+}
+
+export async function confirmHeightWorkHazardFactor(id: number, tenantId: number, factorId: number): Promise<HeightWorkHazardFactor> {
+  return request<HeightWorkHazardFactor>(
+    `${WORK_PERMIT_API.heightWorkBase(id)}/hazard-factors/${factorId}/confirm?tenantId=${tenantId}`,
+    { method: 'POST' }
+  );
+}
+
+export async function addHeightWorkProtectionCheck(
+  id: number,
+  payload: HeightWorkProtectionCheckRequest
+): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.heightWorkBase(id)}/protection-checks`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function addHeightWorkEnvironmentCheck(
+  id: number,
+  payload: HeightWorkEnvironmentCheckRequest
+): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.heightWorkBase(id)}/environment-checks`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function heightWorkPreCheck(id: number, tenantId: number, checkPoint: string): Promise<HeightWorkPreCheckResult> {
+  return request<HeightWorkPreCheckResult>(
+    `${WORK_PERMIT_API.heightWorkBase(id)}/pre-check?tenantId=${tenantId}&checkPoint=${checkPoint}`,
+    { method: 'POST' }
+  );
+}
+
+export async function saveConfinedSpaceDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/confined-space/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function saveLiftingDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/lifting/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function saveTempElectricDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/temporary-electric/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function saveBlindPlateDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/blind-plate/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function createBlindPlateRegistry(payload: Record<string, unknown>): Promise<{ id: number }> {
+  return request('/api/blind-plates', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function saveExcavationDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/excavation/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function saveRoadBreakDetail(id: number, payload: Record<string, unknown>): Promise<unknown> {
+  return request(`${WORK_PERMIT_API.base}/${id}/road-break/detail`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
 export async function createWorkPermit(payload: WorkPermitRequest): Promise<WorkPermitRecord> {
   return request<WorkPermitRecord>(WORK_PERMIT_API.base, {
     method: 'POST',
@@ -972,10 +1092,15 @@ export async function submitWorkPermit(id: number, tenantId: number): Promise<Wo
   return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
 }
 
-export async function approveWorkPermit(id: number, tenantId: number, opinion?: string): Promise<WorkPermitRecord> {
+export async function approveWorkPermit(
+  id: number,
+  tenantId: number,
+  payload?: string | PermitActionPayload
+): Promise<WorkPermitRecord> {
+  const body = typeof payload === 'string' ? { opinion: payload, action: 'APPROVE' as const } : { action: 'APPROVE' as const, ...payload };
   return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/approve?tenantId=${tenantId}`, {
     method: 'POST',
-    body: JSON.stringify({ opinion })
+    body: JSON.stringify(body)
   });
 }
 
@@ -1230,17 +1355,27 @@ export async function downloadReportExport(tenantId: number, taskId: number, fil
   URL.revokeObjectURL(url);
 }
 
-export async function rejectWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+export async function rejectWorkPermit(
+  id: number,
+  tenantId: number,
+  payload?: string | PermitActionPayload
+): Promise<WorkPermitRecord> {
+  const body = typeof payload === 'string' ? { reason: payload, action: 'REJECT' as const } : { action: 'REJECT' as const, ...payload };
   return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/reject?tenantId=${tenantId}`, {
     method: 'POST',
-    body: JSON.stringify({ reason })
+    body: JSON.stringify(body)
   });
 }
 
-export async function returnWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
+export async function returnWorkPermit(
+  id: number,
+  tenantId: number,
+  payload?: string | PermitActionPayload
+): Promise<WorkPermitRecord> {
+  const body = typeof payload === 'string' ? { reason: payload, action: 'RETURN' as const } : { action: 'RETURN' as const, ...payload };
   return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/return?tenantId=${tenantId}`, {
     method: 'POST',
-    body: JSON.stringify({ reason })
+    body: JSON.stringify(body)
   });
 }
 

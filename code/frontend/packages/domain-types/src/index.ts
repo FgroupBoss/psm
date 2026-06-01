@@ -769,7 +769,9 @@ export interface RiskContextResult {
 export const WORK_PERMIT_API = {
   base: '/api/work-permits',
   health: '/api/work-permits/health',
-  byHazard: '/api/work-permits/by-hazard'
+  byHazard: '/api/work-permits/by-hazard',
+  hotWorkAvailableWorkflows: '/api/work-permits/hot-work/available-workflows',
+  heightWorkBase: (id: number) => `/api/work-permits/${id}/height-work`
 } as const;
 
 /** 报表与大屏 API（事件治理域 — psm-incident-governance-api）。 */
@@ -831,8 +833,111 @@ export interface WorkPermitRecord {
   contractorCompanyId?: number;
   planStartAt?: string;
   planEndAt?: string;
+  hotWorkLevel?: string;
+  workflowTemplateId?: number;
+  workflowTemplateVersion?: number;
+  workflowTemplateName?: string;
   updatedAt?: string;
 }
+
+export interface HeightWorkPreCheckResult {
+  passed: boolean;
+  checkPoint?: string;
+  ruleVersion?: string;
+  weatherSampledAt?: string;
+  reasons: HeightWorkPreCheckReason[];
+}
+
+export interface HeightWorkPreCheckReason {
+  code: string;
+  level: string;
+  message: string;
+}
+
+export interface HeightWorkDetail {
+  id?: number;
+  workPermitId?: number;
+  workHeightM: number;
+  fallDatumDescription: string;
+  workLocation: string;
+  workMethod: string;
+  heightLevel?: string;
+  riskClass?: string;
+  manualUpgradeFlag?: boolean;
+  manualUpgradeReason?: string;
+  rescuePlanRef?: string;
+  rescueContact?: string;
+  communicationConfirmed?: boolean;
+  ruleVersion?: string;
+  validUntil?: string;
+}
+
+export interface HeightWorkHazardFactor {
+  id: number;
+  factorCode: string;
+  factorName: string;
+  hitSource?: string;
+  controlMeasure?: string;
+  confirmedAt?: string;
+}
+
+export interface HeightWorkFlowNode {
+  nodeCode: string;
+  nodeName: string;
+  status: string;
+  current: boolean;
+}
+
+export interface HeightWorkFlowProgress {
+  permitStatus?: string;
+  heightLevel?: string;
+  riskClass?: string;
+  validUntil?: string;
+  nodes: HeightWorkFlowNode[];
+}
+
+export interface HeightWorkDetailRequest {
+  tenantId: number;
+  workHeightM: number;
+  fallDatumDescription: string;
+  workLocation: string;
+  workMethod: string;
+  manualUpgradeFlag?: boolean;
+  manualUpgradeReason?: string;
+  rescuePlanRef?: string;
+  rescueContact?: string;
+  communicationConfirmed?: boolean;
+}
+
+export interface HeightWorkProtectionCheckRequest {
+  tenantId: number;
+  checkStage: string;
+  itemCode: string;
+  itemName: string;
+  checkResult: string;
+  locationText?: string;
+}
+
+export interface HeightWorkEnvironmentCheckRequest {
+  tenantId: number;
+  checkStage: string;
+  windLevel?: string;
+  weatherType?: string;
+  checkResult: string;
+  reviewReason?: string;
+  dataSource?: string;
+}
+
+export const WORK_TYPE_LABELS: Record<string, string> = {
+  HOT_WORK: '动火',
+  CONFINED_SPACE: '受限空间',
+  BLIND_PLATE: '盲板抽堵',
+  HEIGHT_WORK: '高处',
+  LIFTING: '吊装',
+  TEMPORARY_ELECTRIC: '临时用电',
+  EXCAVATION: '动土',
+  ROAD_BREAK: '断路'
+};
 
 export interface WorkPermitDetailRecord {
   permit: WorkPermitRecord;
@@ -841,6 +946,19 @@ export interface WorkPermitDetailRecord {
   safetyMeasures: SafetyMeasureRecord[];
   gasTests: GasTestRecord[];
   timeline: TimelineItemRecord[];
+  heightWorkDetail?: HeightWorkDetail;
+  heightWorkHazardFactors?: HeightWorkHazardFactor[];
+  heightWorkFlowProgress?: HeightWorkFlowProgress;
+  confinedSpaceDetail?: Record<string, unknown>;
+  confinedSpaceFlowProgress?: HeightWorkFlowProgress;
+  liftingDetail?: Record<string, unknown>;
+  liftingFlowProgress?: HeightWorkFlowProgress;
+  tempElectricDetail?: Record<string, unknown>;
+  tempElectricFlowProgress?: HeightWorkFlowProgress;
+  blindPlateDetail?: Record<string, unknown>;
+  excavationDetail?: Record<string, unknown>;
+  roadBreakDetail?: Record<string, unknown>;
+  roadBreakTrafficPlan?: Record<string, unknown>;
 }
 
 export interface WorkPermitWorkerRecord {
@@ -867,6 +985,61 @@ export interface WorkPermitRequest {
   supervisorUserId?: number;
   permitIssuerUserId?: number;
   guardianUserId?: number;
+  hotWorkLevel?: string;
+  workflowTemplateId?: number;
+  workflowTemplateVersion?: number;
+  workflowTemplateName?: string;
+}
+
+export type HotWorkLevel = 'SPECIAL' | 'LEVEL_1' | 'LEVEL_2';
+
+export interface HotWorkWorkflowSummary {
+  id: number;
+  templateCode: string;
+  templateName: string;
+  hotWorkLevel: string;
+  versionNo: number;
+  status: string;
+}
+
+export interface HotWorkApprovalTaskRecord {
+  id: number;
+  nodeInstanceId: number;
+  nodeSeq?: number;
+  nodeName?: string;
+  signMode?: string;
+  assigneeUserId?: number;
+  assigneeName?: string;
+  status: string;
+}
+
+export interface HotWorkApprovalNodeProgress {
+  nodeSeq: number;
+  nodeName: string;
+  signMode: string;
+  status: string;
+  approvedCount?: number;
+  requiredCount?: number;
+}
+
+export interface HotWorkApprovalProgress {
+  instanceId?: number;
+  instanceStatus?: string;
+  currentNodeSeq?: number;
+  totalNodes?: number;
+  currentNodeName?: string;
+  signMode?: string;
+  approvedCount?: number;
+  requiredCount?: number;
+  nodes: HotWorkApprovalNodeProgress[];
+  pendingTasks: HotWorkApprovalTaskRecord[];
+}
+
+export interface PermitActionPayload {
+  opinion?: string;
+  reason?: string;
+  approvalTaskId?: number;
+  action?: 'APPROVE' | 'RETURN' | 'REJECT';
 }
 
 export interface WorkPermitWorkerRequest {

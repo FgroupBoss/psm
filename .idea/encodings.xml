@@ -7,8 +7,6 @@
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-incident-governance-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-operation-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-operation-api/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/apis/psm-platform-api/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/apis/psm-platform-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-process-safety-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-process-safety-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/apis/psm-realtime-api/src/main/java" charset="UTF-8" />
@@ -49,10 +47,6 @@
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-governance-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-iam-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-iam-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-identity-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-identity-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-incident-governance-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-incident-governance-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-incident-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-incident-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-inspection-service/src/main/java" charset="UTF-8" />
@@ -71,20 +65,12 @@
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-moc-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-notification-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-notification-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-operation-control-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-operation-control-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-pha-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-pha-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-process-safety-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-process-safety-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-pssr-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-pssr-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-realtime-perception-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-realtime-perception-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-report-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-report-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-risk-control-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/code/backend/services/psm-risk-control-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-video-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-video-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/code/backend/services/psm-work-permit-service/src/main/java" charset="UTF-8" />

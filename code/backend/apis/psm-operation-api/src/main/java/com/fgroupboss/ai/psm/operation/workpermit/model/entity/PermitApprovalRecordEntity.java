@@ -15,6 +15,13 @@ public class PermitApprovalRecordEntity {
     private Long id;
     private Long tenantId;
     private Long workPermitId;
+    private Long instanceId;
+    private Long nodeInstanceId;
+    private Integer nodeSeq;
+    private String nodeName;
+    private String signMode;
+    private Long taskId;
+    private Long assigneeUserId;
     private String action;
     private String opinion;
     private String operatorName;
