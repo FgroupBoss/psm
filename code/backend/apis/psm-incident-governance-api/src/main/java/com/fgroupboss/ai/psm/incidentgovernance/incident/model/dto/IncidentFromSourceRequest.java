@@ -1,0 +1,30 @@
+package com.fgroupboss.ai.psm.incidentgovernance.incident.model.dto;
+
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+
+@Data
+public class IncidentFromSourceRequest {
+
+    @NotNull(message = "tenantId is required")
+    private Long tenantId;
+
+    @NotBlank(message = "sourceType is required")
+    private String sourceType;
+
+    @NotNull(message = "sourceBizId is required")
+    private Long sourceBizId;
+
+    @NotBlank(message = "incidentType is required")
+    private String incidentType;
+
+    @NotBlank(message = "incidentLevel is required")
+    private String incidentLevel;
+
+    private LocalDateTime occurredAt;
+    private Long areaId;
+    private Long equipmentId;
+}

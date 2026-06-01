@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.identity.masterdata.mapper.MonitorPointMapper">
+
+    <select id="findById" resultType="com.fgroupboss.ai.psm.identity.masterdata.model.entity.MonitorPointEntity">
+        select id, tenant_id, point_code, point_name, area_id, equipment_id, source_system,
+               source_tag, metric_type, unit, high_high, high, low, low_low,
+               status, created_at, updated_at, deleted
+        from monitor_point
+        where id = #{id} and tenant_id = #{tenantId} and deleted = 0
+    </select>
+
+    <select id="findEnabledById" resultType="com.fgroupboss.ai.psm.identity.masterdata.model.entity.MonitorPointEntity">
+        select id, tenant_id, point_code, point_name, area_id, equipment_id, source_system,
+               source_tag, metric_type, unit, high_high, high, low, low_low,
+               status, created_at, updated_at, deleted
+        from monitor_point
+        where id = #{id} and tenant_id = #{tenantId} and status = 'ENABLED' and deleted = 0
+    </select>
+
+    <select id="findByCode" resultType="com.fgroupboss.ai.psm.identity.masterdata.model.entity.MonitorPointEntity">
+        select id, tenant_id, point_code, point_name, area_id, equipment_id, source_system,
+               source_tag, metric_type, unit, high_high, high, low, low_low,
+               status, created_at, updated_at, deleted
+        from monitor_point
+        where tenant_id = #{tenantId} and point_code = #{code} and deleted = 0
+    </select>
+
+    <select id="list" resultType="com.fgroupboss.ai.psm.identity.masterdata.model.entity.MonitorPointEntity">
+        select id, tenant_id, point_code, point_name, area_id, equipment_id, source_system,
+               source_tag, metric_type, unit, high_high, high, low, low_low,
+               status, created_at, updated_at, deleted
+        from monitor_point
+        where tenant_id = #{tenantId} and deleted = 0
+        <if test="keyword != null and keyword != ''">
+          and (point_code like concat('%', #{keyword}, '%') or point_name like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+          and status = #{status}
+        </if>
+        order by id desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="count" resultType="long">
+        select count(1)
+        from monitor_point
+        where tenant_id = #{tenantId} and deleted = 0
+        <if test="keyword != null and keyword != ''">
+          and (point_code like concat('%', #{keyword}, '%') or point_name like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+          and status = #{status}
+        </if>
+    </select>
+
+    <update id="updateRecord">
+        update monitor_point
+        set point_name = #{pointName},
+            area_id = #{areaId},
+            equipment_id = #{equipmentId},
+            source_system = #{sourceSystem},
+            source_tag = #{sourceTag},
+            metric_type = #{metricType},
+            unit = #{unit},
+            high_high = #{highHigh},
+            high = #{high},
+            low = #{low},
+            low_low = #{lowLow},
+            status = #{status},
+            updated_at = now()
+        where id = #{id} and tenant_id = #{tenantId} and deleted = 0
+    </update>
+
+    <update id="setStatus">
+        update monitor_point set status = #{status}, updated_at = now()
+        where id = #{id} and tenant_id = #{tenantId} and deleted = 0
+    </update>
+
+    <update id="softDelete">
+        update monitor_point set deleted = 1, updated_at = now()
+        where id = #{id} and tenant_id = #{tenantId} and deleted = 0
+    </update>
+</mapper>

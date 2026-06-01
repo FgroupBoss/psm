@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="psm-process-safety-api" />
+        <module name="psm-common-security" />
+        <module name="psm-risk-api" />
+        <module name="psm-common-web" />
+        <module name="psm-operation-api" />
+        <module name="psm-common-core" />
+        <module name="psm-incident-governance-api" />
+        <module name="psm-realtime-api" />
+        <module name="psm-common-data" />
+        <module name="psm-common-feign" />
+        <module name="psm-identity-api" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="psm-alarm-service" target="1.8" />
+      <module name="psm-audit-service" target="1.8" />
+      <module name="psm-auth-service" target="1.8" />
+      <module name="psm-barrier-service" target="1.8" />
+      <module name="psm-config-rule-service" target="1.8" />
+      <module name="psm-contractor-service" target="1.8" />
+      <module name="psm-dual-prevention-service" target="1.8" />
+      <module name="psm-file-service" target="1.8" />
+      <module name="psm-gateway" target="1.8" />
+      <module name="psm-governance-service" target="1.8" />
+      <module name="psm-iam-service" target="1.8" />
+      <module name="psm-identity-service" target="1.8" />
+      <module name="psm-incident-governance-service" target="1.8" />
+      <module name="psm-incident-service" target="1.8" />
+      <module name="psm-inspection-service" target="1.8" />
+      <module name="psm-integration-service" target="1.8" />
+      <module name="psm-location-service" target="1.8" />
+      <module name="psm-major-hazard-service" target="1.8" />
+      <module name="psm-master-data-service" target="1.8" />
+      <module name="psm-mobile-bff" target="1.8" />
+      <module name="psm-moc-service" target="1.8" />
+      <module name="psm-notification-service" target="1.8" />
+      <module name="psm-operation-control-service" target="1.8" />
+      <module name="psm-pha-service" target="1.8" />
+      <module name="psm-platform-api" target="1.8" />
+      <module name="psm-process-safety-service" target="1.8" />
+      <module name="psm-pssr-service" target="1.8" />
+      <module name="psm-realtime-perception-service" target="1.8" />
+      <module name="psm-report-service" target="1.8" />
+      <module name="psm-risk-control-service" target="1.8" />
+      <module name="psm-video-service" target="1.8" />
+      <module name="psm-work-permit-service" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

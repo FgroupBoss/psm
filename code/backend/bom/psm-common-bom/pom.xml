@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.fgroupboss.ai</groupId>
+        <artifactId>psm-platform-backend</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>psm-common-bom</artifactId>
+    <packaging>pom</packaging>
+
+    <name>psm-common-bom</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-common-core</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-common-data</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-common-web</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-common-feign</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-common-security</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <!-- 领域服务（同时也是 API 契约提供者） -->
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-identity-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-realtime-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-operation-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-risk-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-process-safety-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fgroupboss.ai</groupId>
+                <artifactId>psm-incident-governance-api</artifactId>
+                <version>${psm.common.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

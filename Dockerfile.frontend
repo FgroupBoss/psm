@@ -1,0 +1,10 @@
+FROM nginx:alpine
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY code/frontend/dist/admin-web /usr/share/nginx/html/admin
+COPY code/frontend/dist/mobile-site /usr/share/nginx/html/mobile
+COPY code/frontend/dist/dashboard-web /usr/share/nginx/html/dashboard
+
+EXPOSE 80

@@ -1,0 +1,29 @@
+server:
+  port: 18088
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: psm-operation-control
+  datasource:
+    url: ${PSM_DB_URL:jdbc:mysql://mysql:3306/psm_operation?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${PSM_DB_USER:root}
+    password: ${PSM_DB_PASSWORD:YourStrongP@ssw0rd}
+  redis:
+    host: ${PSM_REDIS_HOST:redis}
+    port: 6379
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+psm:
+  realtime-service-url: http://psm-realtime:18087
+  risk-service-url: http://psm-risk:18101
+  alarm-service-url: http://psm-realtime:18087
+  location-service-url: http://psm-realtime:18087
+  dual-prevention-service-url: http://psm-risk:18101
+  file-service-url: http://psm-identity:18080
+  work-permit-service-url: http://127.0.0.1:18088

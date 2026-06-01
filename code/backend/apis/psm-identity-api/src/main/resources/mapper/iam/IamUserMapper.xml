@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.identity.iam.mapper.IamUserMapper">
+
+    <sql id="columns">
+        id, tenant_id, auth_user_id, username, display_name, mobile, email, org_id, post_id,
+        account_type, status, permission_version, created_at, updated_at, deleted
+    </sql>
+
+    <select id="findById" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
+        select <include refid="columns"/>
+        from sys_user
+        where id = #{id}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </select>
+
+    <select id="findByUsername" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
+        select <include refid="columns"/>
+        from sys_user
+        where tenant_id = #{tenantId}
+          and username = #{username}
+          and deleted = 0
+    </select>
+
+    <select id="findByAuthUserId" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
+        select <include refid="columns"/>
+        from sys_user
+        where tenant_id = #{tenantId}
+          and auth_user_id = #{authUserId}
+          and deleted = 0
+    </select>
+
+    <select id="list" resultType="com.fgroupboss.ai.psm.identity.iam.model.entity.IamUserEntity">
+        select <include refid="columns"/>
+        from sys_user
+        where tenant_id = #{tenantId}
+          and deleted = 0
+        <if test="keyword != null and keyword != ''">
+          and (username like concat('%', #{keyword}, '%') or display_name like concat('%', #{keyword}, '%'))
+        </if>
+        order by id desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="count" resultType="long">
+        select count(1)
+        from sys_user
+        where tenant_id = #{tenantId}
+          and deleted = 0
+        <if test="keyword != null and keyword != ''">
+          and (username like concat('%', #{keyword}, '%') or display_name like concat('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <update id="updateUser">
+        update sys_user
+        set auth_user_id = #{authUserId},
+            display_name = #{displayName},
+            mobile = #{mobile},
+            email = #{email},
+            org_id = #{orgId},
+            post_id = #{postId},
+            account_type = #{accountType},
+            status = #{status},
+            updated_at = now()
+        where id = #{id}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </update>
+
+    <update id="updateStatus">
+        update sys_user
+        set status = #{status},
+            permission_version = permission_version + 1,
+            updated_at = now()
+        where id = #{id}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </update>
+
+    <update id="increasePermissionVersion">
+        update sys_user
+        set permission_version = permission_version + 1,
+            updated_at = now()
+        where id = #{id}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </update>
+</mapper>

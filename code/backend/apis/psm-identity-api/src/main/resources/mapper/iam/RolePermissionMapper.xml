@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.identity.iam.mapper.RolePermissionMapper">
+
+    <delete id="deleteByRole">
+        delete from sys_role_permission
+        where tenant_id = #{tenantId}
+          and role_id = #{roleId}
+    </delete>
+
+    <select id="findPermissionCodesByUser" resultType="string">
+        select distinct rp.permission_code
+        from sys_role_permission rp
+        inner join sys_user_role ur on ur.role_id = rp.role_id and ur.tenant_id = rp.tenant_id
+        where ur.tenant_id = #{tenantId}
+          and ur.user_id = #{userId}
+        order by rp.permission_code asc
+    </select>
+</mapper>

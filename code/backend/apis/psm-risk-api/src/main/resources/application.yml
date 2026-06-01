@@ -1,0 +1,25 @@
+server:
+  port: 18101
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: psm-risk-control
+  datasource:
+    url: ${PSM_DB_URL:jdbc:mysql://mysql:3306/psm_risk?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${PSM_DB_USER:root}
+    password: ${PSM_DB_PASSWORD:YourStrongP@ssw0rd}
+  redis:
+    host: ${PSM_REDIS_HOST:redis}
+    port: 6379
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+psm:
+  realtime-service-url: http://psm-realtime:18087
+  alarm-service-url: http://psm-realtime:18087
+  dual-prevention-service-url: http://127.0.0.1:18101

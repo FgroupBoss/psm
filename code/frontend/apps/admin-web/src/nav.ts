@@ -280,7 +280,8 @@ export function buildNavItems(menus: MenuTreeNode[]): NavItem[] {
     const fallback = DEFAULT_NAV.find((item) => item.view === view);
     items.push({
       view,
-      label: menu.resourceName || fallback?.label || view,
+      // 优先使用前端内置中文标签，避免 DB 种子数据字符集错误导致侧栏乱码
+      label: fallback?.label || menu.resourceName || view,
       group: fallback?.group || '功能菜单'
     });
   });
@@ -302,4 +303,68 @@ export function groupNavItems(items: NavItem[]): Array<{ group: string; items: N
     groups.set(item.group, list);
   });
   return Array.from(groups.entries()).map(([group, groupItems]) => ({ group, items: groupItems }));
+}
+
+const NAV_ICONS: Record<AppView, string> = {
+  'master-data:areas': 'fa-map-location-dot',
+  'master-data:units': 'fa-industry',
+  'master-data:equipments': 'fa-gears',
+  'master-data:monitor-points': 'fa-bullseye',
+  'iam:orgs': 'fa-sitemap',
+  'iam:users': 'fa-users',
+  'iam:roles': 'fa-user-shield',
+  'iam:menus': 'fa-bars',
+  config: 'fa-sliders',
+  audit: 'fa-clipboard-list',
+  'contractor:companies': 'fa-building',
+  'contractor:workers': 'fa-helmet-safety',
+  'hazard:ledger': 'fa-radiation',
+  'alarm:list': 'fa-bell',
+  'work-permit:list': 'fa-file-signature',
+  'report:overview': 'fa-chart-pie',
+  'report:dashboard': 'fa-tv',
+  'report:acceptance': 'fa-circle-check',
+  'report:phase2': 'fa-chart-line',
+  'dual-prevention:risk': 'fa-shield-halved',
+  'dual-prevention:hazards': 'fa-triangle-exclamation',
+  'inspection:tasks': 'fa-route',
+  'location:overview': 'fa-location-dot',
+  'video:events': 'fa-video',
+  'simops:conflicts': 'fa-layer-group',
+  'integration:reg': 'fa-cloud-arrow-up',
+  'pha:projects': 'fa-flask',
+  'pha:recommendations': 'fa-list-check',
+  'pha:lopa': 'fa-diagram-project',
+  'moc:changes': 'fa-arrows-rotate',
+  'pssr:projects': 'fa-clipboard-check',
+  'barrier:ledger': 'fa-shield',
+  'barrier:mi': 'fa-wrench',
+  'incident:list': 'fa-file-circle-exclamation',
+  'governance:dashboard': 'fa-building-columns',
+  'report:phase3': 'fa-chart-column'
+};
+
+/** 侧栏菜单项图标（折叠态展示）。 */
+export function navIconFor(view: AppView): string {
+  return NAV_ICONS[view] || 'fa-circle';
+}
+
+const SIDEBAR_COLLAPSED_KEY = 'psm.admin.sidebarCollapsed';
+
+/** 读取侧栏折叠偏好（PC 端持久化）。 */
+export function readSidebarCollapsed(): boolean {
+  try {
+    return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/** 保存侧栏折叠偏好。 */
+export function saveSidebarCollapsed(collapsed: boolean): void {
+  try {
+    window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
 }

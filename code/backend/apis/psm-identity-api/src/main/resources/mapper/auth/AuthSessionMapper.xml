@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.identity.auth.mapper.AuthSessionMapper">
+
+    <select id="findByAccessToken" resultType="com.fgroupboss.ai.psm.identity.auth.model.entity.AuthSessionEntity">
+        select id, tenant_id, user_id, access_token, refresh_token, permission_version, access_expires_at,
+               refresh_expires_at, revoked
+        from auth_session
+        where access_token = #{accessToken}
+          and revoked = 0
+    </select>
+
+    <select id="findByRefreshToken" resultType="com.fgroupboss.ai.psm.identity.auth.model.entity.AuthSessionEntity">
+        select id, tenant_id, user_id, access_token, refresh_token, permission_version, access_expires_at,
+               refresh_expires_at, revoked
+        from auth_session
+        where refresh_token = #{refreshToken}
+          and revoked = 0
+    </select>
+
+    <update id="revoke">
+        update auth_session
+        set revoked = 1, updated_at = now()
+        where id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fgroupboss.ai.psm.identity.auth.mapper.AuthUserMapper">
+
+    <select id="findByUsername" resultType="com.fgroupboss.ai.psm.identity.auth.model.entity.AuthUserEntity">
+        select id, tenant_id, username, display_name, mobile, email, password_hash,
+               account_type, status, last_login_at
+        from auth_user
+        where tenant_id = #{tenantId}
+          and username = #{username}
+          and deleted = 0
+    </select>
+
+    <select id="findByIdAndTenant" resultType="com.fgroupboss.ai.psm.identity.auth.model.entity.AuthUserEntity">
+        select id, tenant_id, username, display_name, mobile, email, password_hash,
+               account_type, status, last_login_at
+        from auth_user
+        where tenant_id = #{tenantId}
+          and id = #{userId}
+          and deleted = 0
+    </select>
+
+    <select id="findByIdentity" resultType="com.fgroupboss.ai.psm.identity.auth.model.entity.AuthUserEntity">
+        select u.id, u.tenant_id, u.username, u.display_name, u.mobile, u.email, u.password_hash,
+               u.account_type, u.status, u.last_login_at
+        from auth_user u
+        inner join auth_user_identity i
+            on u.id = i.user_id
+           and u.tenant_id = i.tenant_id
+        where i.tenant_id = #{tenantId}
+          and i.provider_code = #{providerCode}
+          and i.external_user_id = #{externalUserId}
+          and i.enabled = 1
+          and u.deleted = 0
+    </select>
+
+    <update id="updateLastLogin">
+        update auth_user
+        set last_login_at = now(), updated_at = now()
+        where tenant_id = #{tenantId}
+          and id = #{userId}
+    </update>
+</mapper>
