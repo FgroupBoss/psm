@@ -9,6 +9,9 @@ import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationUnreadCo
 
 import java.util.List;
 
+/**
+ * 消息通知服务：站内信收件箱、发送、未读角标与外通道配置状态。
+ */
 public interface NotificationService {
 
     NotificationHealthVO health();

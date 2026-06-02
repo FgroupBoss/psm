@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.util.List;
 
+/** 存储后端元数据：展示名、必填配置项与说明。 */
 @Data
 public class FileBackendSchemaVO {
 

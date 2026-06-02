@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.Date;
 import java.util.Map;
 
+/** 租户存储配置档（密钥字段已脱敏）。 */
 @Data
 public class FileStorageProfileVO {
 

@@ -2,6 +2,7 @@ package com.fgroupboss.ai.psm.identity.file.storage;
 
 import lombok.Data;
 
+/** 存储配置档连通性探针结果。 */
 @Data
 public class HealthCheckResult {
 

@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+/** 保存租户存储配置档的请求体。 */
 @Data
 public class FileStorageProfileRequest {
 

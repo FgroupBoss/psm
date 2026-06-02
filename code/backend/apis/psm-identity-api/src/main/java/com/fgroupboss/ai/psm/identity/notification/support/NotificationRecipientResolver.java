@@ -5,6 +5,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+/**
+ * 从发送请求或模板变量中解析外通道收件人（手机/邮箱）。
+ */
 public final class NotificationRecipientResolver {
 
     private NotificationRecipientResolver() {

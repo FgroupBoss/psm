@@ -3,6 +3,9 @@ package com.fgroupboss.ai.psm.identity.file.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * 文件模块全局配置：默认后端、本地上传根目录、大小/类型限制与下载模式。
+ */
 @Data
 @ConfigurationProperties(prefix = "psm.file")
 public class FileProperties {

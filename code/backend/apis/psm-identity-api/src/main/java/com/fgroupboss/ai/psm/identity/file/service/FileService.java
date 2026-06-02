@@ -6,6 +6,9 @@ import com.fgroupboss.ai.psm.identity.file.model.vo.FilePresignVO;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 文件对象服务：上传、元数据查询、本地下载与对象存储预签名。
+ */
 public interface FileService {
 
     FileHealthVO health();

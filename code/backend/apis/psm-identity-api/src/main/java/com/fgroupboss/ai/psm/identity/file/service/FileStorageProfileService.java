@@ -7,6 +7,9 @@ import com.fgroupboss.ai.psm.identity.file.storage.HealthCheckResult;
 
 import java.util.List;
 
+/**
+ * 租户存储配置档管理：列表、默认档、保存与连通性探针。
+ */
 public interface FileStorageProfileService {
 
     List<FileStorageProfileVO> list(Long tenantId);

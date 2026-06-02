@@ -20,6 +20,9 @@ public class WorkbenchTodoService {
 
     private final MobileTaskService mobileTaskService;
 
+    /**
+     * 实现方式：委托 {@link MobileTaskService} 按角色拉取任务，可选按 taskType 过滤。
+     */
     public List<MobileTaskVO> listTodos(Long tenantId, Long userId, String role, String taskType) {
         List<MobileTaskVO> tasks = mobileTaskService.listTasks(tenantId, userId, MobileRole.from(role));
         if (!StringUtils.hasText(taskType)) {
@@ -35,6 +38,9 @@ public class WorkbenchTodoService {
         return filtered;
     }
 
+    /**
+     * 实现方式：拉取任务列表后按 SITE_PERMIT/MONITOR 等类型累加计数。
+     */
     public WorkbenchTodoCountVO countTodos(Long tenantId, Long userId, String role) {
         List<MobileTaskVO> tasks = mobileTaskService.listTasks(tenantId, userId, MobileRole.from(role));
         WorkbenchTodoCountVO vo = new WorkbenchTodoCountVO();

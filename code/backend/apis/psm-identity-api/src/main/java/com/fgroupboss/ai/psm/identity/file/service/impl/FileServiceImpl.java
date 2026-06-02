@@ -33,6 +33,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 
+/**
+ * 文件对象服务实现。
+ *
+ * <p>按租户存储配置档选择 {@link com.fgroupboss.ai.psm.identity.file.storage.StorageAdapterRouter}，
+ * 元数据落库 {@code file_object}；云存储下载可走预签名重定向。</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -54,6 +60,9 @@ public class FileServiceImpl implements FileService {
         return vo;
     }
 
+    /**
+     * 实现方式：校验上传策略并解析存储配置档，经适配器写入对象存储后持久化元数据。
+     */
     @Override
     public FileObjectVO upload(Long tenantId, MultipartFile file, String bizType, Long bizId, String operator,
                                String storageProfileCode) {
@@ -145,6 +154,9 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    /**
+     * 实现方式：加载文件元数据与配置，委托路由器生成限时 GET 预签名 URL。
+     */
     @Override
     public FilePresignVO presignDownload(Long tenantId, Long id) {
         FileObjectEntity entity = requireEntity(tenantId, id);
@@ -158,6 +170,9 @@ public class FileServiceImpl implements FileService {
         return vo;
     }
 
+    /**
+     * 实现方式：结合全局 downloadMode 与后端类型判断是否对下载/预览返回 302。
+     */
     @Override
     public boolean shouldRedirectToPresign(Long tenantId, Long id) {
         FileObjectEntity entity = requireEntity(tenantId, id);

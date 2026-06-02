@@ -18,6 +18,9 @@ import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
+/**
+ * 本地磁盘存储适配器，根目录由 {@link com.fgroupboss.ai.psm.identity.file.config.FileProperties} 指定。
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

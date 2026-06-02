@@ -17,6 +17,12 @@ public class NotificationOutboundRouter {
     private final HttpNotificationOutboundSender httpSender;
     private final PlaceholderNotificationOutboundSender placeholderSender;
 
+    /**
+     * 按通道配置选择 HTTP 网关或占位投递。
+     *
+     * @param request 外通道请求
+     * @return 投递结果（SENT / SKIPPED / FAILED）
+     */
     public OutboundSendResult dispatch(OutboundSendRequest request) {
         String channel = request.getChannel();
         if (!StringUtils.hasText(channel) || NotificationChannel.IN_APP.equals(channel)) {

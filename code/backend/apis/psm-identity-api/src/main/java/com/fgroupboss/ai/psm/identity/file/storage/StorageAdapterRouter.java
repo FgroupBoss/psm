@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 
+/**
+ * 按后端类型与 profile 配置（含 HTTP 网关模式）路由到具体存储适配器。
+ */
 @Component
 @RequiredArgsConstructor
 public class StorageAdapterRouter {

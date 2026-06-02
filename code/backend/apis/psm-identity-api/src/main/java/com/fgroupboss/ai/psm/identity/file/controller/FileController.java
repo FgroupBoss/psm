@@ -35,6 +35,7 @@ import java.util.List;
 /**
  * File 模块 HTTP API。
  * <p>基础路径：{@code /api/files}</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；对象存储下载/预览在 {@code downloadMode=AUTO} 时可 302 至预签名 URL。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -44,36 +45,91 @@ public class FileController {
     private final FileService fileService;
     private final FileStorageProfileService fileStorageProfileService;
 
+    /**
+     * 服务健康检查。
+     * <p>HTTP GET {@code /api/files/health}</p>
+     *
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/health")
     public ResponseVO<FileHealthVO> health() {
         return ResponseVO.success(fileService.health());
     }
 
+    /**
+     * 列出支持的存储后端及配置字段说明（管理端建 profile 用）。
+     * <p>HTTP GET {@code /api/files/backends}</p>
+     *
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/backends")
     public ResponseVO<List<FileBackendSchemaVO>> backends() {
         return ResponseVO.success(fileStorageProfileService.listBackendSchemas());
     }
 
+    /**
+     * 查询租户存储配置档列表。
+     * <p>HTTP GET {@code /api/files/profiles}</p>
+     *
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/profiles")
     public ResponseVO<List<FileStorageProfileVO>> listProfiles(@RequestParam Long tenantId) {
         return ResponseVO.success(fileStorageProfileService.list(tenantId));
     }
 
+    /**
+     * 查询租户默认且启用的存储配置档。
+     * <p>HTTP GET {@code /api/files/profiles/default}</p>
+     *
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/profiles/default")
     public ResponseVO<FileStorageProfileVO> defaultProfile(@RequestParam Long tenantId) {
         return ResponseVO.success(fileStorageProfileService.getDefault(tenantId));
     }
 
+    /**
+     * 新增或更新存储配置档（按 tenantId + profileCode 幂等）。
+     * <p>HTTP POST {@code /api/files/profiles}</p>
+     *
+     * @param request 请求体
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/profiles")
     public ResponseVO<FileStorageProfileVO> saveProfile(@Valid @RequestBody FileStorageProfileRequest request) {
         return ResponseVO.success(fileStorageProfileService.save(request));
     }
 
+    /**
+     * 对指定配置档做连通性探针（不写业务文件元数据）。
+     * <p>HTTP POST {@code /api/files/profiles/{id}/test}</p>
+     *
+     * @param id       配置档主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping("/profiles/{id}/test")
     public ResponseVO<HealthCheckResult> testProfile(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(fileStorageProfileService.test(tenantId, id));
     }
 
+    /**
+     * 上传文件并写入元数据。
+     * <p>HTTP POST {@code /api/files/upload}（multipart）</p>
+     *
+     * @param tenantId            租户 ID
+     * @param file                文件流
+     * @param bizType             业务类型（可选）
+     * @param bizId               业务主键（可选）
+     * @param storageProfileCode  指定配置档编码，空则使用租户默认档
+     * @param userId              操作人用户 ID（请求头透传）
+     * @param username            操作人用户名（请求头透传）
+     * @param operator            兼容操作人标识
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseVO<FileObjectVO> upload(@RequestParam Long tenantId,
                                            @RequestParam("file") MultipartFile file,
@@ -87,16 +143,40 @@ public class FileController {
                 UserContextResolver.operator(userId, username, operator), storageProfileCode));
     }
 
+    /**
+     * 查询文件元数据（不含字节流）。
+     * <p>HTTP GET {@code /api/files/{id}}</p>
+     *
+     * @param id       文件主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}")
     public ResponseVO<FileObjectVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(fileService.get(tenantId, id));
     }
 
+    /**
+     * 获取下载预签名 URL（对象存储 / HTTP 网关）。
+     * <p>HTTP GET {@code /api/files/{id}/presign}</p>
+     *
+     * @param id       文件主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
+     */
     @GetMapping("/{id}/presign")
     public ResponseVO<FilePresignVO> presign(@PathVariable Long id, @RequestParam Long tenantId) {
         return ResponseVO.success(fileService.presignDownload(tenantId, id));
     }
 
+    /**
+     * 下载文件；云存储在 AUTO 模式下返回 302 至预签名地址，否则流式输出。
+     * <p>HTTP GET {@code /api/files/{id}/download}</p>
+     *
+     * @param id       文件主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 文件流或重定向响应
+     */
     @GetMapping("/{id}/download")
     public ResponseEntity<?> download(@PathVariable Long id, @RequestParam Long tenantId) {
         if (fileService.shouldRedirectToPresign(tenantId, id)) {
@@ -111,6 +191,14 @@ public class FileController {
                 .body(resource);
     }
 
+    /**
+     * 内联预览文件（Content-Disposition: inline）；行为与下载接口的重定向策略一致。
+     * <p>HTTP GET {@code /api/files/{id}/preview}</p>
+     *
+     * @param id       文件主键 ID
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @return 文件流或重定向响应
+     */
     @GetMapping("/{id}/preview")
     public ResponseEntity<?> preview(@PathVariable Long id, @RequestParam Long tenantId) {
         if (fileService.shouldRedirectToPresign(tenantId, id)) {

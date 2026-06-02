@@ -27,6 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 租户存储配置档管理服务实现。
+ *
+ * <p>配置 JSON 落库时对密钥字段脱敏展示；探针经 {@link StorageAdapterRouter} 校验连通性。</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class FileStorageProfileServiceImpl implements FileStorageProfileService {
@@ -65,6 +70,9 @@ public class FileStorageProfileServiceImpl implements FileStorageProfileService 
         return toVo(entity, false);
     }
 
+    /**
+     * 实现方式：按 tenantId + profileCode 幂等保存，处理默认档互斥并脱敏返回。
+     */
     @Override
     @Transactional
     public FileStorageProfileVO save(FileStorageProfileRequest request) {
@@ -105,6 +113,9 @@ public class FileStorageProfileServiceImpl implements FileStorageProfileService 
         return toVo(entity, false);
     }
 
+    /**
+     * 实现方式：加载租户配置档后调用对应存储适配器做连通性探针并回写最近探测结果。
+     */
     @Override
     @Transactional
     public HealthCheckResult test(Long tenantId, Long profileId) {

@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 上传策略校验：非空、大小上限与允许的 Content-Type。
+ */
 @Component
 @RequiredArgsConstructor
 public class FilePolicySupport {

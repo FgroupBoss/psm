@@ -61,6 +61,7 @@ public class NotificationController {
      * @param tenantId 租户 ID，多租户隔离必填
      * @param userId 当前操作人用户 ID（请求头透传）
      * @param read read 参数
+     * @param bizType 业务类型过滤（可选）
      * @param pageNo 页码，从 1 开始
      * @param pageSize 每页条数，默认 20
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
@@ -78,6 +79,10 @@ public class NotificationController {
     /**
      * 未读消息数量（角标）。
      * <p>HTTP GET {@code /api/notifications/unread-count}</p>
+     *
+     * @param tenantId 租户 ID，多租户隔离必填
+     * @param userId   收件人用户 ID
+     * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/unread-count")
     public ResponseVO<NotificationUnreadCountVO> unreadCount(@RequestParam Long tenantId,
@@ -88,6 +93,8 @@ public class NotificationController {
     /**
      * 外通道配置状态（不含密钥）。
      * <p>HTTP GET {@code /api/notifications/channels/status}</p>
+     *
+     * @return 各通道 enabled/mode/是否已配置 HTTP 网关，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/channels/status")
     public ResponseVO<List<NotificationChannelStatusVO>> channelStatus() {

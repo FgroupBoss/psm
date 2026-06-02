@@ -2,6 +2,9 @@ package com.fgroupboss.ai.psm.identity.notification.outbound;
 
 import lombok.Data;
 
+/**
+ * 外通道投递结果，与 {@code notification_delivery_log.status} 对齐。
+ */
 @Data
 public class OutboundSendResult {
 

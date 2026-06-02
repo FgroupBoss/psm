@@ -15,6 +15,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
+/**
+ * 外通道异步投递：写/更新投递日志，经 {@link com.fgroupboss.ai.psm.identity.notification.outbound.NotificationOutboundRouter} 派发。
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,9 @@ public class NotificationExternalDeliveryService {
     private final NotificationDeliveryLogMapper deliveryLogMapper;
     private final NotificationOutboundRouter outboundRouter;
 
+    /**
+     * 实现方式：幂等检查已 SENT 记录；缺收件人则 SKIPPED，否则路由发送并回写日志状态。
+     */
     @Async
     public void deliverAsync(Long tenantId, Long messageId, String channel, String deliveryRequestId,
                              OutboundSendRequest outboundRequest) {

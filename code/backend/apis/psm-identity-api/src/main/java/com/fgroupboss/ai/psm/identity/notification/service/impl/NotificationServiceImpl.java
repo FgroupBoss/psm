@@ -35,6 +35,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 消息通知服务实现。
+ *
+ * <p>站内信落库；短信/邮件/企微/钉钉经 {@link NotificationExternalDeliveryService} 异步外送并记投递日志。</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -61,6 +66,9 @@ public class NotificationServiceImpl implements NotificationService {
         return vo;
     }
 
+    /**
+     * 实现方式：校验入参、按 requestId 幂等；写站内信并异步派发已启用的外通道。
+     */
     @Override
     @Transactional
     public NotificationMessageVO send(NotificationSendRequest request) {
@@ -149,9 +157,12 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    /**
+     * 实现方式：按租户、用户分页查询站内信，支持已读状态与 bizType 过滤。
+     */
     @Override
     public PageResult<NotificationMessageVO> inbox(Long tenantId, Long userId, Boolean read, String bizType,
-                                                 int pageNo, int pageSize) {
+                                          int pageNo, int pageSize) {
         requireTenantUser(tenantId, userId);
         int safePageNo = Math.max(pageNo, 1);
         int safePageSize = Math.min(Math.max(pageSize, 1), 100);
@@ -206,6 +217,9 @@ public class NotificationServiceImpl implements NotificationService {
                 .eq(NotificationMessageEntity::getReadFlag, 0));
     }
 
+    /**
+     * 实现方式：按租户与用户统计 readFlag=0 的站内信条数，供角标展示。
+     */
     @Override
     public NotificationUnreadCountVO unreadCount(Long tenantId, Long userId) {
         requireTenantUser(tenantId, userId);
@@ -218,6 +232,9 @@ public class NotificationServiceImpl implements NotificationService {
         return vo;
     }
 
+    /**
+     * 实现方式：读取 {@code psm.notification.*} 配置，返回各外通道启用/模式/是否已配网关（不含密钥）。
+     */
     @Override
     public List<NotificationChannelStatusVO> channelStatus() {
         List<NotificationChannelStatusVO> list = new ArrayList<NotificationChannelStatusVO>();

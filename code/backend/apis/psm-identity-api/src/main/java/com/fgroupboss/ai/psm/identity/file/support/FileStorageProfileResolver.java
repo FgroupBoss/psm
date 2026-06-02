@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+/**
+ * 解析租户上传/下载使用的存储配置档（指定 code 或默认档），无库表时回退平台默认 LOCAL。
+ */
 @Component
 @RequiredArgsConstructor
 public class FileStorageProfileResolver {
