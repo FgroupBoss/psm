@@ -1,8 +1,13 @@
 package com.fgroupboss.ai.psm.common.feign;
 
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * 远程服务调用超时异常。
  */
+@Getter
+@ToString(callSuper = true)
 public class RemoteServiceTimeoutException extends RemoteServiceException {
 
     private final String targetService;
@@ -10,12 +15,5 @@ public class RemoteServiceTimeoutException extends RemoteServiceException {
     public RemoteServiceTimeoutException(String targetService, String message) {
         super(504, message);
         this.targetService = targetService;
-    }
-
-    public String getTargetService() { return targetService; }
-
-    @Override
-    public String toString() {
-        return "RemoteServiceTimeoutException{targetService=" + targetService + ", message=" + getMessage() + '}';
     }
 }

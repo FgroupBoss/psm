@@ -1,8 +1,7 @@
 package com.fgroupboss.ai.psm.common.notification;
 
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -20,10 +19,9 @@ import java.util.Map;
 /**
  * 向 {@code psm-notification-service} 发送站内信（best-effort，失败不阻断业务事务）。
  */
+@Slf4j
 @Component
 public class CentralNotificationClient {
-
-    private static final Logger log = LoggerFactory.getLogger(CentralNotificationClient.class);
 
     private static final ParameterizedTypeReference<ResponseVO<Map<String, Object>>> RESPONSE_TYPE =
             new ParameterizedTypeReference<ResponseVO<Map<String, Object>>>() {
