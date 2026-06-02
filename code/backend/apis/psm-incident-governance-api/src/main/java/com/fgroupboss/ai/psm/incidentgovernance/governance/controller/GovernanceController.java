@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.incidentgovernance.governance.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.governance.model.dto.BenchmarkQueryParams;
 import com.fgroupboss.ai.psm.incidentgovernance.governance.model.dto.DashboardQueryParams;
@@ -57,13 +59,13 @@ public class GovernanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/templates")
-    public ResponseVO<PageResult<GovTemplateVO>> pageTemplates(@RequestParam Long tenantId,
-                                                              @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<GovTemplateVO>> pageTemplates(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                               @RequestParam(required = false) String templateType,
                                                               @RequestParam(required = false) String status,
                                                               @RequestParam(defaultValue = "1") int pageNo,
                                                               @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(governanceService.pageTemplates(tenantId, keyword, templateType, status, pageNo, pageSize));
+        return ResponseVO.success(governanceService.pageTemplates(loginContext.getTenantId(), keyword, templateType, status, pageNo, pageSize));
     }
 
     /**
@@ -102,12 +104,12 @@ public class GovernanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/sites")
-    public ResponseVO<PageResult<GovSiteMappingVO>> pageSites(@RequestParam Long tenantId,
-                                                                @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<GovSiteMappingVO>> pageSites(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                                 @RequestParam(required = false) Integer enabledFlag,
                                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                                 @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(governanceService.pageSites(tenantId, keyword, enabledFlag, pageNo, pageSize));
+        return ResponseVO.success(governanceService.pageSites(loginContext.getTenantId(), keyword, enabledFlag, pageNo, pageSize));
     }
 
     /**
@@ -134,13 +136,13 @@ public class GovernanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/metrics")
-    public ResponseVO<PageResult<GovMetricDefinitionVO>> pageMetrics(@RequestParam Long tenantId,
-                                                                     @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<GovMetricDefinitionVO>> pageMetrics(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                                      @RequestParam(required = false) String metricDomain,
                                                                      @RequestParam(required = false) Integer enabledFlag,
                                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(governanceService.pageMetrics(tenantId, keyword, metricDomain, enabledFlag, pageNo, pageSize));
+        return ResponseVO.success(governanceService.pageMetrics(loginContext.getTenantId(), keyword, metricDomain, enabledFlag, pageNo, pageSize));
     }
 
     /**
@@ -168,15 +170,15 @@ public class GovernanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/metrics/snapshots")
-    public ResponseVO<PageResult<GovMetricSnapshotVO>> pageSnapshots(@RequestParam Long tenantId,
-                                                                       @RequestParam(required = false) String metricCode,
+    public ResponseVO<PageResult<GovMetricSnapshotVO>> pageSnapshots(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String metricCode,
                                                                        @RequestParam(required = false) Long siteId,
                                                                        @RequestParam(required = false) LocalDateTime periodStartFrom,
                                                                        @RequestParam(required = false) LocalDateTime periodStartTo,
                                                                        @RequestParam(defaultValue = "1") int pageNo,
                                                                        @RequestParam(defaultValue = "20") int pageSize) {
         MetricSnapshotQueryParams params = new MetricSnapshotQueryParams();
-        params.setTenantId(tenantId);
+        params.setTenantId(loginContext.getTenantId());
         params.setMetricCode(metricCode);
         params.setSiteId(siteId);
         params.setPeriodStartFrom(periodStartFrom);
@@ -198,12 +200,12 @@ public class GovernanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/audit-issues")
-    public ResponseVO<PageResult<GovAuditIssueVO>> pageAuditIssues(@RequestParam Long tenantId,
-                                                                     @RequestParam(required = false) Long siteId,
+    public ResponseVO<PageResult<GovAuditIssueVO>> pageAuditIssues(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long siteId,
                                                                      @RequestParam(required = false) String status,
                                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(governanceService.pageAuditIssues(tenantId, siteId, status, pageNo, pageSize));
+        return ResponseVO.success(governanceService.pageAuditIssues(loginContext.getTenantId(), siteId, status, pageNo, pageSize));
     }
 
     /**
@@ -226,10 +228,10 @@ public class GovernanceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/dashboard/overview")
-    public ResponseVO<DashboardOverviewVO> dashboardOverview(@RequestParam Long tenantId,
-                                                             @RequestParam(required = false) Integer enabledSitesOnly) {
+    public ResponseVO<DashboardOverviewVO> dashboardOverview(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Integer enabledSitesOnly) {
         DashboardQueryParams params = new DashboardQueryParams();
-        params.setTenantId(tenantId);
+        params.setTenantId(loginContext.getTenantId());
         params.setEnabledSitesOnly(enabledSitesOnly);
         return ResponseVO.success(governanceService.dashboardOverview(params));
     }
@@ -245,12 +247,12 @@ public class GovernanceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/benchmark")
-    public ResponseVO<BenchmarkVO> benchmark(@RequestParam Long tenantId,
-                                             @RequestParam String metricCode,
+    public ResponseVO<BenchmarkVO> benchmark(@LoginContext UserContext loginContext,
+                                        @RequestParam String metricCode,
                                              @RequestParam(required = false) LocalDateTime periodStart,
                                              @RequestParam(required = false) LocalDateTime periodEnd) {
         BenchmarkQueryParams params = new BenchmarkQueryParams();
-        params.setTenantId(tenantId);
+        params.setTenantId(loginContext.getTenantId());
         params.setMetricCode(metricCode);
         params.setPeriodStart(periodStart);
         params.setPeriodEnd(periodEnd);

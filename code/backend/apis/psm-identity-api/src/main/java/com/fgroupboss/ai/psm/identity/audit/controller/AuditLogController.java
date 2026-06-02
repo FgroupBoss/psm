@@ -4,6 +4,8 @@ import com.fgroupboss.ai.psm.identity.audit.model.dto.AuditLogIngestRequest;
 import com.fgroupboss.ai.psm.identity.audit.model.vo.AuditLogRecordVO;
 import com.fgroupboss.ai.psm.identity.audit.service.AuditLogService;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,8 +49,8 @@ public class AuditLogController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/logs")
-    public ResponseVO<PageResult<AuditLogRecordVO>> page(@RequestParam Long tenantId,
-                                                         @RequestParam(required = false) String bizType,
+    public ResponseVO<PageResult<AuditLogRecordVO>> page(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String bizType,
                                                          @RequestParam(required = false) String bizTypePrefix,
                                                          @RequestParam(required = false) Long bizId,
                                                          @RequestParam(required = false) String action,
@@ -61,7 +63,7 @@ public class AuditLogController {
                                                                  LocalDateTime endTime,
                                                          @RequestParam(defaultValue = "1") int pageNo,
                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(tenantId, bizType, bizTypePrefix, bizId, action, operatorName,
+        return ResponseVO.success(service.page(loginContext.getTenantId(), bizType, bizTypePrefix, bizId, action, operatorName,
                 startTime, endTime, pageNo, pageSize));
     }
 

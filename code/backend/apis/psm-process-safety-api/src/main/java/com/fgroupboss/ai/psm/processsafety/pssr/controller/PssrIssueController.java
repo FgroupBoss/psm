@@ -1,8 +1,10 @@
 package com.fgroupboss.ai.psm.processsafety.pssr.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
+import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrIssueActionRequest;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrIssueRequest;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.vo.PssrIssueVO;
@@ -43,12 +45,12 @@ public class PssrIssueController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<PssrIssueVO>> page(@RequestParam Long tenantId,
-                                                  @RequestParam(required = false) Long projectId,
+    public ResponseVO<PageResult<PssrIssueVO>> page(@LoginContext UserContext loginContext,
+                                                                                                    @RequestParam(required = false) Long projectId,
                                                   @RequestParam(required = false) String status,
                                                   @RequestParam(defaultValue = "1") int pageNo,
                                                   @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(pssrIssueService.page(tenantId, projectId, status, pageNo, pageSize));
+        return ResponseVO.success(pssrIssueService.page(loginContext.getTenantId(), projectId, status, pageNo, pageSize));
     }
 
     /**
@@ -71,11 +73,12 @@ public class PssrIssueController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/rectify")
-    public ResponseVO<PssrIssueVO> rectify(@PathVariable Long id,
+    public ResponseVO<PssrIssueVO> rectify(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @Valid @RequestBody PssrIssueActionRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        String op = username != null && !username.isEmpty() ? username : operator;
+                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        String op = UserContextResolver.operator(loginContext, operator);
         return ResponseVO.success(pssrIssueService.rectify(id, request, op));
     }
 
@@ -87,11 +90,12 @@ public class PssrIssueController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/review")
-    public ResponseVO<PssrIssueVO> review(@PathVariable Long id,
+    public ResponseVO<PssrIssueVO> review(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                           @Valid @RequestBody PssrIssueActionRequest request,
-                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        String op = username != null && !username.isEmpty() ? username : operator;
+                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        String op = UserContextResolver.operator(loginContext, operator);
         return ResponseVO.success(pssrIssueService.review(id, request, op));
     }
 }

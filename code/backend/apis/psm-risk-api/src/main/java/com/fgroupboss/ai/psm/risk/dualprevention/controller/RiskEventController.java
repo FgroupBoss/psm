@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.risk.dualprevention.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.risk.dualprevention.model.dto.ControlMeasureRequest;
 import com.fgroupboss.ai.psm.risk.dualprevention.model.dto.RiskEventRequest;
@@ -44,12 +45,12 @@ public class RiskEventController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<RiskEventVO> update(@PathVariable Long id,
+    public ResponseVO<RiskEventVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                           @Valid @RequestBody RiskEventRequest request,
-                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(riskEventService.update(id, request, operator(userId, username, operator)));
+                                                                                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(riskEventService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -61,12 +62,10 @@ public class RiskEventController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        riskEventService.delete(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        riskEventService.delete(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -79,8 +78,9 @@ public class RiskEventController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/measures")
-    public ResponseVO<List<ControlMeasureVO>> listMeasures(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(riskEventService.listMeasures(tenantId, id));
+    public ResponseVO<List<ControlMeasureVO>> listMeasures(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(riskEventService.listMeasures(loginContext.getTenantId(), id));
     }
 
     /**
@@ -91,15 +91,12 @@ public class RiskEventController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/measures")
-    public ResponseVO<ControlMeasureVO> createMeasure(@PathVariable Long id,
+    public ResponseVO<ControlMeasureVO> createMeasure(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody ControlMeasureRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(riskEventService.createMeasure(id, request, operator(userId, username, operator)));
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(riskEventService.createMeasure(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.realtime.location.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.location.model.dto.LocGeofenceRequest;
 import com.fgroupboss.ai.psm.realtime.location.model.vo.LocGeofenceVO;
@@ -40,12 +42,12 @@ public class LocGeofenceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<LocGeofenceVO>> page(@RequestParam Long tenantId,
-                                                      @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<LocGeofenceVO>> page(@LoginContext UserContext loginContext,
+                                                                                                        @RequestParam(required = false) String keyword,
                                                       @RequestParam(required = false) String fenceType,
                                                       @RequestParam(defaultValue = "1") int pageNo,
                                                       @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(geofenceService.page(tenantId, keyword, fenceType, pageNo, pageSize));
+        return ResponseVO.success(geofenceService.page(loginContext.getTenantId(), keyword, fenceType, pageNo, pageSize));
     }
 
     /**

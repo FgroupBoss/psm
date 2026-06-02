@@ -2,6 +2,7 @@ package com.fgroupboss.ai.psm.identity.gateway.controller;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.UserContextHeaders;
+import com.fgroupboss.ai.psm.common.UserContextQueryParams;
 import com.fgroupboss.ai.psm.identity.gateway.AuthPrincipal;
 import com.fgroupboss.ai.psm.identity.gateway.GatewayProperties;
 import com.fgroupboss.ai.psm.identity.gateway.service.GatewayAuthService;
@@ -349,10 +350,8 @@ public class GatewayProxyController {
     }
 
     private URI targetUri(String serviceUrl, HttpServletRequest request) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUrl + request.getRequestURI());
-        String query = request.getQueryString();
-        if (StringUtils.hasText(query)) builder.query(query);
-        return builder.build(true).toUri();
+        return UserContextQueryParams.stripFromForwardUrl(
+                serviceUrl, request.getRequestURI(), request.getQueryString());
     }
 
     private HttpHeaders copyHeaders(HttpServletRequest request) {

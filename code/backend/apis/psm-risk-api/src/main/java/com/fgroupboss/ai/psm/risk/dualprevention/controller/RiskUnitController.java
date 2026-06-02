@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.risk.dualprevention.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.risk.dualprevention.model.dto.RiskEventRequest;
 import com.fgroupboss.ai.psm.risk.dualprevention.model.dto.RiskUnitRequest;
@@ -53,13 +54,13 @@ public class RiskUnitController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<RiskUnitVO>> page(@RequestParam Long tenantId,
-                                                   @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<RiskUnitVO>> page(@LoginContext UserContext loginContext,
+                                                                                                     @RequestParam(required = false) String keyword,
                                                    @RequestParam(required = false) String status,
                                                    @RequestParam(required = false) Long areaId,
                                                    @RequestParam(defaultValue = "1") int pageNo,
                                                    @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(riskUnitService.page(tenantId, keyword, status, areaId, pageNo, pageSize));
+        return ResponseVO.success(riskUnitService.page(loginContext.getTenantId(), keyword, status, areaId, pageNo, pageSize));
     }
 
     /**
@@ -71,9 +72,9 @@ public class RiskUnitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/tree")
-    public ResponseVO<List<RiskUnitTreeNodeVO>> tree(@RequestParam Long tenantId,
-                                                     @RequestParam(required = false) Long areaId) {
-        return ResponseVO.success(riskUnitService.tree(tenantId, areaId));
+    public ResponseVO<List<RiskUnitTreeNodeVO>> tree(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long areaId) {
+        return ResponseVO.success(riskUnitService.tree(loginContext.getTenantId(), areaId));
     }
 
     /**
@@ -85,9 +86,9 @@ public class RiskUnitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/color-map")
-    public ResponseVO<Map<String, Long>> colorMap(@RequestParam Long tenantId,
-                                                  @RequestParam(required = false) Long areaId) {
-        return ResponseVO.success(riskUnitService.colorMap(tenantId, areaId));
+    public ResponseVO<Map<String, Long>> colorMap(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long areaId) {
+        return ResponseVO.success(riskUnitService.colorMap(loginContext.getTenantId(), areaId));
     }
 
     /**
@@ -99,9 +100,9 @@ public class RiskUnitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/color-stats")
-    public ResponseVO<List<RiskColorStatVO>> colorStats(@RequestParam Long tenantId,
-                                                        @RequestParam(required = false) Long areaId) {
-        return ResponseVO.success(riskUnitService.colorStats(tenantId, areaId));
+    public ResponseVO<List<RiskColorStatVO>> colorStats(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long areaId) {
+        return ResponseVO.success(riskUnitService.colorStats(loginContext.getTenantId(), areaId));
     }
 
     /**
@@ -113,8 +114,9 @@ public class RiskUnitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<RiskUnitVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(riskUnitService.getById(tenantId, id));
+    public ResponseVO<RiskUnitVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(riskUnitService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -124,11 +126,11 @@ public class RiskUnitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<RiskUnitVO> create(@Valid @RequestBody RiskUnitRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(riskUnitService.create(request, operator(userId, username, operator)));
+    public ResponseVO<RiskUnitVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody RiskUnitRequest request,
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(riskUnitService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -139,12 +141,12 @@ public class RiskUnitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<RiskUnitVO> update(@PathVariable Long id,
+    public ResponseVO<RiskUnitVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                          @Valid @RequestBody RiskUnitRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(riskUnitService.update(id, request, operator(userId, username, operator)));
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(riskUnitService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -156,12 +158,10 @@ public class RiskUnitController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        riskUnitService.delete(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        riskUnitService.delete(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -174,8 +174,9 @@ public class RiskUnitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/events")
-    public ResponseVO<List<RiskEventVO>> listEvents(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(riskUnitService.listEvents(tenantId, id));
+    public ResponseVO<List<RiskEventVO>> listEvents(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(riskUnitService.listEvents(loginContext.getTenantId(), id));
     }
 
     /**
@@ -186,15 +187,12 @@ public class RiskUnitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/events")
-    public ResponseVO<RiskEventVO> createEvent(@PathVariable Long id,
+    public ResponseVO<RiskEventVO> createEvent(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @Valid @RequestBody RiskEventRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(riskUnitService.createEvent(id, request, operator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(riskUnitService.createEvent(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

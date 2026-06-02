@@ -1,4 +1,4 @@
-import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
+﻿import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
 import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, NOTIFICATION_API, WORKBENCH_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API, PHA_API, MOC_API, PSSR_API, BARRIER_API, INCIDENT_API, GOVERNANCE_API } from '@psm/domain-types';
 import type {
   ApiResponse,
@@ -162,7 +162,6 @@ export async function fetchMasterDataPage(
   pageSize = 20
 ): Promise<PageResult<MasterDataRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(tenantId),
     pageNo: String(pageNo),
     pageSize: String(pageSize)
   });
@@ -179,7 +178,6 @@ export interface PageQuery {
 
 export async function fetchBaseDataPage(type: string, query: PageQuery): Promise<PageResult<BaseDataRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -193,7 +191,7 @@ export async function fetchBaseDataPage(type: string, query: PageQuery): Promise
 }
 
 export async function fetchBaseDataTree(type: string, tenantId: number): Promise<BaseDataRecord[]> {
-  return request<BaseDataRecord[]>(`/api/${type}/tree?tenantId=${tenantId}`);
+  return request<BaseDataRecord[]>(`/api/${type}/tree`);
 }
 
 export async function createBaseData(type: string, payload: BaseDataRequest): Promise<BaseDataRecord> {
@@ -211,26 +209,25 @@ export async function updateBaseData(type: string, id: number, payload: BaseData
 }
 
 export async function enableBaseData(type: string, id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/${type}/${id}/enable?tenantId=${tenantId}`, {
+  return request<void>(`/api/${type}/${id}/enable`, {
     method: 'POST'
   });
 }
 
 export async function disableBaseData(type: string, id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/${type}/${id}/disable?tenantId=${tenantId}`, {
+  return request<void>(`/api/${type}/${id}/disable`, {
     method: 'POST'
   });
 }
 
 export async function deleteBaseData(type: string, id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/${type}/${id}?tenantId=${tenantId}`, {
+  return request<void>(`/api/${type}/${id}`, {
     method: 'DELETE'
   });
 }
 
 export async function fetchContractorCompanies(query: PageQuery & { status?: string }): Promise<PageResult<ContractorCompanyRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -244,7 +241,7 @@ export async function fetchContractorCompanies(query: PageQuery & { status?: str
 }
 
 export async function fetchContractorCompany(id: number, tenantId: number): Promise<ContractorCompanyRecord> {
-  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}?tenantId=${tenantId}`);
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}`);
 }
 
 export async function createContractorCompany(payload: ContractorCompanyRequest): Promise<ContractorCompanyRecord> {
@@ -265,7 +262,7 @@ export async function updateContractorCompany(
 }
 
 export async function submitContractorCompany(id: number, tenantId: number): Promise<ContractorCompanyRecord> {
-  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/submit?tenantId=${tenantId}`, {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/submit`, {
     method: 'POST'
   });
 }
@@ -275,7 +272,7 @@ export async function approveContractorCompany(
   tenantId: number,
   payload: CompanyApproveRequest
 ): Promise<ContractorCompanyRecord> {
-  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/approve?tenantId=${tenantId}`, {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/approve`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -286,7 +283,7 @@ export async function suspendContractorCompany(
   tenantId: number,
   payload: CompanyReasonRequest
 ): Promise<ContractorCompanyRecord> {
-  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/suspend?tenantId=${tenantId}`, {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/suspend`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -297,7 +294,7 @@ export async function blacklistContractorCompany(
   tenantId: number,
   payload: CompanyReasonRequest
 ): Promise<ContractorCompanyRecord> {
-  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/blacklist?tenantId=${tenantId}`, {
+  return request<ContractorCompanyRecord>(`${CONTRACTOR_API.companies}/${id}/blacklist`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -308,7 +305,7 @@ export async function fetchCompanyQualifications(
   tenantId: number
 ): Promise<ContractorQualificationRecord[]> {
   return request<ContractorQualificationRecord[]>(
-    `${CONTRACTOR_API.companies}/${companyId}/qualifications?tenantId=${tenantId}`
+    `${CONTRACTOR_API.companies}/${companyId}/qualifications`
   );
 }
 
@@ -341,7 +338,7 @@ export async function deleteCompanyQualification(
   qualId: number,
   tenantId: number
 ): Promise<void> {
-  return request<void>(`${CONTRACTOR_API.companies}/${companyId}/qualifications/${qualId}?tenantId=${tenantId}`, {
+  return request<void>(`${CONTRACTOR_API.companies}/${companyId}/qualifications/${qualId}`, {
     method: 'DELETE'
   });
 }
@@ -350,7 +347,6 @@ export async function fetchContractorWorkers(
   query: PageQuery & { companyId?: number; accessStatus?: string }
 ): Promise<PageResult<ContractorWorkerRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -367,7 +363,7 @@ export async function fetchContractorWorkers(
 }
 
 export async function fetchContractorWorker(id: number, tenantId: number): Promise<ContractorWorkerRecord> {
-  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}?tenantId=${tenantId}`);
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}`);
 }
 
 export async function createContractorWorker(payload: ContractorWorkerRequest): Promise<ContractorWorkerRecord> {
@@ -388,7 +384,7 @@ export async function updateContractorWorker(
 }
 
 export async function submitContractorWorker(id: number, tenantId: number): Promise<ContractorWorkerRecord> {
-  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/submit?tenantId=${tenantId}`, {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/submit`, {
     method: 'POST'
   });
 }
@@ -398,7 +394,7 @@ export async function approveContractorWorker(
   tenantId: number,
   payload: CompanyApproveRequest
 ): Promise<ContractorWorkerRecord> {
-  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/approve?tenantId=${tenantId}`, {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/approve`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -409,7 +405,7 @@ export async function suspendContractorWorker(
   tenantId: number,
   payload: CompanyReasonRequest
 ): Promise<ContractorWorkerRecord> {
-  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/suspend?tenantId=${tenantId}`, {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/suspend`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -420,14 +416,14 @@ export async function blacklistContractorWorker(
   tenantId: number,
   payload: CompanyReasonRequest
 ): Promise<ContractorWorkerRecord> {
-  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/blacklist?tenantId=${tenantId}`, {
+  return request<ContractorWorkerRecord>(`${CONTRACTOR_API.workers}/${id}/blacklist`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
 }
 
 export async function fetchWorkerCertificates(workerId: number, tenantId: number): Promise<WorkerCertificateRecord[]> {
-  return request<WorkerCertificateRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/certificates?tenantId=${tenantId}`);
+  return request<WorkerCertificateRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/certificates`);
 }
 
 export async function createWorkerCertificate(
@@ -441,13 +437,13 @@ export async function createWorkerCertificate(
 }
 
 export async function deleteWorkerCertificate(workerId: number, certId: number, tenantId: number): Promise<void> {
-  return request<void>(`${CONTRACTOR_API.workers}/${workerId}/certificates/${certId}?tenantId=${tenantId}`, {
+  return request<void>(`${CONTRACTOR_API.workers}/${workerId}/certificates/${certId}`, {
     method: 'DELETE'
   });
 }
 
 export async function fetchWorkerTrainings(workerId: number, tenantId: number): Promise<WorkerTrainingRecord[]> {
-  return request<WorkerTrainingRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/trainings?tenantId=${tenantId}`);
+  return request<WorkerTrainingRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/trainings`);
 }
 
 export async function createWorkerTraining(
@@ -461,7 +457,7 @@ export async function createWorkerTraining(
 }
 
 export async function fetchWorkerViolations(workerId: number, tenantId: number): Promise<WorkerViolationRecord[]> {
-  return request<WorkerViolationRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/violations?tenantId=${tenantId}`);
+  return request<WorkerViolationRecord[]>(`${CONTRACTOR_API.workers}/${workerId}/violations`);
 }
 
 export async function createWorkerViolation(
@@ -485,7 +481,6 @@ export async function fetchMajorHazards(
   query: PageQuery & { status?: string; level?: string }
 ): Promise<PageResult<MajorHazardRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -502,7 +497,7 @@ export async function fetchMajorHazards(
 }
 
 export async function fetchMajorHazard(id: number, tenantId: number): Promise<MajorHazardRecord> {
-  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}?tenantId=${tenantId}`);
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}`);
 }
 
 export async function createMajorHazard(payload: MajorHazardRequest): Promise<MajorHazardRecord> {
@@ -520,7 +515,7 @@ export async function updateMajorHazard(id: number, payload: MajorHazardRequest)
 }
 
 export async function publishMajorHazard(id: number, tenantId: number): Promise<MajorHazardRecord> {
-  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/publish?tenantId=${tenantId}`, {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/publish`, {
     method: 'POST'
   });
 }
@@ -530,7 +525,7 @@ export async function changeMajorHazardStatus(
   tenantId: number,
   payload: HazardStatusRequest
 ): Promise<MajorHazardRecord> {
-  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/status?tenantId=${tenantId}`, {
+  return request<MajorHazardRecord>(`${MAJOR_HAZARD_API.base}/${id}/status`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -541,7 +536,7 @@ export async function fetchMajorHazardResponsibilities(
   tenantId: number
 ): Promise<MajorHazardResponsibilityRecord[]> {
   return request<MajorHazardResponsibilityRecord[]>(
-    `${MAJOR_HAZARD_API.base}/${id}/responsibilities?tenantId=${tenantId}`
+    `${MAJOR_HAZARD_API.base}/${id}/responsibilities`
   );
 }
 
@@ -551,7 +546,7 @@ export async function replaceMajorHazardResponsibilities(
   payload: ResponsibilityReplaceRequest
 ): Promise<MajorHazardResponsibilityRecord[]> {
   return request<MajorHazardResponsibilityRecord[]>(
-    `${MAJOR_HAZARD_API.base}/${id}/responsibilities?tenantId=${tenantId}`,
+    `${MAJOR_HAZARD_API.base}/${id}/responsibilities`,
     {
       method: 'PUT',
       body: JSON.stringify(payload)
@@ -560,7 +555,7 @@ export async function replaceMajorHazardResponsibilities(
 }
 
 export async function fetchMajorHazardPoints(id: number, tenantId: number): Promise<HazardPointRecord[]> {
-  return request<HazardPointRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/points?tenantId=${tenantId}`);
+  return request<HazardPointRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/points`);
 }
 
 export async function bindMajorHazardPoint(
@@ -568,20 +563,20 @@ export async function bindMajorHazardPoint(
   tenantId: number,
   payload: HazardPointRequest
 ): Promise<HazardPointRecord> {
-  return request<HazardPointRecord>(`${MAJOR_HAZARD_API.base}/${id}/points?tenantId=${tenantId}`, {
+  return request<HazardPointRecord>(`${MAJOR_HAZARD_API.base}/${id}/points`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
 }
 
 export async function unbindMajorHazardPoint(id: number, tenantId: number, relId: number): Promise<void> {
-  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/points/${relId}?tenantId=${tenantId}`, {
+  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/points/${relId}`, {
     method: 'DELETE'
   });
 }
 
 export async function fetchMajorHazardAttachments(id: number, tenantId: number): Promise<HazardAttachmentRecord[]> {
-  return request<HazardAttachmentRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/attachments?tenantId=${tenantId}`);
+  return request<HazardAttachmentRecord[]>(`${MAJOR_HAZARD_API.base}/${id}/attachments`);
 }
 
 export async function createMajorHazardAttachment(
@@ -589,14 +584,14 @@ export async function createMajorHazardAttachment(
   tenantId: number,
   payload: HazardAttachmentRequest
 ): Promise<HazardAttachmentRecord> {
-  return request<HazardAttachmentRecord>(`${MAJOR_HAZARD_API.base}/${id}/attachments?tenantId=${tenantId}`, {
+  return request<HazardAttachmentRecord>(`${MAJOR_HAZARD_API.base}/${id}/attachments`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
 }
 
 export async function deleteMajorHazardAttachment(id: number, tenantId: number, attachmentId: number): Promise<void> {
-  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/attachments/${attachmentId}?tenantId=${tenantId}`, {
+  return request<void>(`${MAJOR_HAZARD_API.base}/${id}/attachments/${attachmentId}`, {
     method: 'DELETE'
   });
 }
@@ -625,7 +620,6 @@ export async function fetchAlarms(
   }
 ): Promise<PageResult<AlarmEventRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -657,7 +651,7 @@ export async function fetchAlarms(
 }
 
 export async function fetchAlarmDetail(id: number, tenantId: number): Promise<AlarmDetailRecord> {
-  return request<AlarmDetailRecord>(`${ALARM_API.base}/${id}?tenantId=${tenantId}`);
+  return request<AlarmDetailRecord>(`${ALARM_API.base}/${id}`);
 }
 
 export async function ingestAlarm(payload: AlarmIngestRequest): Promise<AlarmEventRecord> {
@@ -672,7 +666,7 @@ export async function confirmAlarm(
   tenantId: number,
   payload?: AlarmActionRequest
 ): Promise<AlarmEventRecord> {
-  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/confirm?tenantId=${tenantId}`, {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/confirm`, {
     method: 'POST',
     body: JSON.stringify(payload || {})
   });
@@ -683,7 +677,7 @@ export async function dispatchAlarm(
   tenantId: number,
   payload?: AlarmActionRequest
 ): Promise<AlarmEventRecord> {
-  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/dispatch?tenantId=${tenantId}`, {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/dispatch`, {
     method: 'POST',
     body: JSON.stringify(payload || {})
   });
@@ -694,7 +688,7 @@ export async function feedbackAlarm(
   tenantId: number,
   payload?: AlarmActionRequest
 ): Promise<AlarmEventRecord> {
-  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/feedback?tenantId=${tenantId}`, {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/feedback`, {
     method: 'POST',
     body: JSON.stringify(payload || {})
   });
@@ -705,7 +699,7 @@ export async function closeAlarm(
   tenantId: number,
   payload?: AlarmActionRequest
 ): Promise<AlarmEventRecord> {
-  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/close?tenantId=${tenantId}`, {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/close`, {
     method: 'POST',
     body: JSON.stringify(payload || {})
   });
@@ -716,7 +710,7 @@ export async function falseCloseAlarm(
   tenantId: number,
   payload: AlarmFalseCloseRequest
 ): Promise<AlarmEventRecord> {
-  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/false-close?tenantId=${tenantId}`, {
+  return request<AlarmEventRecord>(`${ALARM_API.base}/${id}/false-close`, {
     method: 'POST',
     body: JSON.stringify(payload)
   });
@@ -736,7 +730,7 @@ export async function fetchMajorHazardAlarms(
   tenantId: number
 ): Promise<HazardAlarmSummaryRecord[]> {
   return request<HazardAlarmSummaryRecord[]>(
-    `${MAJOR_HAZARD_API.base}/${hazardId}/alarms?tenantId=${tenantId}`
+    `${MAJOR_HAZARD_API.base}/${hazardId}/alarms`
   );
 }
 
@@ -744,7 +738,6 @@ export async function fetchAuditLogs(
   query: PageQuery & { bizType?: string; bizTypePrefix?: string; action?: string }
 ): Promise<PageResult<AuditLogRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -765,7 +758,6 @@ export async function fetchConfigItems(
   query: ConfigItemQuery
 ): Promise<PageResult<ConfigItemRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -803,19 +795,19 @@ export async function updateConfigItem(
 }
 
 export async function publishConfigItem(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/config/items/${id}/publish?tenantId=${tenantId}`, {
+  return request<void>(`/api/config/items/${id}/publish`, {
     method: 'POST'
   });
 }
 
 export async function disableConfigItem(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/config/items/${id}/disable?tenantId=${tenantId}`, {
+  return request<void>(`/api/config/items/${id}/disable`, {
     method: 'POST'
   });
 }
 
 export async function deleteConfigItem(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/config/items/${id}?tenantId=${tenantId}`, {
+  return request<void>(`/api/config/items/${id}`, {
     method: 'DELETE'
   });
 }
@@ -832,7 +824,7 @@ export async function fetchMyPermissions(): Promise<UserPermissionSummary> {
 }
 
 export async function fetchOrgTree(tenantId: number): Promise<OrgTreeNode[]> {
-  return request<OrgTreeNode[]>(`/api/iam/orgs/tree?tenantId=${tenantId}`);
+  return request<OrgTreeNode[]>(`/api/iam/orgs/tree`);
 }
 
 export async function createOrg(payload: OrgRequest): Promise<OrgTreeNode> {
@@ -850,14 +842,13 @@ export async function updateOrg(id: number, payload: OrgRequest): Promise<OrgTre
 }
 
 export async function deleteOrg(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/iam/orgs/${id}?tenantId=${tenantId}`, {
+  return request<void>(`/api/iam/orgs/${id}`, {
     method: 'DELETE'
   });
 }
 
 export async function fetchIamUsers(query: PageQuery): Promise<PageResult<IamUserRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -901,7 +892,6 @@ export async function assignUserRoles(id: number, payload: AssignUserRoleRequest
 
 export async function fetchRoles(query: PageQuery): Promise<PageResult<RoleRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -926,13 +916,13 @@ export async function updateRole(id: number, payload: RoleRequest): Promise<Role
 }
 
 export async function deleteRole(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/iam/roles/${id}?tenantId=${tenantId}`, {
+  return request<void>(`/api/iam/roles/${id}`, {
     method: 'DELETE'
   });
 }
 
 export async function fetchMenuTree(tenantId: number): Promise<MenuTreeNode[]> {
-  return request<MenuTreeNode[]>(`/api/iam/menus/tree?tenantId=${tenantId}`);
+  return request<MenuTreeNode[]>(`/api/iam/menus/tree`);
 }
 
 export async function createMenu(payload: MenuResourceRequest): Promise<MenuTreeNode> {
@@ -950,7 +940,7 @@ export async function updateMenu(id: number, payload: MenuResourceRequest): Prom
 }
 
 export async function deleteMenu(id: number, tenantId: number): Promise<void> {
-  return request<void>(`/api/iam/menus/${id}?tenantId=${tenantId}`, {
+  return request<void>(`/api/iam/menus/${id}`, {
     method: 'DELETE'
   });
 }
@@ -961,7 +951,6 @@ export async function fetchWorkPermitHealth(): Promise<WorkPermitHealthInfo> {
 
 export async function fetchWorkPermits(query: PageQuery & { workType?: string; status?: string; areaId?: number }): Promise<PageResult<WorkPermitRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(query.tenantId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -973,11 +962,11 @@ export async function fetchWorkPermits(query: PageQuery & { workType?: string; s
 }
 
 export async function fetchWorkPermitsByHazard(tenantId: number, hazardId: number): Promise<WorkPermitRecord[]> {
-  return request<WorkPermitRecord[]>(`${WORK_PERMIT_API.byHazard}?tenantId=${tenantId}&hazardId=${hazardId}`);
+  return request<WorkPermitRecord[]>(`${WORK_PERMIT_API.byHazard}?hazardId=${hazardId}`);
 }
 
 export async function fetchWorkPermitDetail(id: number, tenantId: number): Promise<WorkPermitDetailRecord> {
-  return request<WorkPermitDetailRecord>(`${WORK_PERMIT_API.base}/${id}?tenantId=${tenantId}`);
+  return request<WorkPermitDetailRecord>(`${WORK_PERMIT_API.base}/${id}`);
 }
 
 export async function fetchAvailableHotWorkWorkflows(
@@ -992,7 +981,7 @@ export async function fetchAvailableHotWorkWorkflows(
 }
 
 export async function fetchHotWorkApprovalProgress(id: number, tenantId: number): Promise<HotWorkApprovalProgress> {
-  return request<HotWorkApprovalProgress>(`${WORK_PERMIT_API.base}/${id}/approval/progress?tenantId=${tenantId}`);
+  return request<HotWorkApprovalProgress>(`${WORK_PERMIT_API.base}/${id}/approval/progress`);
 }
 
 export async function fetchHotWorkApprovalTasks(
@@ -1013,7 +1002,7 @@ export async function saveHeightWorkDetail(id: number, payload: HeightWorkDetail
 }
 
 export async function fetchHeightWorkFlowProgress(id: number, tenantId: number): Promise<HeightWorkFlowProgress> {
-  return request<HeightWorkFlowProgress>(`${WORK_PERMIT_API.heightWorkBase(id)}/flow-progress?tenantId=${tenantId}`);
+  return request<HeightWorkFlowProgress>(`${WORK_PERMIT_API.heightWorkBase(id)}/flow-progress`);
 }
 
 export async function addHeightWorkHazardFactor(
@@ -1029,7 +1018,7 @@ export async function addHeightWorkHazardFactor(
 
 export async function confirmHeightWorkHazardFactor(id: number, tenantId: number, factorId: number): Promise<HeightWorkHazardFactor> {
   return request<HeightWorkHazardFactor>(
-    `${WORK_PERMIT_API.heightWorkBase(id)}/hazard-factors/${factorId}/confirm?tenantId=${tenantId}`,
+    `${WORK_PERMIT_API.heightWorkBase(id)}/hazard-factors/${factorId}/confirm`,
     { method: 'POST' }
   );
 }
@@ -1056,7 +1045,7 @@ export async function addHeightWorkEnvironmentCheck(
 
 export async function heightWorkPreCheck(id: number, tenantId: number, checkPoint: string): Promise<HeightWorkPreCheckResult> {
   return request<HeightWorkPreCheckResult>(
-    `${WORK_PERMIT_API.heightWorkBase(id)}/pre-check?tenantId=${tenantId}&checkPoint=${checkPoint}`,
+    `${WORK_PERMIT_API.heightWorkBase(id)}/pre-check?checkPoint=${checkPoint}`,
     { method: 'POST' }
   );
 }
@@ -1097,7 +1086,7 @@ export async function createWorkPermit(payload: WorkPermitRequest): Promise<Work
 }
 
 export async function submitWorkPermit(id: number, tenantId: number): Promise<WorkPermitRecord> {
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/submit`, { method: 'POST' });
 }
 
 export async function approveWorkPermit(
@@ -1106,21 +1095,21 @@ export async function approveWorkPermit(
   payload?: string | PermitActionPayload
 ): Promise<WorkPermitRecord> {
   const body = typeof payload === 'string' ? { opinion: payload, action: 'APPROVE' as const } : { action: 'APPROVE' as const, ...payload };
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/approve?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/approve`, {
     method: 'POST',
     body: JSON.stringify(body)
   });
 }
 
 export async function preCheckWorkPermit(id: number, tenantId: number, checkPoint: string): Promise<PreCheckResult> {
-  return request<PreCheckResult>(`${WORK_PERMIT_API.base}/${id}/pre-check?tenantId=${tenantId}`, {
+  return request<PreCheckResult>(`${WORK_PERMIT_API.base}/${id}/pre-check`, {
     method: 'POST',
     body: JSON.stringify({ tenantId, checkPoint })
   });
 }
 
 export async function addWorkPermitWorker(id: number, tenantId: number, payload: WorkPermitWorkerRequest): Promise<WorkPermitWorkerRecord> {
-  return request<WorkPermitWorkerRecord>(`${WORK_PERMIT_API.base}/${id}/workers?tenantId=${tenantId}`, {
+  return request<WorkPermitWorkerRecord>(`${WORK_PERMIT_API.base}/${id}/workers`, {
     method: 'POST',
     body: JSON.stringify({ ...payload, tenantId })
   });
@@ -1194,14 +1183,14 @@ export async function addWorkPermitMonitorRecord(
 }
 
 export async function suspendWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/suspend?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/suspend`, {
     method: 'POST',
     body: JSON.stringify({ reason })
   });
 }
 
 export async function resumeWorkPermit(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/resume?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/resume`, {
     method: 'POST',
     body: JSON.stringify({ reason })
   });
@@ -1226,7 +1215,6 @@ export async function uploadFile(
   storageProfileCode?: string
 ): Promise<FileObjectRecord> {
   const form = new FormData();
-  form.append('tenantId', String(tenantId));
   form.append('file', file);
   if (bizType) form.append('bizType', bizType);
   if (bizId != null) form.append('bizId', String(bizId));
@@ -1239,13 +1227,13 @@ export async function fetchFileBackends(): Promise<FileBackendSchemaRecord[]> {
 }
 
 export async function fetchFileStorageProfiles(tenantId: number): Promise<FileStorageProfileRecord[]> {
-  return request<FileStorageProfileRecord[]>(`${FILE_API.profiles}?tenantId=${tenantId}`);
+  return request<FileStorageProfileRecord[]>(`${FILE_API.profiles}`);
 }
 
 export async function fetchDefaultFileStorageProfile(
   tenantId: number
 ): Promise<FileStorageProfileRecord | null> {
-  return request<FileStorageProfileRecord | null>(`${FILE_API.profilesDefault}?tenantId=${tenantId}`);
+  return request<FileStorageProfileRecord | null>(`${FILE_API.profilesDefault}`);
 }
 
 export async function saveFileStorageProfile(payload: FileStorageProfileRequest): Promise<FileStorageProfileRecord> {
@@ -1259,13 +1247,13 @@ export async function testFileStorageProfile(
   tenantId: number,
   profileId: number
 ): Promise<FileHealthResult> {
-  return request<FileHealthResult>(`${FILE_API.profileTest(profileId)}?tenantId=${tenantId}`, {
+  return request<FileHealthResult>(`${FILE_API.profileTest(profileId)}`, {
     method: 'POST'
   });
 }
 
 export async function fetchFilePresignUrl(id: number, tenantId: number): Promise<{ url: string; expiresInSeconds: number }> {
-  return request<{ url: string; expiresInSeconds: number }>(`${FILE_API.presign(id)}?tenantId=${tenantId}`);
+  return request<{ url: string; expiresInSeconds: number }>(`${FILE_API.presign(id)}`);
 }
 
 export function psmContextHeaders(tenantId: number, userId: number): Record<string, string> {
@@ -1281,8 +1269,6 @@ export async function fetchNotificationInbox(
   query: { read?: boolean; bizType?: string; pageNo?: number; pageSize?: number } = {}
 ): Promise<PageResult<NotificationMessageRecord>> {
   const params = new URLSearchParams({
-    tenantId: String(tenantId),
-    userId: String(userId),
     pageNo: String(query.pageNo || 1),
     pageSize: String(query.pageSize || 20)
   });
@@ -1292,9 +1278,7 @@ export async function fetchNotificationInbox(
   if (query.bizType) {
     params.set('bizType', query.bizType);
   }
-  return request<PageResult<NotificationMessageRecord>>(`${NOTIFICATION_API.inbox}?${params.toString()}`, {
-    headers: psmContextHeaders(tenantId, userId)
-  });
+  return request<PageResult<NotificationMessageRecord>>(`${NOTIFICATION_API.inbox}?${params.toString()}`);
 }
 
 export async function fetchNotificationUnreadCount(
@@ -1302,8 +1286,7 @@ export async function fetchNotificationUnreadCount(
   userId: number
 ): Promise<NotificationUnreadCountRecord> {
   return request<NotificationUnreadCountRecord>(
-    `${NOTIFICATION_API.unreadCount}?tenantId=${tenantId}&userId=${userId}`,
-    { headers: psmContextHeaders(tenantId, userId) }
+    `${NOTIFICATION_API.unreadCount}`
   );
 }
 
@@ -1313,22 +1296,19 @@ export async function fetchNotificationDetail(
   userId: number
 ): Promise<NotificationMessageRecord> {
   return request<NotificationMessageRecord>(
-    `${NOTIFICATION_API.detail(id)}?tenantId=${tenantId}&userId=${userId}`,
-    { headers: psmContextHeaders(tenantId, userId) }
+    `${NOTIFICATION_API.detail(id)}`
   );
 }
 
 export async function markNotificationRead(id: number, tenantId: number, userId: number): Promise<void> {
-  await request<void>(`${NOTIFICATION_API.markRead(id)}?tenantId=${tenantId}&userId=${userId}`, {
-    method: 'POST',
-    headers: psmContextHeaders(tenantId, userId)
+  await request<void>(`${NOTIFICATION_API.markRead(id)}`, {
+    method: 'POST'
   });
 }
 
 export async function markAllNotificationsRead(tenantId: number, userId: number): Promise<number> {
-  return request<number>(`${NOTIFICATION_API.readAll}?tenantId=${tenantId}&userId=${userId}`, {
-    method: 'POST',
-    headers: psmContextHeaders(tenantId, userId)
+  return request<number>(`${NOTIFICATION_API.readAll}`, {
+    method: 'POST'
   });
 }
 
@@ -1343,16 +1323,12 @@ export async function fetchWorkbenchTodos(
   taskType?: string
 ): Promise<MobileTaskRecord[]> {
   const params = new URLSearchParams({
-    tenantId: String(tenantId),
-    userId: String(userId),
     role
   });
   if (taskType) {
     params.set('taskType', taskType);
   }
-  return request<MobileTaskRecord[]>(`${WORKBENCH_API.todos}?${params.toString()}`, {
-    headers: psmContextHeaders(tenantId, userId)
-  });
+  return request<MobileTaskRecord[]>(`${WORKBENCH_API.todos}?${params.toString()}`);
 }
 
 export async function fetchWorkbenchTodoCount(
@@ -1361,24 +1337,19 @@ export async function fetchWorkbenchTodoCount(
   role = 'ALL'
 ): Promise<WorkbenchTodoCountRecord> {
   return request<WorkbenchTodoCountRecord>(
-    `${WORKBENCH_API.todoCount}?tenantId=${tenantId}&userId=${userId}&role=${role}`,
-    { headers: psmContextHeaders(tenantId, userId) }
+    `${WORKBENCH_API.todoCount}?role=${role}`
   );
 }
 
 export async function fetchMobileTasks(tenantId: number, userId: number, role = 'ALL'): Promise<MobileTaskRecord[]> {
   const params = new URLSearchParams({
-    tenantId: String(tenantId),
-    userId: String(userId),
     role
   });
-  return request<MobileTaskRecord[]>(`${MOBILE_API.tasks}?${params.toString()}`, {
-    headers: psmContextHeaders(tenantId, userId)
-  });
+  return request<MobileTaskRecord[]>(`${MOBILE_API.tasks}?${params.toString()}`);
 }
 
 export async function fetchMobileWorkPermitDetail(id: number, tenantId: number): Promise<WorkPermitDetailRecord> {
-  return request<WorkPermitDetailRecord>(`${MOBILE_API.workPermit}/${id}?tenantId=${tenantId}`);
+  return request<WorkPermitDetailRecord>(`${MOBILE_API.workPermit}/${id}`);
 }
 
 export async function mobileCheckIn(
@@ -1429,14 +1400,14 @@ export async function mobileMonitorRecord(
 }
 
 export async function mobileSuspend(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
-  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/suspend?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/suspend`, {
     method: 'POST',
     body: JSON.stringify({ reason })
   });
 }
 
 export async function mobileResume(id: number, tenantId: number, reason?: string): Promise<WorkPermitRecord> {
-  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/resume?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${MOBILE_API.workPermit}/${id}/resume`, {
     method: 'POST',
     body: JSON.stringify({ reason })
   });
@@ -1453,7 +1424,7 @@ export async function mobileAcceptance(
 }
 
 export async function mobileAlarmFeedback(id: number, tenantId: number, remark?: string): Promise<unknown> {
-  return request(`${MOBILE_API.alarmFeedback}/${id}/feedback?tenantId=${tenantId}`, {
+  return request(`${MOBILE_API.alarmFeedback}/${id}/feedback`, {
     method: 'POST',
     body: JSON.stringify({ remark })
   });
@@ -1461,7 +1432,6 @@ export async function mobileAlarmFeedback(id: number, tenantId: number, remark?:
 
 export async function mobileUploadFile(tenantId: number, file: File, bizType?: string, bizId?: number): Promise<FileObjectRecord> {
   const form = new FormData();
-  form.append('tenantId', String(tenantId));
   form.append('file', file);
   if (bizType) form.append('bizType', bizType);
   if (bizId != null) form.append('bizId', String(bizId));
@@ -1478,11 +1448,11 @@ export async function mobileUploadFile(tenantId: number, file: File, bizType?: s
 }
 
 export async function fetchWorkPermitTimeline(id: number, tenantId: number): Promise<TimelineItemRecord[]> {
-  return request<TimelineItemRecord[]>(`${WORK_PERMIT_API.base}/${id}/timeline?tenantId=${tenantId}`);
+  return request<TimelineItemRecord[]>(`${WORK_PERMIT_API.base}/${id}/timeline`);
 }
 
 export async function fetchReportExportTask(tenantId: number, taskId: number): Promise<ReportExportTaskRecord> {
-  return request<ReportExportTaskRecord>(`${REPORT_API.export}/${taskId}?tenantId=${tenantId}`);
+  return request<ReportExportTaskRecord>(`${REPORT_API.export}/${taskId}`);
 }
 
 export async function downloadReportExport(tenantId: number, taskId: number, fileName: string): Promise<void> {
@@ -1491,7 +1461,7 @@ export async function downloadReportExport(tenantId: number, taskId: number, fil
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
-  const response = await fetch(`${REPORT_API.exportDownload}/${taskId}/download?tenantId=${tenantId}`, { headers });
+  const response = await fetch(`${REPORT_API.exportDownload}/${taskId}/download`, { headers });
   if (!response.ok) {
     throw new Error(await resolveErrorMessage(response));
   }
@@ -1510,7 +1480,7 @@ export async function rejectWorkPermit(
   payload?: string | PermitActionPayload
 ): Promise<WorkPermitRecord> {
   const body = typeof payload === 'string' ? { reason: payload, action: 'REJECT' as const } : { action: 'REJECT' as const, ...payload };
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/reject?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/reject`, {
     method: 'POST',
     body: JSON.stringify(body)
   });
@@ -1522,7 +1492,7 @@ export async function returnWorkPermit(
   payload?: string | PermitActionPayload
 ): Promise<WorkPermitRecord> {
   const body = typeof payload === 'string' ? { reason: payload, action: 'RETURN' as const } : { action: 'RETURN' as const, ...payload };
-  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/return?tenantId=${tenantId}`, {
+  return request<WorkPermitRecord>(`${WORK_PERMIT_API.base}/${id}/return`, {
     method: 'POST',
     body: JSON.stringify(body)
   });
@@ -1538,43 +1508,43 @@ export async function syncMobileDraft(payload: {
 }
 
 export async function fetchDashboardOverview(tenantId: number): Promise<DashboardOverviewRecord> {
-  return request<DashboardOverviewRecord>(`${REPORT_API.dashboardOverview}?tenantId=${tenantId}`);
+  return request<DashboardOverviewRecord>(`${REPORT_API.dashboardOverview}`);
 }
 
 export async function fetchWorkPermitReportSummary(tenantId: number): Promise<WorkPermitReportSummary> {
-  return request<WorkPermitReportSummary>(`${REPORT_API.workPermitSummary}?tenantId=${tenantId}`);
+  return request<WorkPermitReportSummary>(`${REPORT_API.workPermitSummary}`);
 }
 
 export async function fetchAlarmReportSummary(tenantId: number): Promise<AlarmReportSummary> {
-  return request<AlarmReportSummary>(`${REPORT_API.alarmSummary}?tenantId=${tenantId}`);
+  return request<AlarmReportSummary>(`${REPORT_API.alarmSummary}`);
 }
 
 export async function fetchAlarmReportDetails(tenantId: number): Promise<AlarmReportDetail[]> {
-  return request<AlarmReportDetail[]>(`${REPORT_API.alarmDetails}?tenantId=${tenantId}`);
+  return request<AlarmReportDetail[]>(`${REPORT_API.alarmDetails}`);
 }
 
 export async function fetchMajorHazardReportSummary(tenantId: number): Promise<MajorHazardReportSummary> {
-  return request<MajorHazardReportSummary>(`${REPORT_API.majorHazardSummary}?tenantId=${tenantId}`);
+  return request<MajorHazardReportSummary>(`${REPORT_API.majorHazardSummary}`);
 }
 
 export async function fetchContractorReportSummary(tenantId: number): Promise<ContractorReportSummary> {
-  return request<ContractorReportSummary>(`${REPORT_API.contractorSummary}?tenantId=${tenantId}`);
+  return request<ContractorReportSummary>(`${REPORT_API.contractorSummary}`);
 }
 
 export async function fetchAuditReportSummary(tenantId: number): Promise<AuditReportSummary> {
-  return request<AuditReportSummary>(`${REPORT_API.auditSummary}?tenantId=${tenantId}`);
+  return request<AuditReportSummary>(`${REPORT_API.auditSummary}`);
 }
 
 export async function fetchWorkPermitReportDetails(tenantId: number): Promise<WorkPermitReportDetail[]> {
-  return request<WorkPermitReportDetail[]>(`${REPORT_API.workPermitDetails}?tenantId=${tenantId}`);
+  return request<WorkPermitReportDetail[]>(`${REPORT_API.workPermitDetails}`);
 }
 
 export async function fetchWorkPermitTrend(tenantId: number, days = 7): Promise<TrendSeriesRecord> {
-  return request<TrendSeriesRecord>(`${REPORT_API.workPermitTrend}?tenantId=${tenantId}&days=${days}`);
+  return request<TrendSeriesRecord>(`${REPORT_API.workPermitTrend}?days=${days}`);
 }
 
 export async function fetchAlarmTrend(tenantId: number, days = 7): Promise<TrendSeriesRecord> {
-  return request<TrendSeriesRecord>(`${REPORT_API.alarmTrend}?tenantId=${tenantId}&days=${days}`);
+  return request<TrendSeriesRecord>(`${REPORT_API.alarmTrend}?days=${days}`);
 }
 
 export async function createReportExport(
@@ -1588,14 +1558,14 @@ export async function createReportExport(
 
 export async function fetchAcceptanceTestCases(tenantId: number): Promise<AcceptanceTestCaseRecord[]> {
   const page = await request<PageResult<AcceptanceTestCaseRecord>>(
-    `${REPORT_API.acceptanceCases}?tenantId=${tenantId}&pageNo=1&pageSize=200`
+    `${REPORT_API.acceptanceCases}?pageNo=1&pageSize=200`
   );
   return page.records;
 }
 
 export async function fetchAcceptanceTestRuns(tenantId: number): Promise<AcceptanceTestRunRecord[]> {
   const page = await request<PageResult<AcceptanceTestRunRecord>>(
-    `${REPORT_API.acceptanceRuns}?tenantId=${tenantId}&pageNo=1&pageSize=200`
+    `${REPORT_API.acceptanceRuns}?pageNo=1&pageSize=200`
   );
   return page.records;
 }
@@ -1711,7 +1681,7 @@ export async function fetchHazards(params: {
 }
 
 export async function fetchHazardDetail(id: number, tenantId: number): Promise<HazardReportRecord> {
-  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}?tenantId=${tenantId}`);
+  return request<HazardReportRecord>(`${DUAL_PREVENTION_API.hazards}/${id}`);
 }
 
 export async function fetchHazardStatistics(tenantId: number, areaId?: number): Promise<HazardStatisticsRecord> {
@@ -1749,7 +1719,7 @@ export async function escalateHazard(id: number, payload: { tenantId: number; re
 }
 
 export async function fetchInspectionPlans(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<InspectionPlanRecord>> {
-  return request<PageResult<InspectionPlanRecord>>(`${INSPECTION_API.plans}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<InspectionPlanRecord>>(`${INSPECTION_API.plans}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchInspectionTasks(params: {
@@ -1766,7 +1736,7 @@ export async function fetchInspectionTasks(params: {
 }
 
 export async function fetchInspectionTaskDetail(id: number, tenantId: number): Promise<InspectionTaskRecord> {
-  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}?tenantId=${tenantId}`);
+  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}`);
 }
 
 export async function startInspectionTask(id: number, payload: { tenantId: number; executorId?: number }): Promise<InspectionTaskRecord> {
@@ -1778,7 +1748,7 @@ export async function signInInspectionTask(id: number, payload: { tenantId: numb
 }
 
 export async function completeInspectionTask(id: number, tenantId: number): Promise<InspectionTaskRecord> {
-  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}/complete?tenantId=${tenantId}`, { method: 'POST' });
+  return request<InspectionTaskRecord>(`${INSPECTION_API.tasks}/${id}/complete`, { method: 'POST' });
 }
 
 export async function registerInspectionAbnormal(id: number, payload: {
@@ -1793,7 +1763,7 @@ export async function registerInspectionAbnormal(id: number, payload: {
 }
 
 export async function fetchInspectionStatistics(tenantId: number): Promise<InspectionStatisticsRecord> {
-  return request<InspectionStatisticsRecord>(`${INSPECTION_API.statistics}?tenantId=${tenantId}`);
+  return request<InspectionStatisticsRecord>(`${INSPECTION_API.statistics}`);
 }
 
 export async function syncInspectionDraft(payload: { tenantId: number; taskId?: number; clientDraftId: string; payloadJson: string }): Promise<unknown> {
@@ -1801,23 +1771,23 @@ export async function syncInspectionDraft(payload: { tenantId: number; taskId?: 
 }
 
 export async function fetchLocTags(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<LocTagRecord>> {
-  return request<PageResult<LocTagRecord>>(`${LOCATION_API.tags}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<LocTagRecord>>(`${LOCATION_API.tags}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchLocEvents(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<LocEventRecord>> {
-  return request<PageResult<LocEventRecord>>(`${LOCATION_API.events}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<LocEventRecord>>(`${LOCATION_API.events}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchVisitorRecords(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<VisitorAccessRecord>> {
-  return request<PageResult<VisitorAccessRecord>>(`${LOCATION_API.visitors}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<VisitorAccessRecord>>(`${LOCATION_API.visitors}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchAreaHeadcount(tenantId: number, areaId: number): Promise<{ areaId: number; headcount: number }> {
-  return request<{ areaId: number; headcount: number }>(`${LOCATION_API.headcount}/${areaId}/headcount?tenantId=${tenantId}`);
+  return request<{ areaId: number; headcount: number }>(`${LOCATION_API.headcount}/${areaId}/headcount`);
 }
 
 export async function fetchVideoCameras(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<VideoCameraRecord>> {
-  return request<PageResult<VideoCameraRecord>>(`${VIDEO_API.cameras}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<VideoCameraRecord>>(`${VIDEO_API.cameras}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchVideoAiEvents(tenantId: number, pageNo = 1, pageSize = 20, status?: string): Promise<PageResult<VideoAiEventRecord>> {
@@ -1827,26 +1797,26 @@ export async function fetchVideoAiEvents(tenantId: number, pageNo = 1, pageSize 
 }
 
 export async function videoAiEventToAlarm(id: number, tenantId: number): Promise<VideoAiEventRecord> {
-  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/to-alarm?tenantId=${tenantId}`, { method: 'POST' });
+  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/to-alarm`, { method: 'POST' });
 }
 
 export async function ignoreVideoAiEvent(id: number, tenantId: number, reason: string): Promise<VideoAiEventRecord> {
-  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/ignore?tenantId=${tenantId}`, {
+  return request<VideoAiEventRecord>(`${VIDEO_API.aiEvents}/${id}/ignore`, {
     method: 'POST',
     body: JSON.stringify({ reason })
   });
 }
 
 export async function fetchSimopsRules(tenantId: number): Promise<SimopsConflictRuleRecord[]> {
-  return request<SimopsConflictRuleRecord[]>(`${SIMOPS_API.rules}?tenantId=${tenantId}`);
+  return request<SimopsConflictRuleRecord[]>(`${SIMOPS_API.rules}`);
 }
 
 export async function fetchSimopsConflicts(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<SimopsScanResultRecord>> {
-  return request<PageResult<SimopsScanResultRecord>>(`${SIMOPS_API.conflicts}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<SimopsScanResultRecord>>(`${SIMOPS_API.conflicts}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function fetchSimopsStatistics(tenantId: number): Promise<SimopsStatisticsRecord> {
-  return request<SimopsStatisticsRecord>(`${SIMOPS_API.statistics}?tenantId=${tenantId}`);
+  return request<SimopsStatisticsRecord>(`${SIMOPS_API.statistics}`);
 }
 
 export async function coordinateSimopsConflict(id: number, payload: { tenantId: number; decision: string; opinion?: string }): Promise<unknown> {
@@ -1854,7 +1824,7 @@ export async function coordinateSimopsConflict(id: number, payload: { tenantId: 
 }
 
 export async function fetchRegReportTasks(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<RegReportTaskRecord>> {
-  return request<PageResult<RegReportTaskRecord>>(`${INTEGRATION_REG_API.tasks}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+  return request<PageResult<RegReportTaskRecord>>(`${INTEGRATION_REG_API.tasks}?pageNo=${pageNo}&pageSize=${pageSize}`);
 }
 
 export async function triggerRegReport(payload: { tenantId: number; platformCode: string; dataDomain: string }): Promise<RegReportTaskRecord> {
@@ -1862,16 +1832,16 @@ export async function triggerRegReport(payload: { tenantId: number; platformCode
 }
 
 export async function retryRegReportTask(id: number, tenantId: number): Promise<RegReportTaskRecord> {
-  return request<RegReportTaskRecord>(`${INTEGRATION_REG_API.tasks}/${id}/retry?tenantId=${tenantId}`, { method: 'POST' });
+  return request<RegReportTaskRecord>(`${INTEGRATION_REG_API.tasks}/${id}/retry`, { method: 'POST' });
 }
 
 export async function fetchPhase2ReportSummary(tenantId: number): Promise<Phase2ReportSummaryRecord> {
-  return request<Phase2ReportSummaryRecord>(`${REPORT_API.phase2Summary}?tenantId=${tenantId}`);
+  return request<Phase2ReportSummaryRecord>(`${REPORT_API.phase2Summary}`);
 }
 
 export async function fetchPhaProjects(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<PhaProjectRecord>> {
   return request<PageResult<PhaProjectRecord>>(
-    `${PHA_API.projects}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${PHA_API.projects}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
@@ -1885,11 +1855,11 @@ export async function createPhaProject(payload: {
 }
 
 export async function submitPhaProject(id: number, tenantId: number): Promise<PhaProjectRecord> {
-  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/submit`, { method: 'POST' });
 }
 
 export async function publishPhaProject(id: number, tenantId: number): Promise<PhaProjectRecord> {
-  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/publish?tenantId=${tenantId}`, { method: 'POST' });
+  return request<PhaProjectRecord>(`${PHA_API.projects}/${id}/publish`, { method: 'POST' });
 }
 
 export async function fetchPhaRecommendations(
@@ -1919,17 +1889,17 @@ export async function fetchLopaScenarios(
 }
 
 export async function calculateLopaScenario(id: number, tenantId: number): Promise<unknown> {
-  return request(`${PHA_API.lopaScenarios}/${id}/calculate?tenantId=${tenantId}`, { method: 'POST' });
+  return request(`${PHA_API.lopaScenarios}/${id}/calculate`, { method: 'POST' });
 }
 
 export async function fetchMiEquipment(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<MiEquipmentRecord>> {
   return request<PageResult<MiEquipmentRecord>>(
-    `${BARRIER_API.mechanicalIntegrity}/equipment?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${BARRIER_API.mechanicalIntegrity}/equipment?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
 export async function closePhaRecommendation(id: number, tenantId: number): Promise<PhaRecommendationRecord> {
-  return request<PhaRecommendationRecord>(`${PHA_API.recommendations}/${id}/close?tenantId=${tenantId}`, {
+  return request<PhaRecommendationRecord>(`${PHA_API.recommendations}/${id}/close`, {
     method: 'POST',
     body: JSON.stringify({ tenantId, content: 'Web关闭' })
   });
@@ -1937,7 +1907,7 @@ export async function closePhaRecommendation(id: number, tenantId: number): Prom
 
 export async function fetchMocChanges(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<MocChangeRecord>> {
   return request<PageResult<MocChangeRecord>>(
-    `${MOC_API.changes}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${MOC_API.changes}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
@@ -1951,31 +1921,31 @@ export async function createMocChange(payload: {
 }
 
 export async function submitMocChange(id: number, tenantId: number): Promise<MocChangeRecord> {
-  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/submit?tenantId=${tenantId}`, { method: 'POST' });
+  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/submit`, { method: 'POST' });
 }
 
 export async function closeMocChange(id: number, tenantId: number): Promise<MocChangeRecord> {
-  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/close?tenantId=${tenantId}`, { method: 'POST' });
+  return request<MocChangeRecord>(`${MOC_API.changes}/${id}/close`, { method: 'POST' });
 }
 
 export async function fetchPssrProjects(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<PssrProjectRecord>> {
   return request<PageResult<PssrProjectRecord>>(
-    `${PSSR_API.projects}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${PSSR_API.projects}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
 export async function approvePssrStartup(id: number, tenantId: number): Promise<PssrProjectRecord> {
-  return request<PssrProjectRecord>(`${PSSR_API.projects}/${id}/approve-startup?tenantId=${tenantId}`, { method: 'POST' });
+  return request<PssrProjectRecord>(`${PSSR_API.projects}/${id}/approve-startup`, { method: 'POST' });
 }
 
 export async function fetchBarriers(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<BarrierRecord>> {
   return request<PageResult<BarrierRecord>>(
-    `${BARRIER_API.barriers}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${BARRIER_API.barriers}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
 export async function degradeBarrier(id: number, tenantId: number, reason?: string): Promise<BarrierRecord> {
-  return request<BarrierRecord>(`${BARRIER_API.barriers}/${id}/degrade?tenantId=${tenantId}`, {
+  return request<BarrierRecord>(`${BARRIER_API.barriers}/${id}/degrade`, {
     method: 'POST',
     body: JSON.stringify({ tenantId, reason: reason || 'Web降级' })
   });
@@ -1983,18 +1953,18 @@ export async function degradeBarrier(id: number, tenantId: number, reason?: stri
 
 export async function fetchIncidents(tenantId: number, pageNo = 1, pageSize = 20): Promise<PageResult<IncidentRecord>> {
   return request<PageResult<IncidentRecord>>(
-    `${INCIDENT_API.base}?tenantId=${tenantId}&pageNo=${pageNo}&pageSize=${pageSize}`
+    `${INCIDENT_API.base}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 }
 
 export async function startIncidentInvestigation(id: number, tenantId: number): Promise<IncidentRecord> {
-  return request<IncidentRecord>(`${INCIDENT_API.base}/${id}/start-investigation?tenantId=${tenantId}`, { method: 'POST' });
+  return request<IncidentRecord>(`${INCIDENT_API.base}/${id}/start-investigation`, { method: 'POST' });
 }
 
 export async function fetchGovernanceDashboard(tenantId: number): Promise<GovernanceDashboardRecord> {
-  return request<GovernanceDashboardRecord>(`${GOVERNANCE_API.dashboard}?tenantId=${tenantId}`);
+  return request<GovernanceDashboardRecord>(`${GOVERNANCE_API.dashboard}`);
 }
 
 export async function fetchPhase3ReportSummary(tenantId: number): Promise<Phase3ReportSummaryRecord> {
-  return request<Phase3ReportSummaryRecord>(`${REPORT_API.phase3Summary}?tenantId=${tenantId}`);
+  return request<Phase3ReportSummaryRecord>(`${REPORT_API.phase3Summary}`);
 }

@@ -12,8 +12,9 @@ import com.fgroupboss.ai.psm.realtime.api.alarm.vo.AlarmEventVO;
 import com.fgroupboss.ai.psm.realtime.alarm.model.vo.AlarmHealthVO;
 import com.fgroupboss.ai.psm.realtime.alarm.service.AlarmService;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -88,8 +89,8 @@ public class AlarmController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<AlarmEventVO>> page(@RequestParam Long tenantId,
-                                                     @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<AlarmEventVO>> page(@LoginContext UserContext loginContext,
+                                                                                                       @RequestParam(required = false) String keyword,
                                                      @RequestParam(required = false) String status,
                                                      @RequestParam(required = false) String alarmLevel,
                                                      @RequestParam(required = false) Long areaId,
@@ -99,7 +100,7 @@ public class AlarmController {
                                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date occurredTo,
                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(alarmService.page(tenantId, keyword, status, alarmLevel, areaId, hazardId, sourceType,
+        return ResponseVO.success(alarmService.page(loginContext.getTenantId(), keyword, status, alarmLevel, areaId, hazardId, sourceType,
                 occurredFrom, occurredTo, pageNo, pageSize));
     }
     /**
@@ -111,8 +112,9 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<AlarmDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(alarmService.getDetail(tenantId, id));
+    public ResponseVO<AlarmDetailVO> detail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(alarmService.getDetail(loginContext.getTenantId(), id));
     }
     /**
      * 新增confirm或触发confirm相关动作。
@@ -124,13 +126,11 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/confirm")
-    public ResponseVO<AlarmEventVO> confirm(@PathVariable Long id,
-                                           @RequestParam Long tenantId,
-                                           @RequestBody(required = false) AlarmActionRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(alarmService.confirm(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
+    public ResponseVO<AlarmEventVO> confirm(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                      @RequestBody(required = false) AlarmActionRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(alarmService.confirm(loginContext.getTenantId(), id, defaultRequest(request), UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增dispatch或触发dispatch相关动作。
@@ -142,13 +142,11 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/dispatch")
-    public ResponseVO<AlarmEventVO> dispatch(@PathVariable Long id,
-                                             @RequestParam Long tenantId,
-                                             @RequestBody(required = false) AlarmActionRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(alarmService.dispatch(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
+    public ResponseVO<AlarmEventVO> dispatch(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                          @RequestBody(required = false) AlarmActionRequest request,
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(alarmService.dispatch(loginContext.getTenantId(), id, defaultRequest(request), UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增feedback或触发feedback相关动作。
@@ -160,13 +158,11 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/feedback")
-    public ResponseVO<AlarmEventVO> feedback(@PathVariable Long id,
-                                             @RequestParam Long tenantId,
-                                             @RequestBody(required = false) AlarmActionRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(alarmService.feedback(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
+    public ResponseVO<AlarmEventVO> feedback(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                          @RequestBody(required = false) AlarmActionRequest request,
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(alarmService.feedback(loginContext.getTenantId(), id, defaultRequest(request), UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增close或触发close相关动作。
@@ -178,13 +174,11 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/close")
-    public ResponseVO<AlarmEventVO> close(@PathVariable Long id,
-                                         @RequestParam Long tenantId,
-                                         @RequestBody(required = false) AlarmActionRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(alarmService.close(tenantId, id, defaultRequest(request), operator(userId, username, operator)));
+    public ResponseVO<AlarmEventVO> close(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                  @RequestBody(required = false) AlarmActionRequest request,
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(alarmService.close(loginContext.getTenantId(), id, defaultRequest(request), UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增false close或触发false close相关动作。
@@ -196,13 +190,11 @@ public class AlarmController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/false-close")
-    public ResponseVO<AlarmEventVO> falseClose(@PathVariable Long id,
-                                               @RequestParam Long tenantId,
-                                               @Valid @RequestBody AlarmFalseCloseRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(alarmService.falseClose(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<AlarmEventVO> falseClose(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                              @Valid @RequestBody AlarmFalseCloseRequest request,
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(alarmService.falseClose(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增to hazard或触发to hazard相关动作。
@@ -221,8 +213,5 @@ public class AlarmController {
         return request == null ? new AlarmActionRequest() : request;
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }
 

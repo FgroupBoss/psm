@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.identity.masterdata.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.identity.masterdata.config.MasterDataType;
 import com.fgroupboss.ai.psm.identity.masterdata.model.dto.MasterDataRequest;
@@ -43,12 +44,12 @@ public class MasterDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type}")
-    public ResponseVO<MasterDataRecordVO> create(@PathVariable String type,
+    public ResponseVO<MasterDataRecordVO> create(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                                  @Valid @RequestBody MasterDataRequest request,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(MasterDataType.fromPath(type), request, operator(userId, username, operator)));
+                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.create(MasterDataType.fromPath(type), request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -60,13 +61,13 @@ public class MasterDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{type}/{id}")
-    public ResponseVO<MasterDataRecordVO> update(@PathVariable String type,
+    public ResponseVO<MasterDataRecordVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                                  @PathVariable Long id,
                                                  @Valid @RequestBody MasterDataRequest request,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(MasterDataType.fromPath(type), id, request, operator(userId, username, operator)));
+                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.update(MasterDataType.fromPath(type), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -79,13 +80,11 @@ public class MasterDataController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type}/{id}/disable")
-    public ResponseVO<Void> disable(@PathVariable String type,
+    public ResponseVO<Void> disable(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                     @PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.disable(MasterDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.disable(MasterDataType.fromPath(type), loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -99,13 +98,11 @@ public class MasterDataController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{type}/{id}")
-    public ResponseVO<Void> delete(@PathVariable String type,
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                    @PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.delete(MasterDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.delete(MasterDataType.fromPath(type), loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -119,10 +116,10 @@ public class MasterDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}/{id}")
-    public ResponseVO<MasterDataRecordVO> get(@PathVariable String type,
-                                              @PathVariable Long id,
-                                              @RequestParam Long tenantId) {
-        return ResponseVO.success(service.get(MasterDataType.fromPath(type), tenantId, id));
+    public ResponseVO<MasterDataRecordVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
+                                              @PathVariable Long id) {
+        return ResponseVO.success(service.get(MasterDataType.fromPath(type), loginContext.getTenantId(), id));
     }
 
     /**
@@ -137,12 +134,12 @@ public class MasterDataController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}")
-    public ResponseVO<PageResult<MasterDataRecordVO>> page(@PathVariable String type,
-                                                           @RequestParam Long tenantId,
-                                                           @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<MasterDataRecordVO>> page(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
+                                                                                                                      @RequestParam(required = false) String keyword,
                                                            @RequestParam(defaultValue = "1") int pageNo,
                                                            @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(MasterDataType.fromPath(type), tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(service.page(MasterDataType.fromPath(type), loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -154,12 +151,9 @@ public class MasterDataController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type}/tree")
-    public ResponseVO<List<MasterDataRecordVO>> tree(@PathVariable String type,
-                                                     @RequestParam Long tenantId) {
-        return ResponseVO.success(service.tree(MasterDataType.fromPath(type), tenantId));
+    public ResponseVO<List<MasterDataRecordVO>> tree(@LoginContext UserContext loginContext,
+                                        @PathVariable String type) {
+        return ResponseVO.success(service.tree(MasterDataType.fromPath(type), loginContext.getTenantId()));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

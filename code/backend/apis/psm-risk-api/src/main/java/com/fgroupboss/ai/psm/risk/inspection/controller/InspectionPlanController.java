@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.risk.inspection.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.risk.inspection.model.dto.InspectionPlanRequest;
 import com.fgroupboss.ai.psm.risk.inspection.model.vo.InspectionPlanVO;
@@ -43,11 +45,11 @@ public class InspectionPlanController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<InspectionPlanVO>> page(@RequestParam Long tenantId,
-                                                         @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<InspectionPlanVO>> page(@LoginContext UserContext loginContext,
+                                                                                                           @RequestParam(required = false) String keyword,
                                                          @RequestParam(defaultValue = "1") int pageNo,
                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(planService.page(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(planService.page(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -59,9 +61,9 @@ public class InspectionPlanController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/by-major-hazard")
-    public ResponseVO<List<InspectionPlanVO>> listByMajorHazard(@RequestParam Long tenantId,
-                                                                  @RequestParam Long majorHazardId) {
-        return ResponseVO.success(planService.listByMajorHazard(tenantId, majorHazardId));
+    public ResponseVO<List<InspectionPlanVO>> listByMajorHazard(@LoginContext UserContext loginContext,
+                                        @RequestParam Long majorHazardId) {
+        return ResponseVO.success(planService.listByMajorHazard(loginContext.getTenantId(), majorHazardId));
     }
 
     /**
@@ -73,8 +75,9 @@ public class InspectionPlanController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<InspectionPlanVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(planService.getById(tenantId, id));
+    public ResponseVO<InspectionPlanVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(planService.getById(loginContext.getTenantId(), id));
     }
 
     /**

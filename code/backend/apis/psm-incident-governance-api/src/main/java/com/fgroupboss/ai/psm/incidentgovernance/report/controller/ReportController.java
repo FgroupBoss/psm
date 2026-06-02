@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.incidentgovernance.report.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.dto.ReportExportRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.vo.AlarmReportDetailVO;
@@ -59,8 +61,8 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/summary")
-    public ResponseVO<WorkPermitReportSummaryVO> workPermitSummary(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.workPermitSummary(tenantId));
+    public ResponseVO<WorkPermitReportSummaryVO> workPermitSummary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.workPermitSummary(loginContext.getTenantId()));
     }
 
     /**
@@ -73,10 +75,10 @@ public class ReportController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/details")
-    public ResponseVO<List<WorkPermitReportDetailVO>> workPermitDetails(@RequestParam Long tenantId,
-                                                                        @RequestParam(required = false) String status,
+    public ResponseVO<List<WorkPermitReportDetailVO>> workPermitDetails(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String status,
                                                                         @RequestParam(required = false) String workType) {
-        return ResponseVO.success(reportService.workPermitDetails(tenantId, status, workType));
+        return ResponseVO.success(reportService.workPermitDetails(loginContext.getTenantId(), status, workType));
     }
 
     /**
@@ -87,8 +89,8 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/summary")
-    public ResponseVO<AlarmReportSummaryVO> alarmSummary(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.alarmSummary(tenantId));
+    public ResponseVO<AlarmReportSummaryVO> alarmSummary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.alarmSummary(loginContext.getTenantId()));
     }
 
     /**
@@ -101,10 +103,10 @@ public class ReportController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/details")
-    public ResponseVO<List<AlarmReportDetailVO>> alarmDetails(@RequestParam Long tenantId,
-                                                              @RequestParam(required = false) String status,
+    public ResponseVO<List<AlarmReportDetailVO>> alarmDetails(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String status,
                                                               @RequestParam(required = false) String alarmLevel) {
-        return ResponseVO.success(reportService.alarmDetails(tenantId, status, alarmLevel));
+        return ResponseVO.success(reportService.alarmDetails(loginContext.getTenantId(), status, alarmLevel));
     }
 
     /**
@@ -115,8 +117,8 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/major-hazards/summary")
-    public ResponseVO<MajorHazardReportSummaryVO> majorHazardSummary(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.majorHazardSummary(tenantId));
+    public ResponseVO<MajorHazardReportSummaryVO> majorHazardSummary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.majorHazardSummary(loginContext.getTenantId()));
     }
 
     /**
@@ -127,8 +129,8 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/contractors/summary")
-    public ResponseVO<ContractorReportSummaryVO> contractorSummary(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.contractorSummary(tenantId));
+    public ResponseVO<ContractorReportSummaryVO> contractorSummary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.contractorSummary(loginContext.getTenantId()));
     }
 
     /**
@@ -139,8 +141,8 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/audit/summary")
-    public ResponseVO<AuditReportSummaryVO> auditSummary(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.auditSummary(tenantId));
+    public ResponseVO<AuditReportSummaryVO> auditSummary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.auditSummary(loginContext.getTenantId()));
     }
 
     /**
@@ -163,8 +165,9 @@ public class ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/export/{taskId}")
-    public ResponseVO<ReportExportTaskVO> getExportTask(@PathVariable Long taskId, @RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.getExportTask(tenantId, taskId));
+    public ResponseVO<ReportExportTaskVO> getExportTask(@LoginContext UserContext loginContext,
+                                        @PathVariable Long taskId) {
+        return ResponseVO.success(reportService.getExportTask(loginContext.getTenantId(), taskId));
     }
 
     /**
@@ -176,11 +179,12 @@ public class ReportController {
      * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/export/{taskId}/download")
-    public ResponseEntity<Resource> downloadExport(@PathVariable Long taskId, @RequestParam Long tenantId) {
-        Resource resource = reportService.loadExportFile(tenantId, taskId);
+    public ResponseEntity<Resource> downloadExport(@LoginContext UserContext loginContext,
+                                        @PathVariable Long taskId) {
+        Resource resource = reportService.loadExportFile(loginContext.getTenantId(), taskId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + reportService.exportDownloadFileName(tenantId, taskId) + "\"")
+                        "attachment; filename=\"" + reportService.exportDownloadFileName(loginContext.getTenantId(), taskId) + "\"")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(resource);
     }

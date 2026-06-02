@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.operation.workpermit.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.workpermit.model.dto.SimopsConflictRuleRequest;
 import com.fgroupboss.ai.psm.operation.workpermit.model.dto.SimopsCoordinateRequest;
@@ -48,9 +49,9 @@ public class SimopsController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/rules")
-    public ResponseVO<List<SimopsConflictRuleVO>> listRules(@RequestParam Long tenantId,
-                                                           @RequestParam(required = false) Boolean enabledOnly) {
-        return ResponseVO.success(simopsService.listRules(tenantId, enabledOnly));
+    public ResponseVO<List<SimopsConflictRuleVO>> listRules(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Boolean enabledOnly) {
+        return ResponseVO.success(simopsService.listRules(loginContext.getTenantId(), enabledOnly));
     }
 
     /**
@@ -86,8 +87,9 @@ public class SimopsController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/rules/{id}")
-    public ResponseVO<Void> deleteRule(@PathVariable Long id, @RequestParam Long tenantId) {
-        simopsService.deleteRule(tenantId, id);
+    public ResponseVO<Void> deleteRule(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        simopsService.deleteRule(loginContext.getTenantId(), id);
         return ResponseVO.success(null);
     }
 
@@ -114,12 +116,12 @@ public class SimopsController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/conflicts")
-    public ResponseVO<PageResult<SimopsScanResultVO>> listConflicts(@RequestParam Long tenantId,
-                                                                    @RequestParam(required = false) Long workPermitId,
+    public ResponseVO<PageResult<SimopsScanResultVO>> listConflicts(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long workPermitId,
                                                                     @RequestParam(required = false) String scanStage,
                                                                     @RequestParam(defaultValue = "1") int pageNo,
                                                                     @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(simopsService.listConflicts(tenantId, workPermitId, scanStage, pageNo, pageSize));
+        return ResponseVO.success(simopsService.listConflicts(loginContext.getTenantId(), workPermitId, scanStage, pageNo, pageSize));
     }
 
     /**
@@ -130,13 +132,13 @@ public class SimopsController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/conflicts/{id}/coordinate")
-    public ResponseVO<SimopsCoordinationRecordVO> coordinate(@PathVariable Long id,
+    public ResponseVO<SimopsCoordinationRecordVO> coordinate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody SimopsCoordinateRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(simopsService.coordinate(id, request,
-                operator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -147,11 +149,8 @@ public class SimopsController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/statistics")
-    public ResponseVO<SimopsStatisticsVO> statistics(@RequestParam Long tenantId) {
-        return ResponseVO.success(simopsService.statistics(tenantId));
+    public ResponseVO<SimopsStatisticsVO> statistics(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(simopsService.statistics(loginContext.getTenantId()));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

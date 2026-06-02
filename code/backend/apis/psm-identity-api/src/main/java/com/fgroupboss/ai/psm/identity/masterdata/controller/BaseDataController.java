@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.identity.masterdata.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.identity.masterdata.config.BaseDataType;
 import com.fgroupboss.ai.psm.identity.masterdata.model.dto.BaseDataRequest;
@@ -43,12 +44,12 @@ public class BaseDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type:areas|units|equipments|monitor-points}")
-    public ResponseVO<BaseDataRecordVO> create(@PathVariable String type,
+    public ResponseVO<BaseDataRecordVO> create(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                                @Valid @RequestBody BaseDataRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(BaseDataType.fromPath(type), request, operator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.create(BaseDataType.fromPath(type), request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -60,13 +61,13 @@ public class BaseDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{type:areas|units|equipments|monitor-points}/{id}")
-    public ResponseVO<BaseDataRecordVO> update(@PathVariable String type,
+    public ResponseVO<BaseDataRecordVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                                @PathVariable Long id,
                                                @Valid @RequestBody BaseDataRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(BaseDataType.fromPath(type), id, request, operator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.update(BaseDataType.fromPath(type), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -79,13 +80,11 @@ public class BaseDataController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/enable")
-    public ResponseVO<Void> enable(@PathVariable String type,
+    public ResponseVO<Void> enable(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                    @PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.enable(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.enable(BaseDataType.fromPath(type), loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -99,13 +98,11 @@ public class BaseDataController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type:areas|units|equipments|monitor-points}/{id}/disable")
-    public ResponseVO<Void> disable(@PathVariable String type,
+    public ResponseVO<Void> disable(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                     @PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.disable(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.disable(BaseDataType.fromPath(type), loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -119,13 +116,11 @@ public class BaseDataController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{type:areas|units|equipments|monitor-points}/{id}")
-    public ResponseVO<Void> delete(@PathVariable String type,
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                    @PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.delete(BaseDataType.fromPath(type), tenantId, id, operator(userId, username, operator));
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.delete(BaseDataType.fromPath(type), loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -139,10 +134,10 @@ public class BaseDataController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type:areas|units|equipments|monitor-points}/{id}")
-    public ResponseVO<BaseDataRecordVO> get(@PathVariable String type,
-                                            @PathVariable Long id,
-                                            @RequestParam Long tenantId) {
-        return ResponseVO.success(service.get(BaseDataType.fromPath(type), tenantId, id));
+    public ResponseVO<BaseDataRecordVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
+                                            @PathVariable Long id) {
+        return ResponseVO.success(service.get(BaseDataType.fromPath(type), loginContext.getTenantId(), id));
     }
 
     /**
@@ -158,13 +153,13 @@ public class BaseDataController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type:areas|units|equipments|monitor-points}")
-    public ResponseVO<PageResult<BaseDataRecordVO>> page(@PathVariable String type,
-                                                         @RequestParam Long tenantId,
-                                                         @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<BaseDataRecordVO>> page(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
+                                                                                                                  @RequestParam(required = false) String keyword,
                                                          @RequestParam(required = false) String status,
                                                          @RequestParam(defaultValue = "1") int pageNo,
                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(BaseDataType.fromPath(type), tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(service.page(BaseDataType.fromPath(type), loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -176,12 +171,9 @@ public class BaseDataController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type:areas|units|equipments|monitor-points}/tree")
-    public ResponseVO<List<BaseDataRecordVO>> tree(@PathVariable String type,
-                                                   @RequestParam Long tenantId) {
-        return ResponseVO.success(service.tree(BaseDataType.fromPath(type), tenantId));
+    public ResponseVO<List<BaseDataRecordVO>> tree(@LoginContext UserContext loginContext,
+                                        @PathVariable String type) {
+        return ResponseVO.success(service.tree(BaseDataType.fromPath(type), loginContext.getTenantId()));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

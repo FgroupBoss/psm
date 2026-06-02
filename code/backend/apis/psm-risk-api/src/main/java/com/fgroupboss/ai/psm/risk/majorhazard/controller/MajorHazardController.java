@@ -2,8 +2,9 @@ package com.fgroupboss.ai.psm.risk.majorhazard.controller;
 
 import com.fgroupboss.ai.psm.common.DemoInfo;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.risk.majorhazard.model.dto.HazardAttachmentRequest;
 import com.fgroupboss.ai.psm.risk.majorhazard.model.dto.HazardPointRequest;
@@ -90,13 +91,13 @@ public class MajorHazardController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<MajorHazardVO>> page(@RequestParam Long tenantId,
-                                                      @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<MajorHazardVO>> page(@LoginContext UserContext loginContext,
+                                                                                                        @RequestParam(required = false) String keyword,
                                                       @RequestParam(required = false) String status,
                                                       @RequestParam(required = false) String level,
                                                       @RequestParam(defaultValue = "1") int pageNo,
                                                       @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(hazardService.page(tenantId, keyword, status, level, pageNo, pageSize));
+        return ResponseVO.success(hazardService.page(loginContext.getTenantId(), keyword, status, level, pageNo, pageSize));
     }
 
     /**
@@ -106,11 +107,11 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<MajorHazardVO> create(@Valid @RequestBody MajorHazardRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hazardService.create(request, operator(userId, username, operator)));
+    public ResponseVO<MajorHazardVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody MajorHazardRequest request,
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(hazardService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -122,8 +123,9 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<MajorHazardVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazardService.getById(tenantId, id));
+    public ResponseVO<MajorHazardVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(hazardService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -134,12 +136,12 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<MajorHazardVO> update(@PathVariable Long id,
+    public ResponseVO<MajorHazardVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody MajorHazardRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hazardService.update(id, request, operator(userId, username, operator)));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(hazardService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -151,12 +153,10 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/publish")
-    public ResponseVO<MajorHazardVO> publish(@PathVariable Long id,
-                                             @RequestParam Long tenantId,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hazardService.publish(tenantId, id, operator(userId, username, operator)));
+    public ResponseVO<MajorHazardVO> publish(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(hazardService.publish(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -169,13 +169,11 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/status")
-    public ResponseVO<MajorHazardVO> changeStatus(@PathVariable Long id,
-                                                  @RequestParam Long tenantId,
-                                                  @Valid @RequestBody HazardStatusRequest request,
-                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hazardService.changeStatus(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<MajorHazardVO> changeStatus(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                    @Valid @RequestBody HazardStatusRequest request,
+                                                                                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(hazardService.changeStatus(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -187,9 +185,9 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/responsibilities")
-    public ResponseVO<List<MajorHazardResponsibilityVO>> listResponsibilities(@PathVariable Long id,
-                                                                                @RequestParam Long tenantId) {
-        return ResponseVO.success(hazardService.listResponsibilities(tenantId, id));
+    public ResponseVO<List<MajorHazardResponsibilityVO>> listResponsibilities(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(hazardService.listResponsibilities(loginContext.getTenantId(), id));
     }
 
     /**
@@ -202,15 +200,12 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}/responsibilities")
-    public ResponseVO<List<MajorHazardResponsibilityVO>> replaceResponsibilities(
-            @PathVariable Long id,
-            @RequestParam Long tenantId,
-            @Valid @RequestBody ResponsibilityReplaceRequest request,
-            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hazardService.replaceResponsibilities(tenantId, id, request,
-                operator(userId, username, operator)));
+    public ResponseVO<List<MajorHazardResponsibilityVO>> replaceResponsibilities(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                        @Valid @RequestBody ResponsibilityReplaceRequest request,
+                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(hazardService.replaceResponsibilities(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -222,8 +217,9 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/points")
-    public ResponseVO<List<HazardPointVO>> listPoints(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(pointService.listPoints(tenantId, id));
+    public ResponseVO<List<HazardPointVO>> listPoints(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(pointService.listPoints(loginContext.getTenantId(), id));
     }
 
     /**
@@ -236,13 +232,11 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/points")
-    public ResponseVO<HazardPointVO> bindPoint(@PathVariable Long id,
-                                               @RequestParam Long tenantId,
-                                               @Valid @RequestBody HazardPointRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pointService.bindPoint(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<HazardPointVO> bindPoint(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                              @Valid @RequestBody HazardPointRequest request,
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(pointService.bindPoint(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -255,13 +249,11 @@ public class MajorHazardController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/points/{relId}")
-    public ResponseVO<Void> unbindPoint(@PathVariable Long id,
+    public ResponseVO<Void> unbindPoint(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                         @PathVariable Long relId,
-                                        @RequestParam Long tenantId,
-                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        pointService.unbindPoint(tenantId, id, relId, operator(userId, username, operator));
+                                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        pointService.unbindPoint(loginContext.getTenantId(), id, relId, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -274,8 +266,9 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/attachments")
-    public ResponseVO<List<HazardAttachmentVO>> listAttachments(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(attachmentService.listAttachments(tenantId, id));
+    public ResponseVO<List<HazardAttachmentVO>> listAttachments(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(attachmentService.listAttachments(loginContext.getTenantId(), id));
     }
 
     /**
@@ -288,14 +281,12 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/attachments")
-    public ResponseVO<HazardAttachmentVO> createAttachment(@PathVariable Long id,
-                                                           @RequestParam Long tenantId,
-                                                           @Valid @RequestBody HazardAttachmentRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(attachmentService.createAttachment(tenantId, id, request,
-                operator(userId, username, operator)));
+    public ResponseVO<HazardAttachmentVO> createAttachment(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                      @Valid @RequestBody HazardAttachmentRequest request,
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(attachmentService.createAttachment(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -308,13 +299,11 @@ public class MajorHazardController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/attachments/{attachmentId}")
-    public ResponseVO<Void> deleteAttachment(@PathVariable Long id,
+    public ResponseVO<Void> deleteAttachment(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                              @PathVariable Long attachmentId,
-                                             @RequestParam Long tenantId,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        attachmentService.deleteAttachment(tenantId, id, attachmentId, operator(userId, username, operator));
+                                                                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        attachmentService.deleteAttachment(loginContext.getTenantId(), id, attachmentId, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -327,8 +316,9 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/alarms")
-    public ResponseVO<List<HazardAlarmSummaryVO>> listAlarms(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazardAlarmQueryService.listByHazard(tenantId, id));
+    public ResponseVO<List<HazardAlarmSummaryVO>> listAlarms(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(hazardAlarmQueryService.listByHazard(loginContext.getTenantId(), id));
     }
 
     /**
@@ -339,14 +329,14 @@ public class MajorHazardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/inspection-plan/bind")
-    public ResponseVO<MajorHazardVO> bindInspectionPlan(@PathVariable Long id,
+    public ResponseVO<MajorHazardVO> bindInspectionPlan(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody HazardInspectionPlanBindRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(hazardService.bindInspectionPlan(
-                request.getTenantId(), id, request.getInspectionPlanId(),
-                operator(userId, username, operator)));
+                loginContext.getTenantId(), id, request.getInspectionPlanId(),
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -358,11 +348,8 @@ public class MajorHazardController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/permits")
-    public ResponseVO<List<Map<String, Object>>> listPermits(@PathVariable Long id, @RequestParam Long tenantId) {
+    public ResponseVO<List<Map<String, Object>>> listPermits(@PathVariable Long id) {
         return ResponseVO.success(Collections.<Map<String, Object>>emptyList());
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

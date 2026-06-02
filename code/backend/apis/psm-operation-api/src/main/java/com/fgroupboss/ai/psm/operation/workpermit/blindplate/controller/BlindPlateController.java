@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.blindplate.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.BlindPlateActionConfirmRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.BlindPlateWorkDetailRequest;
@@ -46,8 +47,9 @@ public class BlindPlateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<BlindPlateWorkDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(blindPlateService.getDetail(tenantId, id));
+    public ResponseVO<BlindPlateWorkDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(blindPlateService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -58,13 +60,13 @@ public class BlindPlateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<BlindPlateWorkDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<BlindPlateWorkDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                          @Valid @RequestBody BlindPlateWorkDetailRequest request,
-                                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(blindPlateService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(blindPlateService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -76,9 +78,9 @@ public class BlindPlateController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/action-records")
-    public ResponseVO<List<BlindPlateActionRecordVO>> listActionRecords(@PathVariable Long id,
-                                                                          @RequestParam Long tenantId) {
-        return ResponseVO.success(blindPlateService.listActionRecords(tenantId, id));
+    public ResponseVO<List<BlindPlateActionRecordVO>> listActionRecords(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(blindPlateService.listActionRecords(loginContext.getTenantId(), id));
     }
 
     /**
@@ -89,13 +91,13 @@ public class BlindPlateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/action-confirm")
-    public ResponseVO<BlindPlateActionRecordVO> confirmAction(@PathVariable Long id,
+    public ResponseVO<BlindPlateActionRecordVO> confirmAction(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                 @Valid @RequestBody BlindPlateActionConfirmRequest request,
-                                                                @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(blindPlateService.confirmAction(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(blindPlateService.confirmAction(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -108,10 +110,10 @@ public class BlindPlateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<BlindPlatePreCheckResultVO> preCheck(@PathVariable Long id,
-                                                             @RequestParam Long tenantId,
-                                                             @RequestParam String checkPoint) {
-        return ResponseVO.success(blindPlateService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<BlindPlatePreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                          @RequestParam String checkPoint) {
+        return ResponseVO.success(blindPlateService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -123,11 +125,9 @@ public class BlindPlateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<BlindPlateFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(blindPlateService.getFlowProgress(tenantId, id));
+    public ResponseVO<BlindPlateFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(blindPlateService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

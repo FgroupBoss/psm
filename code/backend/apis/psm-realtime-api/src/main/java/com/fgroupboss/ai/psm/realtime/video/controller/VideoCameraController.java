@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.realtime.video.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.video.model.dto.VideoCameraRequest;
 import com.fgroupboss.ai.psm.realtime.video.model.vo.VideoCameraVO;
@@ -46,13 +48,13 @@ public class VideoCameraController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<VideoCameraVO>> page(@RequestParam Long tenantId,
-                                                      @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<VideoCameraVO>> page(@LoginContext UserContext loginContext,
+                                                                                                        @RequestParam(required = false) String keyword,
                                                       @RequestParam(required = false) Long areaId,
                                                       @RequestParam(required = false) String status,
                                                       @RequestParam(defaultValue = "1") int pageNo,
                                                       @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(cameraService.page(tenantId, keyword, areaId, status, pageNo, pageSize));
+        return ResponseVO.success(cameraService.page(loginContext.getTenantId(), keyword, areaId, status, pageNo, pageSize));
     }
 
     /**
@@ -64,8 +66,9 @@ public class VideoCameraController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<VideoCameraVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(cameraService.getById(tenantId, id));
+    public ResponseVO<VideoCameraVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(cameraService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -100,8 +103,9 @@ public class VideoCameraController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id, @RequestParam Long tenantId) {
-        cameraService.delete(tenantId, id);
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        cameraService.delete(loginContext.getTenantId(), id);
         return ResponseVO.success(null);
     }
 
@@ -114,8 +118,9 @@ public class VideoCameraController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/live-url")
-    public ResponseVO<VideoStreamUrlVO> liveUrl(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(cameraService.liveUrl(tenantId, id));
+    public ResponseVO<VideoStreamUrlVO> liveUrl(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(cameraService.liveUrl(loginContext.getTenantId(), id));
     }
 
     /**
@@ -129,10 +134,10 @@ public class VideoCameraController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/playback-url")
-    public ResponseVO<VideoStreamUrlVO> playbackUrl(@PathVariable Long id,
-                                                    @RequestParam Long tenantId,
-                                                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startAt,
+    public ResponseVO<VideoStreamUrlVO> playbackUrl(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startAt,
                                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endAt) {
-        return ResponseVO.success(cameraService.playbackUrl(tenantId, id, startAt, endAt));
+        return ResponseVO.success(cameraService.playbackUrl(loginContext.getTenantId(), id, startAt, endAt));
     }
 }

@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.operation.workpermit.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.AcceptanceRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.CheckInRequest;
@@ -84,15 +85,15 @@ public class WorkPermitController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<WorkPermitVO>> page(@RequestParam Long tenantId,
-                                                       @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<WorkPermitVO>> page(@LoginContext UserContext loginContext,
+                                                                                                         @RequestParam(required = false) String keyword,
                                                        @RequestParam(required = false) String status,
                                                        @RequestParam(required = false) String workType,
                                                        @RequestParam(required = false) Long areaId,
                                                        @RequestParam(required = false) Long hazardId,
                                                        @RequestParam(defaultValue = "1") int pageNo,
                                                        @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(workPermitService.page(tenantId, keyword, status, workType, areaId, hazardId, pageNo, pageSize));
+        return ResponseVO.success(workPermitService.page(loginContext.getTenantId(), keyword, status, workType, areaId, hazardId, pageNo, pageSize));
     }
 
     /**
@@ -106,8 +107,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/by-hazard")
-    public ResponseVO<List<WorkPermitVO>> listByHazard(@RequestParam Long tenantId, @RequestParam Long hazardId) {
-        return ResponseVO.success(workPermitService.listByHazard(tenantId, hazardId));
+    public ResponseVO<List<WorkPermitVO>> listByHazard(@LoginContext UserContext loginContext,
+                                        @RequestParam Long hazardId) {
+        return ResponseVO.success(workPermitService.listByHazard(loginContext.getTenantId(), hazardId));
     }
     /**
      * 查询作业票详情（含专项扩展字段）。
@@ -118,8 +120,9 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<WorkPermitDetailVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.getDetail(tenantId, id));
+    public ResponseVO<WorkPermitDetailVO> detail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.getDetail(loginContext.getTenantId(), id));
     }
     /**
      * 新建记录。
@@ -128,11 +131,11 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<WorkPermitVO> create(@Valid @RequestBody WorkPermitRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.create(request, operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody WorkPermitRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 更新记录。
@@ -142,12 +145,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<WorkPermitVO> update(@PathVariable Long id,
+    public ResponseVO<WorkPermitVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @Valid @RequestBody WorkPermitRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.update(id, request, operator(userId, username, operator)));
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 查询作业人员。
@@ -158,8 +161,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/workers")
-    public ResponseVO<List<WorkPermitWorkerVO>> listWorkers(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.listWorkers(tenantId, id));
+    public ResponseVO<List<WorkPermitWorkerVO>> listWorkers(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.listWorkers(loginContext.getTenantId(), id));
     }
     /**
      * 新增作业人员或触发作业人员相关动作。
@@ -169,13 +173,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/workers")
-    public ResponseVO<WorkPermitWorkerVO> addWorker(@PathVariable Long id,
+    public ResponseVO<WorkPermitWorkerVO> addWorker(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody WorkPermitWorkerRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.addWorker(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.addWorker(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 删除作业人员。
@@ -187,13 +191,11 @@ public class WorkPermitController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/workers/{workerId}")
-    public ResponseVO<Void> removeWorker(@PathVariable Long id,
+    public ResponseVO<Void> removeWorker(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                          @PathVariable Long workerId,
-                                         @RequestParam Long tenantId,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        workPermitService.removeWorker(tenantId, id, workerId, operator(userId, username, operator));
+                                                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        workPermitService.removeWorker(loginContext.getTenantId(), id, workerId, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
     /**
@@ -205,12 +207,10 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
-    public ResponseVO<WorkPermitVO> submit(@PathVariable Long id,
-                                           @RequestParam Long tenantId,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.submit(tenantId, id, operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> submit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.submit(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 审批通过。
@@ -222,14 +222,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve")
-    public ResponseVO<WorkPermitVO> approve(@PathVariable Long id,
-                                            @RequestParam Long tenantId,
-                                            @RequestBody(required = false) PermitActionRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.approve(tenantId, id, enrichAction(request, userId),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> approve(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                        @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.approve(loginContext.getTenantId(), id, enrichAction(request, loginContext.getUserId()),
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增return或触发return相关动作。
@@ -241,14 +239,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/return")
-    public ResponseVO<WorkPermitVO> returnPermit(@PathVariable Long id,
-                                                 @RequestParam Long tenantId,
-                                                 @RequestBody(required = false) PermitActionRequest request,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.returnPermit(tenantId, id, enrichAction(request, userId),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> returnPermit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                  @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.returnPermit(loginContext.getTenantId(), id, enrichAction(request, loginContext.getUserId()),
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 审批驳回。
@@ -260,14 +256,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/reject")
-    public ResponseVO<WorkPermitVO> reject(@PathVariable Long id,
-                                           @RequestParam Long tenantId,
-                                           @RequestBody(required = false) PermitActionRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.reject(tenantId, id, enrichAction(request, userId),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> reject(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                      @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.reject(loginContext.getTenantId(), id, enrichAction(request, loginContext.getUserId()),
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -281,8 +275,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/risk-analysis")
-    public ResponseVO<List<RiskAnalysisVO>> listRiskAnalysis(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.listRiskAnalysis(tenantId, id));
+    public ResponseVO<List<RiskAnalysisVO>> listRiskAnalysis(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.listRiskAnalysis(loginContext.getTenantId(), id));
     }
     /**
      * 新增risk analysis或触发risk analysis相关动作。
@@ -292,13 +287,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/risk-analysis")
-    public ResponseVO<RiskAnalysisVO> saveRiskAnalysis(@PathVariable Long id,
+    public ResponseVO<RiskAnalysisVO> saveRiskAnalysis(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                          @Valid @RequestBody RiskAnalysisRequest request,
-                                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.saveRiskAnalysis(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.saveRiskAnalysis(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 查询安全措施。
@@ -309,8 +304,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/safety-measures")
-    public ResponseVO<List<SafetyMeasureVO>> listSafetyMeasures(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.listSafetyMeasures(tenantId, id));
+    public ResponseVO<List<SafetyMeasureVO>> listSafetyMeasures(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.listSafetyMeasures(loginContext.getTenantId(), id));
     }
     /**
      * 新增安全措施或触发安全措施相关动作。
@@ -321,14 +317,14 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/safety-measures/{measureId}")
-    public ResponseVO<SafetyMeasureVO> confirmSafetyMeasure(@PathVariable Long id,
+    public ResponseVO<SafetyMeasureVO> confirmSafetyMeasure(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                             @PathVariable Long measureId,
                                                             @Valid @RequestBody SafetyMeasureRequest request,
-                                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.confirmSafetyMeasure(request.getTenantId(), id, measureId, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.confirmSafetyMeasure(loginContext.getTenantId(), id, measureId, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 查询气体检测记录。
@@ -339,8 +335,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/gas-tests")
-    public ResponseVO<List<GasTestVO>> listGasTests(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.listGasTests(tenantId, id));
+    public ResponseVO<List<GasTestVO>> listGasTests(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.listGasTests(loginContext.getTenantId(), id));
     }
     /**
      * 新增气体检测记录或触发气体检测记录相关动作。
@@ -350,13 +347,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/gas-tests")
-    public ResponseVO<GasTestVO> addGasTest(@PathVariable Long id,
+    public ResponseVO<GasTestVO> addGasTest(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody GasTestRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.addGasTest(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.addGasTest(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增前置校验或触发前置校验相关动作。
@@ -378,13 +375,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/site-permit")
-    public ResponseVO<WorkPermitVO> sitePermit(@PathVariable Long id,
+    public ResponseVO<WorkPermitVO> sitePermit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @Valid @RequestBody SitePermitRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.sitePermit(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.sitePermit(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增check in或触发check in相关动作。
@@ -394,13 +391,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/check-in")
-    public ResponseVO<SiteConfirmVO> checkIn(@PathVariable Long id,
+    public ResponseVO<SiteConfirmVO> checkIn(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                              @Valid @RequestBody CheckInRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.checkIn(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.checkIn(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 查询monitor records。
@@ -411,8 +408,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/monitor-records")
-    public ResponseVO<List<MonitorRecordVO>> listMonitorRecords(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.listMonitorRecords(tenantId, id));
+    public ResponseVO<List<MonitorRecordVO>> listMonitorRecords(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.listMonitorRecords(loginContext.getTenantId(), id));
     }
     /**
      * 新增monitor records或触发monitor records相关动作。
@@ -422,13 +420,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/monitor-records")
-    public ResponseVO<MonitorRecordVO> addMonitorRecord(@PathVariable Long id,
+    public ResponseVO<MonitorRecordVO> addMonitorRecord(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody MonitorRecordRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.addMonitorRecord(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.addMonitorRecord(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 暂停/挂起。
@@ -440,14 +438,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/suspend")
-    public ResponseVO<WorkPermitVO> suspend(@PathVariable Long id,
-                                            @RequestParam Long tenantId,
-                                            @RequestBody(required = false) PermitActionRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.suspend(tenantId, id, defaultAction(request),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> suspend(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                        @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.suspend(loginContext.getTenantId(), id, defaultAction(request),
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增resume或触发resume相关动作。
@@ -459,14 +455,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/resume")
-    public ResponseVO<WorkPermitVO> resume(@PathVariable Long id,
-                                           @RequestParam Long tenantId,
-                                           @RequestBody(required = false) PermitActionRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.resume(tenantId, id, defaultAction(request),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> resume(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                      @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.resume(loginContext.getTenantId(), id, defaultAction(request),
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增terminate或触发terminate相关动作。
@@ -478,14 +472,12 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/terminate")
-    public ResponseVO<WorkPermitVO> terminate(@PathVariable Long id,
-                                              @RequestParam Long tenantId,
-                                              @RequestBody(required = false) PermitActionRequest request,
-                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.terminate(tenantId, id, defaultAction(request),
-                operator(userId, username, operator)));
+    public ResponseVO<WorkPermitVO> terminate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                            @RequestBody(required = false) PermitActionRequest request,
+                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workPermitService.terminate(loginContext.getTenantId(), id, defaultAction(request),
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 新增acceptance或触发acceptance相关动作。
@@ -495,13 +487,13 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/acceptance")
-    public ResponseVO<WorkPermitVO> acceptance(@PathVariable Long id,
+    public ResponseVO<WorkPermitVO> acceptance(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @Valid @RequestBody AcceptanceRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workPermitService.acceptance(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workPermitService.acceptance(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
     /**
      * 查询timeline。
@@ -512,8 +504,9 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/timeline")
-    public ResponseVO<List<TimelineItemVO>> timeline(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.timeline(tenantId, id));
+    public ResponseVO<List<TimelineItemVO>> timeline(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.timeline(loginContext.getTenantId(), id));
     }
     /**
      * 新增sync或触发sync相关动作。
@@ -536,11 +529,10 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/hot-work/available-workflows")
-    public ResponseVO<List<HotWorkWorkflowSummaryDTO>> listAvailableHotWorkWorkflows(
-            @RequestParam Long tenantId,
-            @RequestParam(required = false) String hotWorkLevel,
+    public ResponseVO<List<HotWorkWorkflowSummaryDTO>> listAvailableHotWorkWorkflows(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String hotWorkLevel,
             @RequestParam(required = false) Long areaId) {
-        return ResponseVO.success(workPermitService.listAvailableHotWorkWorkflows(tenantId, hotWorkLevel, areaId));
+        return ResponseVO.success(workPermitService.listAvailableHotWorkWorkflows(loginContext.getTenantId(), hotWorkLevel, areaId));
     }
 
     /**
@@ -552,9 +544,9 @@ public class WorkPermitController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/approval/progress")
-    public ResponseVO<HotWorkApprovalProgressVO> getHotWorkApprovalProgress(@PathVariable Long id,
-                                                                            @RequestParam Long tenantId) {
-        return ResponseVO.success(workPermitService.getHotWorkApprovalProgress(tenantId, id));
+    public ResponseVO<HotWorkApprovalProgressVO> getHotWorkApprovalProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workPermitService.getHotWorkApprovalProgress(loginContext.getTenantId(), id));
     }
 
     /**
@@ -567,22 +559,20 @@ public class WorkPermitController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/approval/tasks/mine")
-    public ResponseVO<List<HotWorkApprovalTaskVO>> listHotWorkApprovalTasks(
-            @PathVariable Long id,
-            @RequestParam Long tenantId,
-            @RequestParam(required = false) Long assigneeUserId) {
-        return ResponseVO.success(workPermitService.listHotWorkApprovalTasks(tenantId, id, assigneeUserId));
+    public ResponseVO<List<HotWorkApprovalTaskVO>> listHotWorkApprovalTasks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                        @RequestParam(required = false) Long assigneeUserId) {
+        return ResponseVO.success(workPermitService.listHotWorkApprovalTasks(loginContext.getTenantId(), id, assigneeUserId));
     }
 
     private PermitActionRequest defaultAction(PermitActionRequest request) {
         return request == null ? new PermitActionRequest() : request;
     }
 
-    private PermitActionRequest enrichAction(PermitActionRequest request, String userId) {
+    private PermitActionRequest enrichAction(PermitActionRequest request, Long userId) {
         PermitActionRequest action = defaultAction(request);
-        Long operatorUserId = parseUserId(userId);
-        if (operatorUserId != null) {
-            action.setOperatorUserId(operatorUserId);
+        if (userId != null) {
+            action.setOperatorUserId(userId);
         }
         return action;
     }
@@ -598,8 +588,5 @@ public class WorkPermitController {
         }
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }
 

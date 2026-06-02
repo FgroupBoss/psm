@@ -16,4 +16,12 @@ class UserContextResolverTest {
         assertEquals("admin", UserContextResolver.operator(" ", "admin", "system"));
         assertEquals("system", UserContextResolver.operator(null, "", "system"));
     }
+
+    @Test
+    void requireContextParsesHeaders() {
+        UserContext context = UserContextResolver.requireContext("10", "8", "admin", "管理员");
+        assertEquals(Long.valueOf(10L), context.getTenantId());
+        assertEquals(Long.valueOf(8L), context.getUserId());
+        assertEquals("admin", context.getUsername());
+    }
 }

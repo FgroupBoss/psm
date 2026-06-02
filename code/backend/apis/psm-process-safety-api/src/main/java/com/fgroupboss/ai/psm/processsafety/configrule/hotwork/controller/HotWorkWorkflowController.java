@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.processsafety.configrule.hotwork.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.processsafety.configrule.hotwork.model.dto.HotWorkApproverResolveDTO;
 import com.fgroupboss.ai.psm.processsafety.configrule.hotwork.model.dto.HotWorkWorkflowQueryDTO;
@@ -44,11 +45,11 @@ public class HotWorkWorkflowController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<HotWorkWorkflowDetailVO> create(@Valid @RequestBody HotWorkWorkflowTemplateRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hotWorkWorkflowService.create(request, operator(userId, username, operator)));
+    public ResponseVO<HotWorkWorkflowDetailVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody HotWorkWorkflowTemplateRequest request,
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(hotWorkWorkflowService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -59,12 +60,12 @@ public class HotWorkWorkflowController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<HotWorkWorkflowDetailVO> update(@PathVariable Long id,
+    public ResponseVO<HotWorkWorkflowDetailVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody HotWorkWorkflowTemplateRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(hotWorkWorkflowService.update(id, request, operator(userId, username, operator)));
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(hotWorkWorkflowService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -76,8 +77,9 @@ public class HotWorkWorkflowController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<HotWorkWorkflowDetailVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(hotWorkWorkflowService.get(tenantId, id));
+    public ResponseVO<HotWorkWorkflowDetailVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(hotWorkWorkflowService.get(loginContext.getTenantId(), id));
     }
 
     /**
@@ -91,12 +93,12 @@ public class HotWorkWorkflowController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/available")
-    public ResponseVO<List<HotWorkWorkflowSummaryVO>> available(@RequestParam Long tenantId,
-                                                              @RequestParam(required = false) String hotWorkLevel,
+    public ResponseVO<List<HotWorkWorkflowSummaryVO>> available(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String hotWorkLevel,
                                                               @RequestParam(required = false) Long areaId,
                                                               @RequestParam(required = false) String status) {
         HotWorkWorkflowQueryDTO query = new HotWorkWorkflowQueryDTO();
-        query.setTenantId(tenantId);
+        query.setTenantId(loginContext.getTenantId());
         query.setHotWorkLevel(hotWorkLevel);
         query.setAreaId(areaId);
         query.setStatus(status);
@@ -113,10 +115,10 @@ public class HotWorkWorkflowController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/snapshot")
-    public ResponseVO<HotWorkWorkflowSnapshotDTO> snapshot(@PathVariable Long id,
-                                                           @RequestParam Long tenantId,
-                                                           @RequestParam(required = false) Integer versionNo) {
-        return ResponseVO.success(hotWorkWorkflowService.getSnapshot(tenantId, id, versionNo));
+    public ResponseVO<HotWorkWorkflowSnapshotDTO> snapshot(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                      @RequestParam(required = false) Integer versionNo) {
+        return ResponseVO.success(hotWorkWorkflowService.getSnapshot(loginContext.getTenantId(), id, versionNo));
     }
 
     /**
@@ -139,12 +141,10 @@ public class HotWorkWorkflowController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/publish")
-    public ResponseVO<Void> publish(@PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        hotWorkWorkflowService.publish(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> publish(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        hotWorkWorkflowService.publish(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -157,16 +157,11 @@ public class HotWorkWorkflowController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/disable")
-    public ResponseVO<Void> disable(@PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        hotWorkWorkflowService.disable(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> disable(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        hotWorkWorkflowService.disable(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.processsafety.moc.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.processsafety.moc.model.dto.MocApproveRequest;
 import com.fgroupboss.ai.psm.processsafety.moc.model.dto.MocChangeRequest;
@@ -52,12 +53,12 @@ public class MocChangeController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<MocChangeVO>> page(@RequestParam Long tenantId,
-                                                    @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<MocChangeVO>> page(@LoginContext UserContext loginContext,
+                                                                                                      @RequestParam(required = false) String keyword,
                                                     @RequestParam(required = false) String status,
                                                     @RequestParam(defaultValue = "1") int pageNo,
                                                     @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(mocChangeService.page(tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(mocChangeService.page(loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -69,8 +70,9 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<MocChangeVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(mocChangeService.getById(tenantId, id));
+    public ResponseVO<MocChangeVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(mocChangeService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -80,11 +82,11 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<MocChangeVO> create(@Valid @RequestBody MocChangeRequest request,
-                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(mocChangeService.create(request, resolveOperator(userId, username, operator)));
+    public ResponseVO<MocChangeVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody MocChangeRequest request,
+                                                                                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(mocChangeService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -95,12 +97,12 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<MocChangeVO> update(@PathVariable Long id,
+    public ResponseVO<MocChangeVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                           @Valid @RequestBody MocChangeRequest request,
-                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(mocChangeService.update(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(mocChangeService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -112,10 +114,10 @@ public class MocChangeController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        mocChangeService.delete(tenantId, id, operator);
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        mocChangeService.delete(loginContext.getTenantId(), id, operator);
         return ResponseVO.success();
     }
 
@@ -128,10 +130,10 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
-    public ResponseVO<MocChangeVO> submit(@PathVariable Long id,
-                                          @RequestParam Long tenantId,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(mocChangeService.submit(tenantId, id, operator));
+    public ResponseVO<MocChangeVO> submit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(mocChangeService.submit(loginContext.getTenantId(), id, operator));
     }
 
     /**
@@ -143,9 +145,9 @@ public class MocChangeController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/impact-analysis")
-    public ResponseVO<List<MocImpactAnalysisVO>> listImpactAnalysis(@PathVariable Long id,
-                                                                    @RequestParam Long tenantId) {
-        return ResponseVO.success(mocChangeService.listImpactAnalysis(tenantId, id));
+    public ResponseVO<List<MocImpactAnalysisVO>> listImpactAnalysis(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(mocChangeService.listImpactAnalysis(loginContext.getTenantId(), id));
     }
 
     /**
@@ -156,13 +158,13 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/impact-analysis")
-    public ResponseVO<MocImpactAnalysisVO> saveImpactAnalysis(@PathVariable Long id,
+    public ResponseVO<MocImpactAnalysisVO> saveImpactAnalysis(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                               @Valid @RequestBody MocImpactAnalysisRequest request,
-                                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(mocChangeService.saveImpactAnalysis(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -173,13 +175,13 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve")
-    public ResponseVO<MocChangeVO> approve(@PathVariable Long id,
+    public ResponseVO<MocChangeVO> approve(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @Valid @RequestBody MocApproveRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(mocChangeService.approve(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -191,9 +193,9 @@ public class MocChangeController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/implementation-tasks")
-    public ResponseVO<List<MocImplementationTaskVO>> listImplementationTasks(@PathVariable Long id,
-                                                                             @RequestParam Long tenantId) {
-        return ResponseVO.success(mocChangeService.listImplementationTasks(tenantId, id));
+    public ResponseVO<List<MocImplementationTaskVO>> listImplementationTasks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(mocChangeService.listImplementationTasks(loginContext.getTenantId(), id));
     }
 
     /**
@@ -204,13 +206,13 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/implementation-tasks")
-    public ResponseVO<MocImplementationTaskVO> createImplementationTask(@PathVariable Long id,
+    public ResponseVO<MocImplementationTaskVO> createImplementationTask(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                       @Valid @RequestBody MocImplementationTaskRequest request,
-                                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(mocChangeService.createImplementationTask(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -221,13 +223,13 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/verify")
-    public ResponseVO<MocChangeVO> verify(@PathVariable Long id,
+    public ResponseVO<MocChangeVO> verify(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                           @Valid @RequestBody MocVerifyRequest request,
-                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(mocChangeService.verify(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -239,13 +241,10 @@ public class MocChangeController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/close")
-    public ResponseVO<MocChangeVO> close(@PathVariable Long id,
-                                         @RequestParam Long tenantId,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(mocChangeService.close(tenantId, id, operator));
+    public ResponseVO<MocChangeVO> close(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(mocChangeService.close(loginContext.getTenantId(), id, operator));
     }
 
-    private String resolveOperator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

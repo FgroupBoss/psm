@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.risk.inspection.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.risk.inspection.model.dto.OverdueScanRequest;
 import com.fgroupboss.ai.psm.risk.inspection.model.dto.TaskAbnormalRequest;
@@ -58,12 +60,12 @@ public class InspectionTaskController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<InspectionTaskVO>> page(@RequestParam Long tenantId,
-                                                           @RequestParam(required = false) String status,
+    public ResponseVO<PageResult<InspectionTaskVO>> page(@LoginContext UserContext loginContext,
+                                                                                                             @RequestParam(required = false) String status,
                                                            @RequestParam(required = false) Long executorId,
                                                            @RequestParam(defaultValue = "1") int pageNo,
                                                            @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(taskService.page(tenantId, status, executorId, pageNo, pageSize));
+        return ResponseVO.success(taskService.page(loginContext.getTenantId(), status, executorId, pageNo, pageSize));
     }
 
     /**
@@ -75,8 +77,9 @@ public class InspectionTaskController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<InspectionTaskVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(taskService.getById(tenantId, id));
+    public ResponseVO<InspectionTaskVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(taskService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -136,8 +139,9 @@ public class InspectionTaskController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/complete")
-    public ResponseVO<InspectionTaskVO> complete(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(taskService.complete(tenantId, id));
+    public ResponseVO<InspectionTaskVO> complete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(taskService.complete(loginContext.getTenantId(), id));
     }
 
     /**
@@ -185,10 +189,10 @@ public class InspectionTaskController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/by-major-hazard")
-    public ResponseVO<List<InspectionTaskVO>> listByMajorHazard(@RequestParam Long tenantId,
-                                                                  @RequestParam Long majorHazardId,
+    public ResponseVO<List<InspectionTaskVO>> listByMajorHazard(@LoginContext UserContext loginContext,
+                                        @RequestParam Long majorHazardId,
                                                                   @RequestParam(defaultValue = "10") int limit) {
-        return ResponseVO.success(taskService.listRecentByMajorHazard(tenantId, majorHazardId, limit));
+        return ResponseVO.success(taskService.listRecentByMajorHazard(loginContext.getTenantId(), majorHazardId, limit));
     }
 
     /**
@@ -201,10 +205,9 @@ public class InspectionTaskController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/statistics")
-    public ResponseVO<InspectionStatisticsVO> statistics(
-            @RequestParam Long tenantId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+    public ResponseVO<InspectionStatisticsVO> statistics(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
-        return ResponseVO.success(taskService.statistics(tenantId, from, to));
+        return ResponseVO.success(taskService.statistics(loginContext.getTenantId(), from, to));
     }
 }

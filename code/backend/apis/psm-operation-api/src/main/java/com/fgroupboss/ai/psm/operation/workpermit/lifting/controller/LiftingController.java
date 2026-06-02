@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.lifting.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.LiftingEquipmentCheckRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.LiftingTrialRecordRequest;
@@ -48,8 +49,9 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<LiftingWorkDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(liftingService.getDetail(tenantId, id));
+    public ResponseVO<LiftingWorkDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(liftingService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -60,13 +62,13 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<LiftingWorkDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<LiftingWorkDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody LiftingWorkDetailRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(liftingService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(liftingService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -78,9 +80,9 @@ public class LiftingController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/equipment-checks")
-    public ResponseVO<List<LiftingEquipmentCheckVO>> listEquipmentChecks(@PathVariable Long id,
-                                                                         @RequestParam Long tenantId) {
-        return ResponseVO.success(liftingService.listEquipmentChecks(tenantId, id));
+    public ResponseVO<List<LiftingEquipmentCheckVO>> listEquipmentChecks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(liftingService.listEquipmentChecks(loginContext.getTenantId(), id));
     }
 
     /**
@@ -91,13 +93,13 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/equipment-checks")
-    public ResponseVO<LiftingEquipmentCheckVO> addEquipmentCheck(@PathVariable Long id,
+    public ResponseVO<LiftingEquipmentCheckVO> addEquipmentCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                  @Valid @RequestBody LiftingEquipmentCheckRequest request,
-                                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(liftingService.addEquipmentCheck(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(liftingService.addEquipmentCheck(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -109,8 +111,9 @@ public class LiftingController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/trial-records")
-    public ResponseVO<List<LiftingTrialRecordVO>> listTrialRecords(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(liftingService.listTrialRecords(tenantId, id));
+    public ResponseVO<List<LiftingTrialRecordVO>> listTrialRecords(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(liftingService.listTrialRecords(loginContext.getTenantId(), id));
     }
 
     /**
@@ -121,13 +124,13 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/trial-records")
-    public ResponseVO<LiftingTrialRecordVO> addTrialRecord(@PathVariable Long id,
+    public ResponseVO<LiftingTrialRecordVO> addTrialRecord(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody LiftingTrialRecordRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(liftingService.addTrialRecord(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(liftingService.addTrialRecord(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -140,10 +143,10 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<LiftingPreCheckResultVO> preCheck(@PathVariable Long id,
-                                                        @RequestParam Long tenantId,
-                                                        @RequestParam String checkPoint) {
-        return ResponseVO.success(liftingService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<LiftingPreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                @RequestParam String checkPoint) {
+        return ResponseVO.success(liftingService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -155,11 +158,9 @@ public class LiftingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(liftingService.getFlowProgress(tenantId, id));
+    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(liftingService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

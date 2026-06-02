@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.heightwork.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.HeightWorkDetailRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.HeightWorkEnvironmentCheckRequest;
@@ -50,8 +51,9 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<HeightWorkDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(heightWorkService.getDetail(tenantId, id));
+    public ResponseVO<HeightWorkDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(heightWorkService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -62,13 +64,13 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<HeightWorkDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<HeightWorkDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                      @Valid @RequestBody HeightWorkDetailRequest request,
-                                                     @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                     @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(heightWorkService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(heightWorkService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -80,9 +82,9 @@ public class HeightWorkController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/hazard-factors")
-    public ResponseVO<List<HeightWorkHazardFactorVO>> listHazardFactors(@PathVariable Long id,
-                                                                        @RequestParam Long tenantId) {
-        return ResponseVO.success(heightWorkService.listHazardFactors(tenantId, id));
+    public ResponseVO<List<HeightWorkHazardFactorVO>> listHazardFactors(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(heightWorkService.listHazardFactors(loginContext.getTenantId(), id));
     }
 
     /**
@@ -93,13 +95,13 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/hazard-factors")
-    public ResponseVO<HeightWorkHazardFactorVO> addHazardFactor(@PathVariable Long id,
+    public ResponseVO<HeightWorkHazardFactorVO> addHazardFactor(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                   @Valid @RequestBody HeightWorkHazardFactorRequest request,
-                                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(heightWorkService.addHazardFactor(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(heightWorkService.addHazardFactor(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -112,14 +114,12 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/hazard-factors/{factorId}/confirm")
-    public ResponseVO<HeightWorkHazardFactorVO> confirmHazardFactor(@PathVariable Long id,
+    public ResponseVO<HeightWorkHazardFactorVO> confirmHazardFactor(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                     @PathVariable Long factorId,
-                                                                    @RequestParam Long tenantId,
-                                                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(heightWorkService.confirmHazardFactor(tenantId, id, factorId,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(heightWorkService.confirmHazardFactor(loginContext.getTenantId(), id, factorId,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -132,10 +132,10 @@ public class HeightWorkController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/protection-checks")
-    public ResponseVO<List<HeightWorkProtectionCheckVO>> listProtectionChecks(@PathVariable Long id,
-                                                                              @RequestParam Long tenantId,
-                                                                              @RequestParam(required = false) String checkStage) {
-        return ResponseVO.success(heightWorkService.listProtectionChecks(tenantId, id, checkStage));
+    public ResponseVO<List<HeightWorkProtectionCheckVO>> listProtectionChecks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                            @RequestParam(required = false) String checkStage) {
+        return ResponseVO.success(heightWorkService.listProtectionChecks(loginContext.getTenantId(), id, checkStage));
     }
 
     /**
@@ -146,13 +146,13 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/protection-checks")
-    public ResponseVO<HeightWorkProtectionCheckVO> addProtectionCheck(@PathVariable Long id,
+    public ResponseVO<HeightWorkProtectionCheckVO> addProtectionCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                       @Valid @RequestBody HeightWorkProtectionCheckRequest request,
-                                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(heightWorkService.addProtectionCheck(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(heightWorkService.addProtectionCheck(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -165,10 +165,10 @@ public class HeightWorkController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/environment-checks")
-    public ResponseVO<List<HeightWorkEnvironmentCheckVO>> listEnvironmentChecks(@PathVariable Long id,
-                                                                                @RequestParam Long tenantId,
-                                                                                @RequestParam(required = false) String checkStage) {
-        return ResponseVO.success(heightWorkService.listEnvironmentChecks(tenantId, id, checkStage));
+    public ResponseVO<List<HeightWorkEnvironmentCheckVO>> listEnvironmentChecks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                                @RequestParam(required = false) String checkStage) {
+        return ResponseVO.success(heightWorkService.listEnvironmentChecks(loginContext.getTenantId(), id, checkStage));
     }
 
     /**
@@ -179,13 +179,13 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/environment-checks")
-    public ResponseVO<HeightWorkEnvironmentCheckVO> addEnvironmentCheck(@PathVariable Long id,
+    public ResponseVO<HeightWorkEnvironmentCheckVO> addEnvironmentCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                         @Valid @RequestBody HeightWorkEnvironmentCheckRequest request,
-                                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(heightWorkService.addEnvironmentCheck(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(heightWorkService.addEnvironmentCheck(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -197,8 +197,9 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/recalculate")
-    public ResponseVO<HeightWorkDetailVO> recalculate(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(heightWorkService.recalculate(tenantId, id));
+    public ResponseVO<HeightWorkDetailVO> recalculate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(heightWorkService.recalculate(loginContext.getTenantId(), id));
     }
 
     /**
@@ -211,10 +212,10 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<HeightWorkPreCheckResultVO> preCheck(@PathVariable Long id,
-                                                           @RequestParam Long tenantId,
-                                                           @RequestParam String checkPoint) {
-        return ResponseVO.success(heightWorkService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<HeightWorkPreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                      @RequestParam String checkPoint) {
+        return ResponseVO.success(heightWorkService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -226,11 +227,9 @@ public class HeightWorkController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(heightWorkService.getFlowProgress(tenantId, id));
+    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(heightWorkService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

@@ -2,8 +2,9 @@ package com.fgroupboss.ai.psm.identity.iam.controller;
 
 import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.identity.iam.model.dto.AssignDataScopeRequest;
 import com.fgroupboss.ai.psm.identity.iam.model.dto.AssignRolePermissionRequest;
@@ -72,11 +73,10 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/tenants")
-    public ResponseVO<TenantVO> createTenant(@Valid @RequestBody TenantRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createTenant(request, operator(userId, username, operator)));
+    public ResponseVO<TenantVO> createTenant(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody TenantRequest request,
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(service.createTenant(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -87,12 +87,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/tenants/{id}")
-    public ResponseVO<TenantVO> updateTenant(@PathVariable Long id,
+    public ResponseVO<TenantVO> updateTenant(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                              @Valid @RequestBody TenantRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updateTenant(id, request, operator(userId, username, operator)));
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(service.updateTenant(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -103,12 +102,11 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/tenants/{id}/status")
-    public ResponseVO<Void> updateTenantStatus(@PathVariable Long id,
+    public ResponseVO<Void> updateTenantStatus(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @RequestParam String status,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.updateTenantStatus(id, status, operator(userId, username, operator));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.updateTenantStatus(id, status, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -120,8 +118,8 @@ public class IamAdminController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/orgs/tree")
-    public ResponseVO<List<OrgTreeVO>> orgTree(@RequestParam Long tenantId) {
-        return ResponseVO.success(service.orgTree(tenantId));
+    public ResponseVO<List<OrgTreeVO>> orgTree(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(service.orgTree(loginContext.getTenantId()));
     }
 
     /**
@@ -131,11 +129,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/orgs")
-    public ResponseVO<OrgTreeVO> createOrg(@Valid @RequestBody OrgRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createOrg(request, operator(userId, username, operator)));
+    public ResponseVO<OrgTreeVO> createOrg(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody OrgRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.createOrg(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -146,12 +144,12 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/orgs/{id}")
-    public ResponseVO<OrgTreeVO> updateOrg(@PathVariable Long id,
+    public ResponseVO<OrgTreeVO> updateOrg(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @Valid @RequestBody OrgRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updateOrg(id, request, operator(userId, username, operator)));
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.updateOrg(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -163,12 +161,10 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/orgs/{id}")
-    public ResponseVO<Void> deleteOrg(@PathVariable Long id,
-                                      @RequestParam Long tenantId,
-                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.deleteOrg(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> deleteOrg(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.deleteOrg(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -183,11 +179,11 @@ public class IamAdminController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/posts")
-    public ResponseVO<PageResult<PostVO>> posts(@RequestParam Long tenantId,
-                                                @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<PostVO>> posts(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                 @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.pagePosts(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(service.pagePosts(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -197,11 +193,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/posts")
-    public ResponseVO<PostVO> createPost(@Valid @RequestBody PostRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createPost(request, operator(userId, username, operator)));
+    public ResponseVO<PostVO> createPost(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody PostRequest request,
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.createPost(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -212,12 +208,12 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/posts/{id}")
-    public ResponseVO<PostVO> updatePost(@PathVariable Long id,
+    public ResponseVO<PostVO> updatePost(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                          @Valid @RequestBody PostRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updatePost(id, request, operator(userId, username, operator)));
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.updatePost(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -229,12 +225,10 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/posts/{id}")
-    public ResponseVO<Void> deletePost(@PathVariable Long id,
-                                       @RequestParam Long tenantId,
-                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.deletePost(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> deletePost(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.deletePost(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -249,11 +243,11 @@ public class IamAdminController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users")
-    public ResponseVO<PageResult<IamUserVO>> users(@RequestParam Long tenantId,
-                                                   @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<IamUserVO>> users(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                    @RequestParam(defaultValue = "1") int pageNo,
                                                    @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.pageUsers(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(service.pageUsers(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -263,11 +257,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/users")
-    public ResponseVO<IamUserVO> createUser(@Valid @RequestBody IamUserRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createUser(request, operator(userId, username, operator)));
+    public ResponseVO<IamUserVO> createUser(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody IamUserRequest request,
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.createUser(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -278,12 +272,12 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}")
-    public ResponseVO<IamUserVO> updateUser(@PathVariable Long id,
+    public ResponseVO<IamUserVO> updateUser(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody IamUserRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updateUser(id, request, operator(userId, username, operator)));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.updateUser(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -294,12 +288,12 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}/status")
-    public ResponseVO<Void> updateUserStatus(@PathVariable Long id,
+    public ResponseVO<Void> updateUserStatus(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                              @Valid @RequestBody UserStatusRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.updateUserStatus(id, request, operator(userId, username, operator));
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        service.updateUserStatus(id, request, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -311,12 +305,12 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/users/{id}/roles")
-    public ResponseVO<Void> assignUserRoles(@PathVariable Long id,
+    public ResponseVO<Void> assignUserRoles(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody AssignUserRoleRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.assignUserRoles(id, request, operator(userId, username, operator));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        service.assignUserRoles(id, request, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -329,8 +323,9 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{id}/permissions")
-    public ResponseVO<UserPermissionSummaryVO> userPermissions(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(service.userPermissions(tenantId, id));
+    public ResponseVO<UserPermissionSummaryVO> userPermissions(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(service.userPermissions(loginContext.getTenantId(), id));
     }
 
     /**
@@ -339,16 +334,13 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/me/permissions")
-    public ResponseVO<UserPermissionSummaryVO> myPermissions(
-            @RequestHeader(value = UserContextHeaders.TENANT_ID, required = false) String tenantId,
-            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username) {
-        Long resolvedTenantId = tenantId == null ? null : Long.valueOf(tenantId);
-        Long resolvedAuthUserId = userId == null ? null : Long.valueOf(userId);
+    public ResponseVO<UserPermissionSummaryVO> myPermissions(@LoginContext UserContext loginContext) {
+        Long resolvedTenantId = loginContext.getTenantId();
+        Long resolvedAuthUserId = loginContext.getUserId();
         if (resolvedTenantId == null || resolvedTenantId <= 0L) {
-            throw new BusinessException(400, "tenantId is required");
+            throw new BusinessException(400, "loginContext.getTenantId() is required");
         }
-        return ResponseVO.success(service.userPermissionsForPrincipal(resolvedTenantId, resolvedAuthUserId, username));
+        return ResponseVO.success(service.userPermissionsForPrincipal(resolvedTenantId, resolvedAuthUserId, loginContext.getUsername()));
     }
 
     /**
@@ -362,11 +354,11 @@ public class IamAdminController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/roles")
-    public ResponseVO<PageResult<RoleVO>> roles(@RequestParam Long tenantId,
-                                                @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<RoleVO>> roles(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                 @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.pageRoles(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(service.pageRoles(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -376,11 +368,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/roles")
-    public ResponseVO<RoleVO> createRole(@Valid @RequestBody RoleRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createRole(request, operator(userId, username, operator)));
+    public ResponseVO<RoleVO> createRole(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody RoleRequest request,
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.createRole(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -391,12 +383,12 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}")
-    public ResponseVO<RoleVO> updateRole(@PathVariable Long id,
+    public ResponseVO<RoleVO> updateRole(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                          @Valid @RequestBody RoleRequest request,
-                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updateRole(id, request, operator(userId, username, operator)));
+                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.updateRole(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -408,12 +400,10 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/roles/{id}")
-    public ResponseVO<Void> deleteRole(@PathVariable Long id,
-                                       @RequestParam Long tenantId,
-                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.deleteRole(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> deleteRole(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.deleteRole(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -425,12 +415,12 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}/permissions")
-    public ResponseVO<Void> assignRolePermissions(@PathVariable Long id,
+    public ResponseVO<Void> assignRolePermissions(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                   @Valid @RequestBody AssignRolePermissionRequest request,
-                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.assignRolePermissions(id, request, operator(userId, username, operator));
+                                                                                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        service.assignRolePermissions(id, request, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -442,12 +432,12 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/roles/{id}/data-scopes")
-    public ResponseVO<Void> assignDataScope(@PathVariable Long id,
+    public ResponseVO<Void> assignDataScope(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody AssignDataScopeRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.assignDataScope(id, request, operator(userId, username, operator));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        service.assignDataScope(id, request, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -459,8 +449,8 @@ public class IamAdminController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/menus/tree")
-    public ResponseVO<List<MenuTreeVO>> menuTree(@RequestParam(defaultValue = "0") Long tenantId) {
-        return ResponseVO.success(service.menuTree(tenantId));
+    public ResponseVO<List<MenuTreeVO>> menuTree(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(service.menuTree(loginContext.getTenantId()));
     }
 
     /**
@@ -470,11 +460,11 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/menus")
-    public ResponseVO<MenuTreeVO> createMenu(@Valid @RequestBody MenuResourceRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.createMenu(request, operator(userId, username, operator)));
+    public ResponseVO<MenuTreeVO> createMenu(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody MenuResourceRequest request,
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.createMenu(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -485,12 +475,12 @@ public class IamAdminController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/menus/{id}")
-    public ResponseVO<MenuTreeVO> updateMenu(@PathVariable Long id,
+    public ResponseVO<MenuTreeVO> updateMenu(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                              @Valid @RequestBody MenuResourceRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.updateMenu(id, request, operator(userId, username, operator)));
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.updateMenu(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -502,16 +492,11 @@ public class IamAdminController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/menus/{id}")
-    public ResponseVO<Void> deleteMenu(@PathVariable Long id,
-                                       @RequestParam(defaultValue = "0") Long tenantId,
-                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.deleteMenu(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> deleteMenu(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.deleteMenu(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

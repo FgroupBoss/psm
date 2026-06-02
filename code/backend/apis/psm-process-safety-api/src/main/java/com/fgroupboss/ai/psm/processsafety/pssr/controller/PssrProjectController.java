@@ -1,8 +1,10 @@
 package com.fgroupboss.ai.psm.processsafety.pssr.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
+import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrApprovalRequest;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrExecuteRequest;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrProjectRequest;
@@ -48,12 +50,12 @@ public class PssrProjectController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<PssrProjectVO>> page(@RequestParam Long tenantId,
-                                                    @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<PssrProjectVO>> page(@LoginContext UserContext loginContext,
+                                                                                                      @RequestParam(required = false) String keyword,
                                                     @RequestParam(required = false) String status,
                                                     @RequestParam(defaultValue = "1") int pageNo,
                                                     @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(pssrProjectService.page(tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(pssrProjectService.page(loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -65,8 +67,9 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<PssrProjectVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(pssrProjectService.getById(tenantId, id));
+    public ResponseVO<PssrProjectVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(pssrProjectService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -76,11 +79,11 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<PssrProjectVO> create(@Valid @RequestBody PssrProjectRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pssrProjectService.create(request, resolveOperator(userId, username, operator)));
+    public ResponseVO<PssrProjectVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody PssrProjectRequest request,
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(pssrProjectService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -91,12 +94,12 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<PssrProjectVO> update(@PathVariable Long id,
+    public ResponseVO<PssrProjectVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                             @Valid @RequestBody PssrProjectRequest request,
-                                            @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                            @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pssrProjectService.update(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(pssrProjectService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -108,12 +111,10 @@ public class PssrProjectController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        pssrProjectService.delete(tenantId, id, resolveOperator(userId, username, operator));
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        pssrProjectService.delete(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -125,12 +126,12 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/execute")
-    public ResponseVO<PssrExecutionRecordVO> execute(@PathVariable Long id,
+    public ResponseVO<PssrExecutionRecordVO> execute(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                      @Valid @RequestBody PssrExecuteRequest request,
-                                                     @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                     @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pssrProjectService.execute(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(pssrProjectService.execute(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -141,12 +142,12 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve-startup")
-    public ResponseVO<PssrProjectVO> approveStartup(@PathVariable Long id,
+    public ResponseVO<PssrProjectVO> approveStartup(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                     @Valid @RequestBody PssrApprovalRequest request,
-                                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pssrProjectService.approveStartup(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(pssrProjectService.approveStartup(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -157,12 +158,12 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/reject-startup")
-    public ResponseVO<PssrProjectVO> rejectStartup(@PathVariable Long id,
+    public ResponseVO<PssrProjectVO> rejectStartup(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                    @Valid @RequestBody PssrApprovalRequest request,
-                                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(pssrProjectService.rejectStartup(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(pssrProjectService.rejectStartup(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -174,17 +175,9 @@ public class PssrProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/startup-check")
-    public ResponseVO<PssrStartupCheckVO> startupCheck(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(pssrProjectService.startupCheck(tenantId, id));
+    public ResponseVO<PssrStartupCheckVO> startupCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(pssrProjectService.startupCheck(loginContext.getTenantId(), id));
     }
 
-    private String resolveOperator(String userId, String username, String operator) {
-        if (username != null && !username.isEmpty()) {
-            return username;
-        }
-        if (userId != null && !userId.isEmpty()) {
-            return userId;
-        }
-        return operator;
-    }
 }

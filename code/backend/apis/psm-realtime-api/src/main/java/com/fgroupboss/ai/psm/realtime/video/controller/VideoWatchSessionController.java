@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.realtime.video.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.video.model.dto.WatchCaptureRequest;
 import com.fgroupboss.ai.psm.realtime.video.model.dto.WatchSessionCloseRequest;
@@ -50,8 +52,9 @@ public class VideoWatchSessionController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<VideoWatchSessionVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(watchSessionService.getById(tenantId, id));
+    public ResponseVO<VideoWatchSessionVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(watchSessionService.getById(loginContext.getTenantId(), id));
     }
 
     /**

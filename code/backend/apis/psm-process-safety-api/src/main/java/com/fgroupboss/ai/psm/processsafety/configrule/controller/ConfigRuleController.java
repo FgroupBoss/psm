@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.processsafety.configrule.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.processsafety.configrule.config.ConfigType;
 import com.fgroupboss.ai.psm.processsafety.configrule.model.dto.ConfigItemRequest;
@@ -45,12 +46,12 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{type:dictionaries|forms|workflows|rules}")
-    public ResponseVO<ConfigItemVO> create(@PathVariable String type,
+    public ResponseVO<ConfigItemVO> create(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                            @Valid @RequestBody ConfigItemRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(ConfigType.fromPath(type), request, operator(userId, username, operator)));
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.create(ConfigType.fromPath(type), request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -60,11 +61,11 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/notifications/templates")
-    public ResponseVO<ConfigItemVO> createNotification(@Valid @RequestBody ConfigItemRequest request,
-                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(ConfigType.NOTIFICATION_TEMPLATE, request, operator(userId, username, operator)));
+    public ResponseVO<ConfigItemVO> createNotification(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody ConfigItemRequest request,
+                                                                                                                                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.create(ConfigType.NOTIFICATION_TEMPLATE, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -74,11 +75,11 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/attachments/policies")
-    public ResponseVO<ConfigItemVO> createAttachmentPolicy(@Valid @RequestBody ConfigItemRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.create(ConfigType.ATTACHMENT_POLICY, request, operator(userId, username, operator)));
+    public ResponseVO<ConfigItemVO> createAttachmentPolicy(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody ConfigItemRequest request,
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.create(ConfigType.ATTACHMENT_POLICY, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -90,13 +91,13 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{type:dictionaries|forms|workflows|rules}/{id}")
-    public ResponseVO<ConfigItemVO> update(@PathVariable String type,
+    public ResponseVO<ConfigItemVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
                                            @PathVariable Long id,
                                            @Valid @RequestBody ConfigItemRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(ConfigType.fromPath(type), id, request, operator(userId, username, operator)));
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.update(ConfigType.fromPath(type), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -107,12 +108,12 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/notifications/templates/{id}")
-    public ResponseVO<ConfigItemVO> updateNotification(@PathVariable Long id,
+    public ResponseVO<ConfigItemVO> updateNotification(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                        @Valid @RequestBody ConfigItemRequest request,
-                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(ConfigType.NOTIFICATION_TEMPLATE, id, request, operator(userId, username, operator)));
+                                                                                                                                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.update(ConfigType.NOTIFICATION_TEMPLATE, id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -123,12 +124,12 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/attachments/policies/{id}")
-    public ResponseVO<ConfigItemVO> updateAttachmentPolicy(@PathVariable Long id,
+    public ResponseVO<ConfigItemVO> updateAttachmentPolicy(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody ConfigItemRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(service.update(ConfigType.ATTACHMENT_POLICY, id, request, operator(userId, username, operator)));
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(service.update(ConfigType.ATTACHMENT_POLICY, id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -145,14 +146,14 @@ public class ConfigRuleController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{type:dictionaries|forms|workflows|rules}")
-    public ResponseVO<PageResult<ConfigItemVO>> page(@PathVariable String type,
-                                                     @RequestParam Long tenantId,
-                                                     @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<ConfigItemVO>> page(@LoginContext UserContext loginContext,
+                                        @PathVariable String type,
+                                                                                                          @RequestParam(required = false) String keyword,
                                                      @RequestParam(required = false) String status,
                                                      @RequestParam(required = false) String bizScene,
                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(ConfigType.fromPath(type), tenantId, keyword, status, bizScene, pageNo, pageSize));
+        return ResponseVO.success(service.page(ConfigType.fromPath(type), loginContext.getTenantId(), keyword, status, bizScene, pageNo, pageSize));
     }
 
     /**
@@ -168,13 +169,13 @@ public class ConfigRuleController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/notifications/templates")
-    public ResponseVO<PageResult<ConfigItemVO>> pageNotifications(@RequestParam Long tenantId,
-                                                                  @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<ConfigItemVO>> pageNotifications(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                                   @RequestParam(required = false) String status,
                                                                   @RequestParam(required = false) String bizScene,
                                                                   @RequestParam(defaultValue = "1") int pageNo,
                                                                   @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(ConfigType.NOTIFICATION_TEMPLATE, tenantId, keyword, status, bizScene, pageNo, pageSize));
+        return ResponseVO.success(service.page(ConfigType.NOTIFICATION_TEMPLATE, loginContext.getTenantId(), keyword, status, bizScene, pageNo, pageSize));
     }
 
     /**
@@ -190,13 +191,13 @@ public class ConfigRuleController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/attachments/policies")
-    public ResponseVO<PageResult<ConfigItemVO>> pageAttachmentPolicies(@RequestParam Long tenantId,
-                                                                       @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<ConfigItemVO>> pageAttachmentPolicies(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                                        @RequestParam(required = false) String status,
                                                                        @RequestParam(required = false) String bizScene,
                                                                        @RequestParam(defaultValue = "1") int pageNo,
                                                                        @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(service.page(ConfigType.ATTACHMENT_POLICY, tenantId, keyword, status, bizScene, pageNo, pageSize));
+        return ResponseVO.success(service.page(ConfigType.ATTACHMENT_POLICY, loginContext.getTenantId(), keyword, status, bizScene, pageNo, pageSize));
     }
 
     /**
@@ -208,8 +209,9 @@ public class ConfigRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/items/{id}")
-    public ResponseVO<ConfigItemVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(service.get(tenantId, id));
+    public ResponseVO<ConfigItemVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(service.get(loginContext.getTenantId(), id));
     }
 
     /**
@@ -221,12 +223,10 @@ public class ConfigRuleController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/items/{id}/publish")
-    public ResponseVO<Void> publish(@PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.publish(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> publish(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.publish(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -239,12 +239,10 @@ public class ConfigRuleController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/items/{id}/disable")
-    public ResponseVO<Void> disable(@PathVariable Long id,
-                                    @RequestParam Long tenantId,
-                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.disable(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> disable(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.disable(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -257,12 +255,10 @@ public class ConfigRuleController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/items/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        service.delete(tenantId, id, operator(userId, username, operator));
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        service.delete(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success();
     }
 
@@ -277,7 +273,4 @@ public class ConfigRuleController {
         return ResponseVO.success(service.evaluate(request));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

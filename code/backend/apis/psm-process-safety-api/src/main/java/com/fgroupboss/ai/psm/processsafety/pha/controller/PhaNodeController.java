@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.processsafety.pha.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.PhaNodeRequest;
 import com.fgroupboss.ai.psm.processsafety.pha.model.vo.PhaNodeVO;
@@ -39,8 +41,9 @@ public class PhaNodeController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<List<PhaNodeVO>> list(@PathVariable Long projectId, @RequestParam Long tenantId) {
-        return ResponseVO.success(phaNodeService.listByProject(tenantId, projectId));
+    public ResponseVO<List<PhaNodeVO>> list(@LoginContext UserContext loginContext,
+                                                  @PathVariable Long projectId) {
+        return ResponseVO.success(phaNodeService.listByProject(loginContext.getTenantId(), projectId));
     }
 
     /**

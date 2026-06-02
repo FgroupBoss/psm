@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.roadbreak.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.RoadBreakDetailRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.RoadBreakSiteControlRequest;
@@ -48,8 +49,9 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<RoadBreakDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(roadBreakService.getDetail(tenantId, id));
+    public ResponseVO<RoadBreakDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(roadBreakService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -60,13 +62,13 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<RoadBreakDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<RoadBreakDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                     @Valid @RequestBody RoadBreakDetailRequest request,
-                                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(roadBreakService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(roadBreakService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -78,8 +80,9 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/traffic-plan")
-    public ResponseVO<RoadBreakTrafficPlanVO> getTrafficPlan(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(roadBreakService.getTrafficPlan(tenantId, id));
+    public ResponseVO<RoadBreakTrafficPlanVO> getTrafficPlan(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(roadBreakService.getTrafficPlan(loginContext.getTenantId(), id));
     }
 
     /**
@@ -90,13 +93,13 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/traffic-plan")
-    public ResponseVO<RoadBreakTrafficPlanVO> saveTrafficPlan(@PathVariable Long id,
+    public ResponseVO<RoadBreakTrafficPlanVO> saveTrafficPlan(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                               @Valid @RequestBody RoadBreakTrafficPlanRequest request,
-                                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(roadBreakService.saveTrafficPlan(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(roadBreakService.saveTrafficPlan(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -108,9 +111,9 @@ public class RoadBreakController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/site-controls")
-    public ResponseVO<List<RoadBreakSiteControlVO>> listSiteControls(@PathVariable Long id,
-                                                                      @RequestParam Long tenantId) {
-        return ResponseVO.success(roadBreakService.listSiteControls(tenantId, id));
+    public ResponseVO<List<RoadBreakSiteControlVO>> listSiteControls(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(roadBreakService.listSiteControls(loginContext.getTenantId(), id));
     }
 
     /**
@@ -121,13 +124,13 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/site-controls")
-    public ResponseVO<RoadBreakSiteControlVO> addSiteControl(@PathVariable Long id,
+    public ResponseVO<RoadBreakSiteControlVO> addSiteControl(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                @Valid @RequestBody RoadBreakSiteControlRequest request,
-                                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(roadBreakService.addSiteControl(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(roadBreakService.addSiteControl(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -140,10 +143,10 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<RoadBreakPreCheckResultVO> preCheck(@PathVariable Long id,
-                                                           @RequestParam Long tenantId,
-                                                           @RequestParam String checkPoint) {
-        return ResponseVO.success(roadBreakService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<RoadBreakPreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                      @RequestParam String checkPoint) {
+        return ResponseVO.success(roadBreakService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -155,11 +158,9 @@ public class RoadBreakController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<RoadBreakFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(roadBreakService.getFlowProgress(tenantId, id));
+    public ResponseVO<RoadBreakFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(roadBreakService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

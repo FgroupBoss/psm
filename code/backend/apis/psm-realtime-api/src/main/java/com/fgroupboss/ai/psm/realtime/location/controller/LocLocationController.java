@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.realtime.location.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.location.model.vo.LocRealtimeVO;
 import com.fgroupboss.ai.psm.realtime.location.model.vo.LocTrackPointVO;
@@ -39,12 +41,12 @@ public class LocLocationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/realtime")
-    public ResponseVO<List<LocRealtimeVO>> realtime(@RequestParam Long tenantId,
-                                                  @RequestParam(required = false) Long areaId,
+    public ResponseVO<List<LocRealtimeVO>> realtime(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long areaId,
                                                   @RequestParam(required = false) Long personId,
                                                   @RequestParam(required = false) String tagNo,
                                                   @RequestParam(required = false) String onlineStatus) {
-        return ResponseVO.success(locationService.listRealtime(tenantId, areaId, personId, tagNo, onlineStatus));
+        return ResponseVO.success(locationService.listRealtime(loginContext.getTenantId(), areaId, personId, tagNo, onlineStatus));
     }
 
     /**
@@ -61,13 +63,13 @@ public class LocLocationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/tracks")
-    public ResponseVO<List<LocTrackPointVO>> tracks(@RequestParam Long tenantId,
-                                                   @RequestParam(required = false) String tagNo,
+    public ResponseVO<List<LocTrackPointVO>> tracks(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String tagNo,
                                                    @RequestParam(required = false) Long personId,
                                                    @RequestParam(required = false) Long areaId,
                                                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromTime,
                                                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toTime,
                                                    @RequestParam(defaultValue = "1000") int limit) {
-        return ResponseVO.success(locationService.listTracks(tenantId, tagNo, personId, areaId, fromTime, toTime, limit));
+        return ResponseVO.success(locationService.listTracks(loginContext.getTenantId(), tagNo, personId, areaId, fromTime, toTime, limit));
     }
 }

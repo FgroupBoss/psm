@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.identity.iam.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.identity.iam.model.vo.UserPermissionSummaryVO;
 import com.fgroupboss.ai.psm.identity.iam.service.IamAdminService;
@@ -7,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -31,8 +32,9 @@ public class InternalIamController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/permissions")
-    public ResponseVO<UserPermissionSummaryVO> permissions(@PathVariable Long userId, @RequestParam Long tenantId) {
-        return ResponseVO.success(service.userPermissions(tenantId, userId));
+    public ResponseVO<UserPermissionSummaryVO> permissions(@LoginContext UserContext loginContext,
+                                        @PathVariable Long userId) {
+        return ResponseVO.success(service.userPermissions(loginContext.getTenantId(), userId));
     }
 
     /**
@@ -44,8 +46,9 @@ public class InternalIamController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/permission-version")
-    public ResponseVO<Long> permissionVersion(@PathVariable Long userId, @RequestParam Long tenantId) {
-        return ResponseVO.success(service.userPermissions(tenantId, userId).getPermissionVersion());
+    public ResponseVO<Long> permissionVersion(@LoginContext UserContext loginContext,
+                                        @PathVariable Long userId) {
+        return ResponseVO.success(service.userPermissions(loginContext.getTenantId(), userId).getPermissionVersion());
     }
 
     /**
@@ -57,7 +60,8 @@ public class InternalIamController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/users/{userId}/data-scope")
-    public ResponseVO<UserPermissionSummaryVO> dataScope(@PathVariable Long userId, @RequestParam Long tenantId) {
-        return ResponseVO.success(service.userPermissions(tenantId, userId));
+    public ResponseVO<UserPermissionSummaryVO> dataScope(@LoginContext UserContext loginContext,
+                                        @PathVariable Long userId) {
+        return ResponseVO.success(service.userPermissions(loginContext.getTenantId(), userId));
     }
 }

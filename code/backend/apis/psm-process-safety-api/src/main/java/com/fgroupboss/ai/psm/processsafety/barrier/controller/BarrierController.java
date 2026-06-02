@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.processsafety.barrier.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.barrier.model.dto.BarrierDegradeRequest;
 import com.fgroupboss.ai.psm.processsafety.barrier.model.dto.BarrierRequest;
@@ -48,12 +50,12 @@ public class BarrierController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<BarrierVO>> page(@RequestParam Long tenantId,
-                                                @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<BarrierVO>> page(@LoginContext UserContext loginContext,
+                                                                                                  @RequestParam(required = false) String keyword,
                                                 @RequestParam(required = false) String status,
                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                 @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(barrierService.page(tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(barrierService.page(loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -65,8 +67,9 @@ public class BarrierController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<BarrierVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(barrierService.getById(tenantId, id));
+    public ResponseVO<BarrierVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(barrierService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -104,10 +107,10 @@ public class BarrierController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        barrierService.delete(tenantId, id, operator);
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        barrierService.delete(loginContext.getTenantId(), id, operator);
         return ResponseVO.success();
     }
 
@@ -120,8 +123,9 @@ public class BarrierController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/health")
-    public ResponseVO<BarrierHealthVO> health(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(barrierService.getHealth(tenantId, id));
+    public ResponseVO<BarrierHealthVO> health(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(barrierService.getHealth(loginContext.getTenantId(), id));
     }
 
     /**

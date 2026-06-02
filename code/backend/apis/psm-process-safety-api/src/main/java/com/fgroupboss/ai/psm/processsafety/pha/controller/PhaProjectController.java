@@ -1,8 +1,10 @@
 package com.fgroupboss.ai.psm.processsafety.pha.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
+import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.PhaProjectRequest;
 import com.fgroupboss.ai.psm.processsafety.pha.model.vo.PhaProjectReportVO;
 import com.fgroupboss.ai.psm.processsafety.pha.model.vo.PhaProjectVO;
@@ -46,12 +48,12 @@ public class PhaProjectController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<PhaProjectVO>> page(@RequestParam Long tenantId,
-                                                     @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<PhaProjectVO>> page(@LoginContext UserContext loginContext,
+                                                                                                       @RequestParam(required = false) String keyword,
                                                      @RequestParam(required = false) String status,
                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(phaProjectService.page(tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(phaProjectService.page(loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -63,8 +65,9 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<PhaProjectVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(phaProjectService.getById(tenantId, id));
+    public ResponseVO<PhaProjectVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(phaProjectService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -74,11 +77,11 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<PhaProjectVO> create(@Valid @RequestBody PhaProjectRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaProjectService.create(request, resolveOperator(userId, username, operator)));
+    public ResponseVO<PhaProjectVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody PhaProjectRequest request,
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(phaProjectService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -89,12 +92,12 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<PhaProjectVO> update(@PathVariable Long id,
+    public ResponseVO<PhaProjectVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @Valid @RequestBody PhaProjectRequest request,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaProjectService.update(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(phaProjectService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -106,10 +109,10 @@ public class PhaProjectController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        phaProjectService.delete(tenantId, id, operator);
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        phaProjectService.delete(loginContext.getTenantId(), id, operator);
         return ResponseVO.success();
     }
 
@@ -122,9 +125,9 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
-    public ResponseVO<PhaProjectVO> submit(@PathVariable Long id, @RequestParam Long tenantId,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaProjectService.submit(tenantId, id, operator));
+    public ResponseVO<PhaProjectVO> submit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(phaProjectService.submit(loginContext.getTenantId(), id, operator));
     }
 
     /**
@@ -136,9 +139,9 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/publish")
-    public ResponseVO<PhaProjectVO> publish(@PathVariable Long id, @RequestParam Long tenantId,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaProjectService.publish(tenantId, id, operator));
+    public ResponseVO<PhaProjectVO> publish(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(phaProjectService.publish(loginContext.getTenantId(), id, operator));
     }
 
     /**
@@ -150,9 +153,9 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/archive")
-    public ResponseVO<PhaProjectVO> archive(@PathVariable Long id, @RequestParam Long tenantId,
-                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaProjectService.archive(tenantId, id, operator));
+    public ResponseVO<PhaProjectVO> archive(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(phaProjectService.archive(loginContext.getTenantId(), id, operator));
     }
 
     /**
@@ -164,17 +167,9 @@ public class PhaProjectController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/report")
-    public ResponseVO<PhaProjectReportVO> report(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(phaProjectService.exportReport(id, tenantId));
+    public ResponseVO<PhaProjectReportVO> report(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(phaProjectService.exportReport(id, loginContext.getTenantId()));
     }
 
-    private String resolveOperator(String userId, String username, String operator) {
-        if (username != null && !username.isEmpty()) {
-            return username;
-        }
-        if (userId != null && !userId.isEmpty()) {
-            return userId;
-        }
-        return operator;
-    }
 }

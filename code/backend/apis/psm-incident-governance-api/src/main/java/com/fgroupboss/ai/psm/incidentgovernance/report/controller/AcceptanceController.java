@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.incidentgovernance.report.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.dto.AcceptanceTestCaseRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.dto.AcceptanceTestRunRequest;
@@ -41,12 +43,12 @@ public class AcceptanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/test-cases")
-    public ResponseVO<PageResult<AcceptanceTestCaseVO>> pageTestCases(@RequestParam Long tenantId,
-                                                                      @RequestParam(required = false) String module,
+    public ResponseVO<PageResult<AcceptanceTestCaseVO>> pageTestCases(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String module,
                                                                       @RequestParam(required = false) String status,
                                                                       @RequestParam(defaultValue = "1") int pageNo,
                                                                       @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(reportService.pageTestCases(tenantId, module, status, pageNo, pageSize));
+        return ResponseVO.success(reportService.pageTestCases(loginContext.getTenantId(), module, status, pageNo, pageSize));
     }
 
     /**
@@ -71,11 +73,11 @@ public class AcceptanceController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/test-runs")
-    public ResponseVO<PageResult<AcceptanceTestRunVO>> pageTestRuns(@RequestParam Long tenantId,
-                                                                    @RequestParam(required = false) Long caseId,
+    public ResponseVO<PageResult<AcceptanceTestRunVO>> pageTestRuns(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long caseId,
                                                                     @RequestParam(defaultValue = "1") int pageNo,
                                                                     @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(reportService.pageTestRuns(tenantId, caseId, pageNo, pageSize));
+        return ResponseVO.success(reportService.pageTestRuns(loginContext.getTenantId(), caseId, pageNo, pageSize));
     }
 
     /**

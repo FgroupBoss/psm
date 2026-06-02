@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.operation.contractor.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.contractor.model.dto.CompanyApproveRequest;
 import com.fgroupboss.ai.psm.operation.contractor.model.dto.CompanyReasonRequest;
@@ -66,13 +67,13 @@ public class ContractorWorkerController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<ContractorWorkerVO>> page(@RequestParam Long tenantId,
-                                                           @RequestParam(required = false) Long companyId,
+    public ResponseVO<PageResult<ContractorWorkerVO>> page(@LoginContext UserContext loginContext,
+                                                                                                             @RequestParam(required = false) Long companyId,
                                                            @RequestParam(required = false) String keyword,
                                                            @RequestParam(required = false) String accessStatus,
                                                            @RequestParam(defaultValue = "1") int pageNo,
                                                            @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(workerService.page(tenantId, companyId, keyword, accessStatus, pageNo, pageSize));
+        return ResponseVO.success(workerService.page(loginContext.getTenantId(), companyId, keyword, accessStatus, pageNo, pageSize));
     }
 
     /**
@@ -82,11 +83,11 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<ContractorWorkerVO> create(@Valid @RequestBody ContractorWorkerRequest request,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.create(request, operator(userId, username, operator)));
+    public ResponseVO<ContractorWorkerVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody ContractorWorkerRequest request,
+                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workerService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -98,8 +99,9 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<ContractorWorkerVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(workerService.getById(tenantId, id));
+    public ResponseVO<ContractorWorkerVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(workerService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -110,12 +112,12 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<ContractorWorkerVO> update(@PathVariable Long id,
+    public ResponseVO<ContractorWorkerVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                  @Valid @RequestBody ContractorWorkerRequest request,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.update(id, request, operator(userId, username, operator)));
+                                                                                                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(workerService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -127,12 +129,10 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/submit")
-    public ResponseVO<ContractorWorkerVO> submit(@PathVariable Long id,
-                                                 @RequestParam Long tenantId,
-                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                 @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.submit(tenantId, id, operator(userId, username, operator)));
+    public ResponseVO<ContractorWorkerVO> submit(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                                                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workerService.submit(loginContext.getTenantId(), id, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -145,13 +145,11 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/approve")
-    public ResponseVO<ContractorWorkerVO> approve(@PathVariable Long id,
-                                                  @RequestParam Long tenantId,
-                                                  @Valid @RequestBody CompanyApproveRequest request,
-                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.approve(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<ContractorWorkerVO> approve(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                    @Valid @RequestBody CompanyApproveRequest request,
+                                                                                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workerService.approve(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -164,13 +162,11 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/suspend")
-    public ResponseVO<ContractorWorkerVO> suspend(@PathVariable Long id,
-                                                  @RequestParam Long tenantId,
-                                                  @Valid @RequestBody CompanyReasonRequest request,
-                                                  @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                  @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.suspend(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<ContractorWorkerVO> suspend(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                    @Valid @RequestBody CompanyReasonRequest request,
+                                                                                                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workerService.suspend(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -183,13 +179,11 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/blacklist")
-    public ResponseVO<ContractorWorkerVO> blacklist(@PathVariable Long id,
-                                                    @RequestParam Long tenantId,
-                                                    @Valid @RequestBody CompanyReasonRequest request,
-                                                    @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                    @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(workerService.blacklist(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<ContractorWorkerVO> blacklist(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                        @Valid @RequestBody CompanyReasonRequest request,
+                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(workerService.blacklist(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -201,8 +195,9 @@ public class ContractorWorkerController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/certificates")
-    public ResponseVO<List<WorkerCertificateVO>> listCertificates(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(certificateService.listByWorker(tenantId, id));
+    public ResponseVO<List<WorkerCertificateVO>> listCertificates(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(certificateService.listByWorker(loginContext.getTenantId(), id));
     }
 
     /**
@@ -213,12 +208,12 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/certificates")
-    public ResponseVO<WorkerCertificateVO> createCertificate(@PathVariable Long id,
+    public ResponseVO<WorkerCertificateVO> createCertificate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                              @Valid @RequestBody WorkerCertificateRequest request,
-                                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(certificateService.create(id, request, operator(userId, username, operator)));
+                                                                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(certificateService.create(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -230,13 +225,13 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}/certificates/{certId}")
-    public ResponseVO<WorkerCertificateVO> updateCertificate(@PathVariable Long id,
+    public ResponseVO<WorkerCertificateVO> updateCertificate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                              @PathVariable Long certId,
                                                              @Valid @RequestBody WorkerCertificateRequest request,
-                                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(certificateService.update(id, certId, request, operator(userId, username, operator)));
+                                                                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(certificateService.update(id, certId, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -249,13 +244,11 @@ public class ContractorWorkerController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/certificates/{certId}")
-    public ResponseVO<Void> deleteCertificate(@PathVariable Long id,
+    public ResponseVO<Void> deleteCertificate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                               @PathVariable Long certId,
-                                              @RequestParam Long tenantId,
-                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        certificateService.delete(tenantId, id, certId, operator(userId, username, operator));
+                                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        certificateService.delete(loginContext.getTenantId(), id, certId, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -268,8 +261,9 @@ public class ContractorWorkerController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/trainings")
-    public ResponseVO<List<WorkerTrainingVO>> listTrainings(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(trainingService.listByWorker(tenantId, id));
+    public ResponseVO<List<WorkerTrainingVO>> listTrainings(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(trainingService.listByWorker(loginContext.getTenantId(), id));
     }
 
     /**
@@ -280,12 +274,12 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/trainings")
-    public ResponseVO<WorkerTrainingVO> createTraining(@PathVariable Long id,
+    public ResponseVO<WorkerTrainingVO> createTraining(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                        @Valid @RequestBody WorkerTrainingRequest request,
-                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(trainingService.create(id, request, operator(userId, username, operator)));
+                                                                                                                                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(trainingService.create(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -297,13 +291,13 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}/trainings/{trainingId}")
-    public ResponseVO<WorkerTrainingVO> updateTraining(@PathVariable Long id,
+    public ResponseVO<WorkerTrainingVO> updateTraining(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                        @PathVariable Long trainingId,
                                                        @Valid @RequestBody WorkerTrainingRequest request,
-                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(trainingService.update(id, trainingId, request, operator(userId, username, operator)));
+                                                                                                                                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(trainingService.update(id, trainingId, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -316,13 +310,11 @@ public class ContractorWorkerController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}/trainings/{trainingId}")
-    public ResponseVO<Void> deleteTraining(@PathVariable Long id,
+    public ResponseVO<Void> deleteTraining(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                            @PathVariable Long trainingId,
-                                           @RequestParam Long tenantId,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        trainingService.delete(tenantId, id, trainingId, operator(userId, username, operator));
+                                                                                                                                                                            @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        trainingService.delete(loginContext.getTenantId(), id, trainingId, UserContextResolver.operator(loginContext, operator));
         return ResponseVO.success(null);
     }
 
@@ -335,8 +327,9 @@ public class ContractorWorkerController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/violations")
-    public ResponseVO<List<WorkerViolationVO>> listViolations(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(violationService.listByWorker(tenantId, id));
+    public ResponseVO<List<WorkerViolationVO>> listViolations(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(violationService.listByWorker(loginContext.getTenantId(), id));
     }
 
     /**
@@ -347,12 +340,12 @@ public class ContractorWorkerController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/violations")
-    public ResponseVO<WorkerViolationVO> createViolation(@PathVariable Long id,
+    public ResponseVO<WorkerViolationVO> createViolation(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                          @Valid @RequestBody WorkerViolationRequest request,
-                                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(violationService.create(id, request, operator(userId, username, operator)));
+                                                                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(violationService.create(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -367,7 +360,4 @@ public class ContractorWorkerController {
         return ResponseVO.success(eligibilityService.check(request));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

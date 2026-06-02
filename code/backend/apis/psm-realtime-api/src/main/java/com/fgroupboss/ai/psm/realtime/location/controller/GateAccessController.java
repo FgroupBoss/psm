@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.realtime.location.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.location.model.dto.GateRecordIngestRequest;
 import com.fgroupboss.ai.psm.realtime.location.model.vo.GateAccessRecordVO;
@@ -44,14 +46,14 @@ public class GateAccessController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<GateAccessRecordVO>> page(@RequestParam Long tenantId,
-                                                           @RequestParam(required = false) String gateCode,
+    public ResponseVO<PageResult<GateAccessRecordVO>> page(@LoginContext UserContext loginContext,
+                                                                                                             @RequestParam(required = false) String gateCode,
                                                            @RequestParam(required = false) Long personId,
                                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromTime,
                                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toTime,
                                                            @RequestParam(defaultValue = "1") int pageNo,
                                                            @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(gateAccessService.page(tenantId, gateCode, personId, fromTime, toTime, pageNo, pageSize));
+        return ResponseVO.success(gateAccessService.page(loginContext.getTenantId(), gateCode, personId, fromTime, toTime, pageNo, pageSize));
     }
 
     /**

@@ -3,6 +3,8 @@ package com.fgroupboss.ai.psm.realtime.alarm.controller;
 import com.fgroupboss.ai.psm.realtime.alarm.model.dto.AlarmRuleSaveRequest;
 import com.fgroupboss.ai.psm.realtime.alarm.model.vo.AlarmRuleVO;
 import com.fgroupboss.ai.psm.realtime.alarm.service.AlarmRuleService;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,9 +41,9 @@ public class AlarmRuleController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<List<AlarmRuleVO>> list(@RequestParam Long tenantId,
-                                              @RequestParam(required = false) String ruleType) {
-        return ResponseVO.success(alarmRuleService.list(tenantId, ruleType));
+    public ResponseVO<List<AlarmRuleVO>> list(@LoginContext UserContext loginContext,
+                                                                                                @RequestParam(required = false) String ruleType) {
+        return ResponseVO.success(alarmRuleService.list(loginContext.getTenantId(), ruleType));
     }
 
     /**
@@ -53,8 +55,9 @@ public class AlarmRuleController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<AlarmRuleVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(alarmRuleService.get(tenantId, id));
+    public ResponseVO<AlarmRuleVO> detail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(alarmRuleService.get(loginContext.getTenantId(), id));
     }
 
     /**

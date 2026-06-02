@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.realtime.location.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.location.model.vo.AreaHeadcountVO;
 import com.fgroupboss.ai.psm.realtime.location.service.LocLocationService;
@@ -32,7 +34,8 @@ public class AreaController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/headcount")
-    public ResponseVO<AreaHeadcountVO> headcount(@PathVariable("id") Long areaId, @RequestParam Long tenantId) {
-        return ResponseVO.success(locationService.headcount(tenantId, areaId));
+    public ResponseVO<AreaHeadcountVO> headcount(@LoginContext UserContext loginContext,
+                                        @PathVariable("id") Long areaId) {
+        return ResponseVO.success(locationService.headcount(loginContext.getTenantId(), areaId));
     }
 }

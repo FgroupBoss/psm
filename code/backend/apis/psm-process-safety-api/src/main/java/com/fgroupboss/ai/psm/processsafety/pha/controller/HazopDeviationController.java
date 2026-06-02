@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.processsafety.pha.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.HazopDeviationRequest;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.HazopSubItemRequest;
@@ -40,8 +42,9 @@ public class HazopDeviationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/api/pha/nodes/{nodeId}/deviations")
-    public ResponseVO<List<HazopDeviationVO>> listByNode(@PathVariable Long nodeId, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazopDeviationService.listByNode(tenantId, nodeId));
+    public ResponseVO<List<HazopDeviationVO>> listByNode(@LoginContext UserContext loginContext,
+                                        @PathVariable Long nodeId) {
+        return ResponseVO.success(hazopDeviationService.listByNode(loginContext.getTenantId(), nodeId));
     }
 
     /**
@@ -67,8 +70,9 @@ public class HazopDeviationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/api/pha/deviations/{deviationId}/causes")
-    public ResponseVO<List<HazopCauseVO>> listCauses(@PathVariable Long deviationId, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazopDeviationService.listCauses(tenantId, deviationId));
+    public ResponseVO<List<HazopCauseVO>> listCauses(@LoginContext UserContext loginContext,
+                                        @PathVariable Long deviationId) {
+        return ResponseVO.success(hazopDeviationService.listCauses(loginContext.getTenantId(), deviationId));
     }
 
     /**
@@ -94,8 +98,9 @@ public class HazopDeviationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/api/pha/deviations/{deviationId}/consequences")
-    public ResponseVO<List<HazopConsequenceVO>> listConsequences(@PathVariable Long deviationId, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazopDeviationService.listConsequences(tenantId, deviationId));
+    public ResponseVO<List<HazopConsequenceVO>> listConsequences(@LoginContext UserContext loginContext,
+                                        @PathVariable Long deviationId) {
+        return ResponseVO.success(hazopDeviationService.listConsequences(loginContext.getTenantId(), deviationId));
     }
 
     /**
@@ -121,8 +126,9 @@ public class HazopDeviationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/api/pha/deviations/{deviationId}/safeguards")
-    public ResponseVO<List<HazopSafeguardVO>> listSafeguards(@PathVariable Long deviationId, @RequestParam Long tenantId) {
-        return ResponseVO.success(hazopDeviationService.listSafeguards(tenantId, deviationId));
+    public ResponseVO<List<HazopSafeguardVO>> listSafeguards(@LoginContext UserContext loginContext,
+                                        @PathVariable Long deviationId) {
+        return ResponseVO.success(hazopDeviationService.listSafeguards(loginContext.getTenantId(), deviationId));
     }
 
     /**

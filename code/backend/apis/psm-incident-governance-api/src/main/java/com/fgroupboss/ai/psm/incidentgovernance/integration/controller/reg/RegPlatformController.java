@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.incidentgovernance.integration.controller.reg;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.dto.RegPlatformConfigRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.vo.RegPlatformConfigVO;
@@ -40,8 +42,8 @@ public class RegPlatformController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<?> list(@RequestParam Long tenantId,
-                              @RequestParam(required = false) String keyword,
+    public ResponseVO<?> list(@LoginContext UserContext loginContext,
+                                                                                @RequestParam(required = false) String keyword,
                               @RequestParam(required = false) Integer enabled,
                               @RequestParam(required = false) Integer pageNo,
                               @RequestParam(required = false) Integer pageSize) {
@@ -49,10 +51,10 @@ public class RegPlatformController {
             int normalizedPageNo = pageNo == null ? 1 : pageNo;
             int normalizedPageSize = pageSize == null ? 20 : pageSize;
             PageResult<RegPlatformConfigVO> page = platformConfigService.page(
-                    tenantId, keyword, enabled, normalizedPageNo, normalizedPageSize);
+                    loginContext.getTenantId(), keyword, enabled, normalizedPageNo, normalizedPageSize);
             return ResponseVO.success(page);
         }
-        List<RegPlatformConfigVO> list = platformConfigService.list(tenantId, enabled);
+        List<RegPlatformConfigVO> list = platformConfigService.list(loginContext.getTenantId(), enabled);
         return ResponseVO.success(list);
     }
 

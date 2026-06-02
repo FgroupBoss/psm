@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.risk.inspection.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.risk.inspection.model.dto.InspectionRouteRequest;
 import com.fgroupboss.ai.psm.risk.inspection.model.vo.InspectionRouteVO;
@@ -41,11 +43,11 @@ public class InspectionRouteController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<InspectionRouteVO>> page(@RequestParam Long tenantId,
-                                                          @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<InspectionRouteVO>> page(@LoginContext UserContext loginContext,
+                                                                                                            @RequestParam(required = false) String keyword,
                                                           @RequestParam(defaultValue = "1") int pageNo,
                                                           @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(routeService.page(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(routeService.page(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -57,8 +59,9 @@ public class InspectionRouteController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<InspectionRouteVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(routeService.getById(tenantId, id));
+    public ResponseVO<InspectionRouteVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(routeService.getById(loginContext.getTenantId(), id));
     }
 
     /**

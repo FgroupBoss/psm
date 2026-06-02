@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.incidentgovernance.incident.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.incidentgovernance.incident.model.dto.CapaVerifyRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.incident.model.dto.IncidentCapaRequest;
@@ -61,14 +62,14 @@ public class IncidentController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<IncidentReportVO>> page(@RequestParam Long tenantId,
-                                                         @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<IncidentReportVO>> page(@LoginContext UserContext loginContext,
+                                                                                                           @RequestParam(required = false) String keyword,
                                                          @RequestParam(required = false) String status,
                                                          @RequestParam(required = false) String incidentType,
                                                          @RequestParam(required = false) String incidentLevel,
                                                          @RequestParam(defaultValue = "1") int pageNo,
                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(incidentService.page(tenantId, keyword, status, incidentType,
+        return ResponseVO.success(incidentService.page(loginContext.getTenantId(), keyword, status, incidentType,
                 incidentLevel, pageNo, pageSize));
     }
 
@@ -81,8 +82,9 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<IncidentReportVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(incidentService.getById(tenantId, id));
+    public ResponseVO<IncidentReportVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(incidentService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -92,11 +94,11 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<IncidentReportVO> create(@Valid @RequestBody IncidentReportRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(incidentService.create(request, resolveOperator(userId, username, operator)));
+    public ResponseVO<IncidentReportVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody IncidentReportRequest request,
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(incidentService.create(request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -107,12 +109,12 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{id}")
-    public ResponseVO<IncidentReportVO> update(@PathVariable Long id,
+    public ResponseVO<IncidentReportVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @Valid @RequestBody IncidentReportRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(incidentService.update(id, request, resolveOperator(userId, username, operator)));
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(incidentService.update(id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -122,12 +124,12 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/from-source")
-    public ResponseVO<IncidentReportVO> createFromSource(@Valid @RequestBody IncidentFromSourceRequest request,
-                                                         @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                         @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+    public ResponseVO<IncidentReportVO> createFromSource(@LoginContext UserContext loginContext,
+                                        @Valid @RequestBody IncidentFromSourceRequest request,
+                                                                                                                                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.createFromSource(request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -138,13 +140,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/start-investigation")
-    public ResponseVO<IncidentReportVO> startInvestigation(@PathVariable Long id,
+    public ResponseVO<IncidentReportVO> startInvestigation(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody StartInvestigationRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.startInvestigation(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -156,9 +158,9 @@ public class IncidentController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/timeline")
-    public ResponseVO<List<IncidentTimelineVO>> listTimeline(@PathVariable Long id,
-                                                             @RequestParam Long tenantId) {
-        return ResponseVO.success(incidentService.listTimeline(tenantId, id));
+    public ResponseVO<List<IncidentTimelineVO>> listTimeline(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(incidentService.listTimeline(loginContext.getTenantId(), id));
     }
 
     /**
@@ -169,13 +171,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/timeline")
-    public ResponseVO<IncidentTimelineVO> addTimeline(@PathVariable Long id,
+    public ResponseVO<IncidentTimelineVO> addTimeline(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody IncidentTimelineRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.addTimeline(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -187,9 +189,9 @@ public class IncidentController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/evidence")
-    public ResponseVO<List<IncidentEvidenceVO>> listEvidence(@PathVariable Long id,
-                                                             @RequestParam Long tenantId) {
-        return ResponseVO.success(incidentService.listEvidence(tenantId, id));
+    public ResponseVO<List<IncidentEvidenceVO>> listEvidence(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(incidentService.listEvidence(loginContext.getTenantId(), id));
     }
 
     /**
@@ -200,13 +202,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/evidence")
-    public ResponseVO<IncidentEvidenceVO> addEvidence(@PathVariable Long id,
+    public ResponseVO<IncidentEvidenceVO> addEvidence(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                       @Valid @RequestBody IncidentEvidenceRequest request,
-                                                      @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                      @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.addEvidence(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -218,9 +220,9 @@ public class IncidentController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/root-causes")
-    public ResponseVO<List<IncidentRootCauseVO>> listRootCauses(@PathVariable Long id,
-                                                                @RequestParam Long tenantId) {
-        return ResponseVO.success(incidentService.listRootCauses(tenantId, id));
+    public ResponseVO<List<IncidentRootCauseVO>> listRootCauses(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(incidentService.listRootCauses(loginContext.getTenantId(), id));
     }
 
     /**
@@ -231,13 +233,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/root-causes")
-    public ResponseVO<IncidentRootCauseVO> addRootCause(@PathVariable Long id,
+    public ResponseVO<IncidentRootCauseVO> addRootCause(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody IncidentRootCauseRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.addRootCause(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -249,9 +251,9 @@ public class IncidentController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/capa")
-    public ResponseVO<List<IncidentCapaVO>> listCapa(@PathVariable Long id,
-                                                     @RequestParam Long tenantId) {
-        return ResponseVO.success(incidentService.listCapa(tenantId, id));
+    public ResponseVO<List<IncidentCapaVO>> listCapa(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(incidentService.listCapa(loginContext.getTenantId(), id));
     }
 
     /**
@@ -262,13 +264,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/capa")
-    public ResponseVO<IncidentCapaVO> addCapa(@PathVariable Long id,
+    public ResponseVO<IncidentCapaVO> addCapa(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                               @Valid @RequestBody IncidentCapaRequest request,
-                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.addCapa(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -279,13 +281,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/capa/{id}/verify")
-    public ResponseVO<IncidentCapaVO> verifyCapa(@PathVariable Long id,
+    public ResponseVO<IncidentCapaVO> verifyCapa(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                @Valid @RequestBody CapaVerifyRequest request,
-                                               @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                               @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                               @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.verifyCapa(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -296,16 +298,13 @@ public class IncidentController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/lessons-learned")
-    public ResponseVO<LessonLearnedVO> addLessonLearned(@PathVariable Long id,
+    public ResponseVO<LessonLearnedVO> addLessonLearned(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody LessonLearnedRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(incidentService.addLessonLearned(id, request,
-                resolveOperator(userId, username, operator)));
+                UserContextResolver.operator(loginContext, operator)));
     }
 
-    private String resolveOperator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

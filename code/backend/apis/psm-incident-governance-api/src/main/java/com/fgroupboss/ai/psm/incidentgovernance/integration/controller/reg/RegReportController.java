@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.incidentgovernance.integration.controller.reg;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.dto.RegReportPreviewRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.dto.RegReportTriggerRequest;
@@ -45,13 +47,13 @@ public class RegReportController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/tasks")
-    public ResponseVO<PageResult<RegReportTaskVO>> pageTasks(@RequestParam Long tenantId,
-                                                             @RequestParam(required = false) String platformCode,
+    public ResponseVO<PageResult<RegReportTaskVO>> pageTasks(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String platformCode,
                                                              @RequestParam(required = false) String dataDomain,
                                                              @RequestParam(required = false) String status,
                                                              @RequestParam(defaultValue = "1") int pageNo,
                                                              @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(reportService.pageTasks(tenantId, platformCode, dataDomain, status, pageNo, pageSize));
+        return ResponseVO.success(reportService.pageTasks(loginContext.getTenantId(), platformCode, dataDomain, status, pageNo, pageSize));
     }
 
     /**
@@ -74,8 +76,9 @@ public class RegReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/tasks/{id}/retry")
-    public ResponseVO<RegReportTaskVO> retry(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.retry(tenantId, id));
+    public ResponseVO<RegReportTaskVO> retry(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(reportService.retry(loginContext.getTenantId(), id));
     }
 
     /**
@@ -89,11 +92,11 @@ public class RegReportController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/receipts")
-    public ResponseVO<PageResult<RegReportReceiptVO>> pageReceipts(@RequestParam Long tenantId,
-                                                                   @RequestParam(required = false) Long taskId,
+    public ResponseVO<PageResult<RegReportReceiptVO>> pageReceipts(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long taskId,
                                                                    @RequestParam(defaultValue = "1") int pageNo,
                                                                    @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(reportService.pageReceipts(tenantId, taskId, pageNo, pageSize));
+        return ResponseVO.success(reportService.pageReceipts(loginContext.getTenantId(), taskId, pageNo, pageSize));
     }
 
     /**
@@ -106,10 +109,10 @@ public class RegReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/reconciliation")
-    public ResponseVO<RegReconciliationVO> reconciliation(@RequestParam Long tenantId,
-                                                          @RequestParam(required = false) String platformCode,
+    public ResponseVO<RegReconciliationVO> reconciliation(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String platformCode,
                                                           @RequestParam(required = false) String dataDomain) {
-        return ResponseVO.success(reportService.reconciliation(tenantId, platformCode, dataDomain));
+        return ResponseVO.success(reportService.reconciliation(loginContext.getTenantId(), platformCode, dataDomain));
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.incidentgovernance.report.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.vo.Phase2ReportSummaryVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.service.Phase2ReportService;
@@ -29,7 +31,7 @@ public class Phase2ReportController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/summary")
-    public ResponseVO<Phase2ReportSummaryVO> summary(@RequestParam Long tenantId) {
-        return ResponseVO.success(phase2ReportService.summary(tenantId));
+    public ResponseVO<Phase2ReportSummaryVO> summary(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(phase2ReportService.summary(loginContext.getTenantId()));
     }
 }

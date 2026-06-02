@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.processsafety.pha.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.PhaRecommendationRequest;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.RecommendationActionRequest;
@@ -44,12 +46,12 @@ public class PhaRecommendationController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<PhaRecommendationVO>> page(@RequestParam Long tenantId,
-                                                            @RequestParam(required = false) Long projectId,
+    public ResponseVO<PageResult<PhaRecommendationVO>> page(@LoginContext UserContext loginContext,
+                                                                                                              @RequestParam(required = false) Long projectId,
                                                             @RequestParam(required = false) String status,
                                                             @RequestParam(defaultValue = "1") int pageNo,
                                                             @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(phaRecommendationService.page(tenantId, projectId, status, pageNo, pageSize));
+        return ResponseVO.success(phaRecommendationService.page(loginContext.getTenantId(), projectId, status, pageNo, pageSize));
     }
 
     /**
@@ -62,10 +64,10 @@ public class PhaRecommendationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/list")
-    public ResponseVO<List<PhaRecommendationVO>> list(@RequestParam Long tenantId,
-                                                      @RequestParam(required = false) Long projectId,
+    public ResponseVO<List<PhaRecommendationVO>> list(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long projectId,
                                                       @RequestParam(required = false) String status) {
-        return ResponseVO.success(phaRecommendationService.list(tenantId, projectId, status));
+        return ResponseVO.success(phaRecommendationService.list(loginContext.getTenantId(), projectId, status));
     }
 
     /**
@@ -90,11 +92,11 @@ public class PhaRecommendationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/assign")
-    public ResponseVO<PhaRecommendationVO> assign(@PathVariable Long id,
-                                                   @RequestParam Long tenantId,
-                                                   @RequestBody RecommendationActionRequest request,
+    public ResponseVO<PhaRecommendationVO> assign(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                      @RequestBody RecommendationActionRequest request,
                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaRecommendationService.assign(tenantId, id, request, operator));
+        return ResponseVO.success(phaRecommendationService.assign(loginContext.getTenantId(), id, request, operator));
     }
 
     /**
@@ -107,11 +109,11 @@ public class PhaRecommendationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/rectify")
-    public ResponseVO<PhaRecommendationVO> rectify(@PathVariable Long id,
-                                                   @RequestParam Long tenantId,
-                                                   @RequestBody RecommendationActionRequest request,
+    public ResponseVO<PhaRecommendationVO> rectify(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                      @RequestBody RecommendationActionRequest request,
                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaRecommendationService.rectify(tenantId, id, request, operator));
+        return ResponseVO.success(phaRecommendationService.rectify(loginContext.getTenantId(), id, request, operator));
     }
 
     /**
@@ -124,11 +126,11 @@ public class PhaRecommendationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/verify")
-    public ResponseVO<PhaRecommendationVO> verify(@PathVariable Long id,
-                                                   @RequestParam Long tenantId,
-                                                   @RequestBody RecommendationActionRequest request,
+    public ResponseVO<PhaRecommendationVO> verify(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                      @RequestBody RecommendationActionRequest request,
                                                    @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaRecommendationService.verify(tenantId, id, request, operator));
+        return ResponseVO.success(phaRecommendationService.verify(loginContext.getTenantId(), id, request, operator));
     }
 
     /**
@@ -141,10 +143,10 @@ public class PhaRecommendationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/close")
-    public ResponseVO<PhaRecommendationVO> close(@PathVariable Long id,
-                                                 @RequestParam Long tenantId,
-                                                 @RequestBody RecommendationActionRequest request,
+    public ResponseVO<PhaRecommendationVO> close(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                  @RequestBody RecommendationActionRequest request,
                                                  @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(phaRecommendationService.close(tenantId, id, request, operator));
+        return ResponseVO.success(phaRecommendationService.close(loginContext.getTenantId(), id, request, operator));
     }
 }

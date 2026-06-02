@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.processsafety.pha.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.pha.model.dto.LopaScenarioRequest;
 import com.fgroupboss.ai.psm.processsafety.pha.model.vo.LopaCalculateResultVO;
@@ -42,11 +44,11 @@ public class LopaScenarioController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<LopaScenarioVO>> page(@RequestParam Long tenantId,
-                                                         @RequestParam(required = false) Long projectId,
+    public ResponseVO<PageResult<LopaScenarioVO>> page(@LoginContext UserContext loginContext,
+                                                                                                           @RequestParam(required = false) Long projectId,
                                                          @RequestParam(defaultValue = "1") int pageNo,
                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(lopaScenarioService.page(tenantId, projectId, pageNo, pageSize));
+        return ResponseVO.success(lopaScenarioService.page(loginContext.getTenantId(), projectId, pageNo, pageSize));
     }
 
     /**
@@ -70,7 +72,8 @@ public class LopaScenarioController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/calculate")
-    public ResponseVO<LopaCalculateResultVO> calculate(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(lopaScenarioService.calculate(id, tenantId));
+    public ResponseVO<LopaCalculateResultVO> calculate(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(lopaScenarioService.calculate(id, loginContext.getTenantId()));
     }
 }

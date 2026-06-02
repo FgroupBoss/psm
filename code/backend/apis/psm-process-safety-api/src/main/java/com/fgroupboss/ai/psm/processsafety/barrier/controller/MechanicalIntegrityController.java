@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.processsafety.barrier.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.processsafety.barrier.model.dto.MiDefectCloseRequest;
 import com.fgroupboss.ai.psm.processsafety.barrier.model.dto.MiDefectRequest;
@@ -46,11 +48,11 @@ public class MechanicalIntegrityController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/equipment")
-    public ResponseVO<PageResult<MiEquipmentVO>> pageEquipment(@RequestParam Long tenantId,
-                                                               @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<MiEquipmentVO>> pageEquipment(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) String keyword,
                                                                @RequestParam(defaultValue = "1") int pageNo,
                                                                @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(mechanicalIntegrityService.pageEquipment(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(mechanicalIntegrityService.pageEquipment(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -90,11 +92,11 @@ public class MechanicalIntegrityController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/inspection-plans")
-    public ResponseVO<PageResult<MiInspectionPlanVO>> pageInspectionPlans(@RequestParam Long tenantId,
-                                                                          @RequestParam(required = false) Long equipmentId,
+    public ResponseVO<PageResult<MiInspectionPlanVO>> pageInspectionPlans(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long equipmentId,
                                                                           @RequestParam(defaultValue = "1") int pageNo,
                                                                           @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(mechanicalIntegrityService.pageInspectionPlans(tenantId, equipmentId, pageNo, pageSize));
+        return ResponseVO.success(mechanicalIntegrityService.pageInspectionPlans(loginContext.getTenantId(), equipmentId, pageNo, pageSize));
     }
 
     /**
@@ -121,12 +123,12 @@ public class MechanicalIntegrityController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/defects")
-    public ResponseVO<PageResult<MiDefectVO>> pageDefects(@RequestParam Long tenantId,
-                                                        @RequestParam(required = false) Long equipmentId,
+    public ResponseVO<PageResult<MiDefectVO>> pageDefects(@LoginContext UserContext loginContext,
+                                        @RequestParam(required = false) Long equipmentId,
                                                         @RequestParam(required = false) String status,
                                                         @RequestParam(defaultValue = "1") int pageNo,
                                                         @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(mechanicalIntegrityService.pageDefects(tenantId, equipmentId, status, pageNo, pageSize));
+        return ResponseVO.success(mechanicalIntegrityService.pageDefects(loginContext.getTenantId(), equipmentId, status, pageNo, pageSize));
     }
 
     /**

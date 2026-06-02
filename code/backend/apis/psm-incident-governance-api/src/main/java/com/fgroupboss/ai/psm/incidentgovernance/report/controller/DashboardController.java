@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.incidentgovernance.report.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.vo.DashboardOverviewVO;
 import com.fgroupboss.ai.psm.incidentgovernance.report.model.vo.TrendSeriesVO;
@@ -30,8 +32,8 @@ public class DashboardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/overview")
-    public ResponseVO<DashboardOverviewVO> overview(@RequestParam Long tenantId) {
-        return ResponseVO.success(reportService.dashboardOverview(tenantId));
+    public ResponseVO<DashboardOverviewVO> overview(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(reportService.dashboardOverview(loginContext.getTenantId()));
     }
 
     /**
@@ -43,9 +45,9 @@ public class DashboardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/work-permits/trend")
-    public ResponseVO<TrendSeriesVO> workPermitTrend(@RequestParam Long tenantId,
-                                                     @RequestParam(defaultValue = "7") int days) {
-        return ResponseVO.success(reportService.workPermitTrend(tenantId, days));
+    public ResponseVO<TrendSeriesVO> workPermitTrend(@LoginContext UserContext loginContext,
+                                        @RequestParam(defaultValue = "7") int days) {
+        return ResponseVO.success(reportService.workPermitTrend(loginContext.getTenantId(), days));
     }
 
     /**
@@ -57,8 +59,8 @@ public class DashboardController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/alarms/trend")
-    public ResponseVO<TrendSeriesVO> alarmTrend(@RequestParam Long tenantId,
-                                                @RequestParam(defaultValue = "7") int days) {
-        return ResponseVO.success(reportService.alarmTrend(tenantId, days));
+    public ResponseVO<TrendSeriesVO> alarmTrend(@LoginContext UserContext loginContext,
+                                        @RequestParam(defaultValue = "7") int days) {
+        return ResponseVO.success(reportService.alarmTrend(loginContext.getTenantId(), days));
     }
 }

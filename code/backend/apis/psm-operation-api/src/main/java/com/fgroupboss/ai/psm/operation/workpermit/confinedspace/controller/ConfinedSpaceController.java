@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.confinedspace.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.ConfinedSpaceDetailRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.ConfinedSpaceEntryRecordRequest;
@@ -48,8 +49,9 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<ConfinedSpaceDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(confinedSpaceService.getDetail(tenantId, id));
+    public ResponseVO<ConfinedSpaceDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(confinedSpaceService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -60,13 +62,13 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<ConfinedSpaceDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<ConfinedSpaceDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody ConfinedSpaceDetailRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(confinedSpaceService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(confinedSpaceService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -78,8 +80,9 @@ public class ConfinedSpaceController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/entries")
-    public ResponseVO<List<ConfinedSpaceEntryRecordVO>> listEntries(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(confinedSpaceService.listEntryRecords(tenantId, id));
+    public ResponseVO<List<ConfinedSpaceEntryRecordVO>> listEntries(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(confinedSpaceService.listEntryRecords(loginContext.getTenantId(), id));
     }
 
     /**
@@ -90,13 +93,13 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/entries")
-    public ResponseVO<ConfinedSpaceEntryRecordVO> addEntry(@PathVariable Long id,
+    public ResponseVO<ConfinedSpaceEntryRecordVO> addEntry(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody ConfinedSpaceEntryRecordRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(confinedSpaceService.addEntryRecord(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(confinedSpaceService.addEntryRecord(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -108,8 +111,9 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/rescue-plan")
-    public ResponseVO<ConfinedSpaceRescuePlanVO> getRescuePlan(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(confinedSpaceService.getRescuePlan(tenantId, id));
+    public ResponseVO<ConfinedSpaceRescuePlanVO> getRescuePlan(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(confinedSpaceService.getRescuePlan(loginContext.getTenantId(), id));
     }
 
     /**
@@ -120,13 +124,13 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/rescue-plan")
-    public ResponseVO<ConfinedSpaceRescuePlanVO> saveRescuePlan(@PathVariable Long id,
+    public ResponseVO<ConfinedSpaceRescuePlanVO> saveRescuePlan(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                 @Valid @RequestBody ConfinedSpaceRescuePlanRequest request,
-                                                                @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(confinedSpaceService.saveRescuePlan(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(confinedSpaceService.saveRescuePlan(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -139,10 +143,10 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<ConfinedSpacePreCheckResultVO> preCheck(@PathVariable Long id,
-                                                              @RequestParam Long tenantId,
-                                                              @RequestParam String checkPoint) {
-        return ResponseVO.success(confinedSpaceService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<ConfinedSpacePreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                            @RequestParam String checkPoint) {
+        return ResponseVO.success(confinedSpaceService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -154,11 +158,9 @@ public class ConfinedSpaceController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(confinedSpaceService.getFlowProgress(tenantId, id));
+    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(confinedSpaceService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

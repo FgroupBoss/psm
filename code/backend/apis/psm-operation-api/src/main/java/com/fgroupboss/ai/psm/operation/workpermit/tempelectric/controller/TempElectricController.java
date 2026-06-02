@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.tempelectric.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.TempElectricDetailRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.TempElectricFacilityRequest;
@@ -48,8 +49,9 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<TempElectricDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(tempElectricService.getDetail(tenantId, id));
+    public ResponseVO<TempElectricDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(tempElectricService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -60,13 +62,13 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<TempElectricDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<TempElectricDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                        @Valid @RequestBody TempElectricDetailRequest request,
-                                                       @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                       @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(tempElectricService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                     @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(tempElectricService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -78,8 +80,9 @@ public class TempElectricController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/facilities")
-    public ResponseVO<List<TempElectricFacilityVO>> listFacilities(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(tempElectricService.listFacilities(tenantId, id));
+    public ResponseVO<List<TempElectricFacilityVO>> listFacilities(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(tempElectricService.listFacilities(loginContext.getTenantId(), id));
     }
 
     /**
@@ -90,13 +93,13 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/facilities")
-    public ResponseVO<TempElectricFacilityVO> addFacility(@PathVariable Long id,
+    public ResponseVO<TempElectricFacilityVO> addFacility(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                         @Valid @RequestBody TempElectricFacilityRequest request,
-                                                        @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                        @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(tempElectricService.addFacility(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                        @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(tempElectricService.addFacility(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -108,8 +111,9 @@ public class TempElectricController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/inspections")
-    public ResponseVO<List<TempElectricInspectionVO>> listInspections(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(tempElectricService.listInspections(tenantId, id));
+    public ResponseVO<List<TempElectricInspectionVO>> listInspections(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(tempElectricService.listInspections(loginContext.getTenantId(), id));
     }
 
     /**
@@ -120,13 +124,13 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/inspections")
-    public ResponseVO<TempElectricInspectionVO> addInspection(@PathVariable Long id,
+    public ResponseVO<TempElectricInspectionVO> addInspection(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                               @Valid @RequestBody TempElectricInspectionRequest request,
-                                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(tempElectricService.addInspection(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(tempElectricService.addInspection(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -139,10 +143,10 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<TempElectricPreCheckResultVO> preCheck(@PathVariable Long id,
-                                                             @RequestParam Long tenantId,
-                                                             @RequestParam String checkPoint) {
-        return ResponseVO.success(tempElectricService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<TempElectricPreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                          @RequestParam String checkPoint) {
+        return ResponseVO.success(tempElectricService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -154,11 +158,9 @@ public class TempElectricController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(tempElectricService.getFlowProgress(tenantId, id));
+    public ResponseVO<HeightWorkFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(tempElectricService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

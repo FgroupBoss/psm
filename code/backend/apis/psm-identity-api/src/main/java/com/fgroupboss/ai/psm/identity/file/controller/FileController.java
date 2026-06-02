@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.identity.file.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.identity.file.model.dto.FileStorageProfileRequest;
 import com.fgroupboss.ai.psm.identity.file.model.vo.FileBackendSchemaVO;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * File 模块 HTTP API。
  * <p>基础路径：{@code /api/files}</p>
- * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；对象存储下载/预览在 {@code downloadMode=AUTO} 时可 302 至预签名 URL。</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；租户与用户 ID 从登录上下文解析。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -71,35 +71,38 @@ public class FileController {
      * 查询租户存储配置档列表。
      * <p>HTTP GET {@code /api/files/profiles}</p>
      *
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param loginContext 当前登录租户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/profiles")
-    public ResponseVO<List<FileStorageProfileVO>> listProfiles(@RequestParam Long tenantId) {
-        return ResponseVO.success(fileStorageProfileService.list(tenantId));
+    public ResponseVO<List<FileStorageProfileVO>> listProfiles(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(fileStorageProfileService.list(loginContext.getTenantId()));
     }
 
     /**
      * 查询租户默认且启用的存储配置档。
      * <p>HTTP GET {@code /api/files/profiles/default}</p>
      *
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param loginContext 当前登录租户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/profiles/default")
-    public ResponseVO<FileStorageProfileVO> defaultProfile(@RequestParam Long tenantId) {
-        return ResponseVO.success(fileStorageProfileService.getDefault(tenantId));
+    public ResponseVO<FileStorageProfileVO> defaultProfile(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(fileStorageProfileService.getDefault(loginContext.getTenantId()));
     }
 
     /**
      * 新增或更新存储配置档（按 tenantId + profileCode 幂等）。
      * <p>HTTP POST {@code /api/files/profiles}</p>
      *
-     * @param request 请求体
+     * @param loginContext 当前登录租户
+     * @param request      请求体
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/profiles")
-    public ResponseVO<FileStorageProfileVO> saveProfile(@Valid @RequestBody FileStorageProfileRequest request) {
+    public ResponseVO<FileStorageProfileVO> saveProfile(@LoginContext UserContext loginContext,
+                                                       @Valid @RequestBody FileStorageProfileRequest request) {
+        request.setTenantId(loginContext.getTenantId());
         return ResponseVO.success(fileStorageProfileService.save(request));
     }
 
@@ -107,78 +110,79 @@ public class FileController {
      * 对指定配置档做连通性探针（不写业务文件元数据）。
      * <p>HTTP POST {@code /api/files/profiles/{id}/test}</p>
      *
-     * @param id       配置档主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param id           配置档主键 ID
+     * @param loginContext 当前登录租户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/profiles/{id}/test")
-    public ResponseVO<HealthCheckResult> testProfile(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(fileStorageProfileService.test(tenantId, id));
+    public ResponseVO<HealthCheckResult> testProfile(@PathVariable Long id,
+                                                     @LoginContext UserContext loginContext) {
+        return ResponseVO.success(fileStorageProfileService.test(loginContext.getTenantId(), id));
     }
 
     /**
      * 上传文件并写入元数据。
      * <p>HTTP POST {@code /api/files/upload}（multipart）</p>
      *
-     * @param tenantId            租户 ID
-     * @param file                文件流
-     * @param bizType             业务类型（可选）
-     * @param bizId               业务主键（可选）
-     * @param storageProfileCode  指定配置档编码，空则使用租户默认档
-     * @param userId              操作人用户 ID（请求头透传）
-     * @param username            操作人用户名（请求头透传）
-     * @param operator            兼容操作人标识
+     * @param loginContext       当前登录租户与用户
+     * @param file               文件流
+     * @param bizType            业务类型（可选）
+     * @param bizId              业务主键（可选）
+     * @param storageProfileCode 指定配置档编码，空则使用租户默认档
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseVO<FileObjectVO> upload(@RequestParam Long tenantId,
+    public ResponseVO<FileObjectVO> upload(@LoginContext UserContext loginContext,
                                            @RequestParam("file") MultipartFile file,
                                            @RequestParam(required = false) String bizType,
                                            @RequestParam(required = false) Long bizId,
-                                           @RequestParam(required = false) String storageProfileCode,
-                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(fileService.upload(tenantId, file, bizType, bizId,
-                UserContextResolver.operator(userId, username, operator), storageProfileCode));
+                                           @RequestParam(required = false) String storageProfileCode) {
+        return ResponseVO.success(fileService.upload(
+                loginContext.getTenantId(),
+                file,
+                bizType,
+                bizId,
+                UserContextResolver.operator(loginContext, "system"),
+                storageProfileCode));
     }
 
     /**
      * 查询文件元数据（不含字节流）。
      * <p>HTTP GET {@code /api/files/{id}}</p>
      *
-     * @param id       文件主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param id           文件主键 ID
+     * @param loginContext 当前登录租户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<FileObjectVO> detail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(fileService.get(tenantId, id));
+    public ResponseVO<FileObjectVO> detail(@PathVariable Long id, @LoginContext UserContext loginContext) {
+        return ResponseVO.success(fileService.get(loginContext.getTenantId(), id));
     }
 
     /**
      * 获取下载预签名 URL（对象存储 / HTTP 网关）。
      * <p>HTTP GET {@code /api/files/{id}/presign}</p>
      *
-     * @param id       文件主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param id           文件主键 ID
+     * @param loginContext 当前登录租户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}/presign")
-    public ResponseVO<FilePresignVO> presign(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(fileService.presignDownload(tenantId, id));
+    public ResponseVO<FilePresignVO> presign(@PathVariable Long id, @LoginContext UserContext loginContext) {
+        return ResponseVO.success(fileService.presignDownload(loginContext.getTenantId(), id));
     }
 
     /**
      * 下载文件；云存储在 AUTO 模式下返回 302 至预签名地址，否则流式输出。
      * <p>HTTP GET {@code /api/files/{id}/download}</p>
      *
-     * @param id       文件主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param id           文件主键 ID
+     * @param loginContext 当前登录租户
      * @return 文件流或重定向响应
      */
     @GetMapping("/{id}/download")
-    public ResponseEntity<?> download(@PathVariable Long id, @RequestParam Long tenantId) {
+    public ResponseEntity<?> download(@PathVariable Long id, @LoginContext UserContext loginContext) {
+        Long tenantId = loginContext.getTenantId();
         if (fileService.shouldRedirectToPresign(tenantId, id)) {
             FilePresignVO presign = fileService.presignDownload(tenantId, id);
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(presign.getUrl())).build();
@@ -195,12 +199,13 @@ public class FileController {
      * 内联预览文件（Content-Disposition: inline）；行为与下载接口的重定向策略一致。
      * <p>HTTP GET {@code /api/files/{id}/preview}</p>
      *
-     * @param id       文件主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
+     * @param id           文件主键 ID
+     * @param loginContext 当前登录租户
      * @return 文件流或重定向响应
      */
     @GetMapping("/{id}/preview")
-    public ResponseEntity<?> preview(@PathVariable Long id, @RequestParam Long tenantId) {
+    public ResponseEntity<?> preview(@PathVariable Long id, @LoginContext UserContext loginContext) {
+        Long tenantId = loginContext.getTenantId();
         if (fileService.shouldRedirectToPresign(tenantId, id)) {
             FilePresignVO presign = fileService.presignDownload(tenantId, id);
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(presign.getUrl())).build();

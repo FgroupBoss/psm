@@ -241,10 +241,10 @@ public class FileServiceImpl implements FileService {
         vo.setStatus(entity.getStatus());
         vo.setCreatedAt(entity.getCreatedAt());
         String base = "/api/files/" + entity.getId();
-        vo.setDownloadUrl(base + "/download?tenantId=" + entity.getTenantId());
-        vo.setPreviewUrl(base + "/preview?tenantId=" + entity.getTenantId());
+        vo.setDownloadUrl(base + "/download");
+        vo.setPreviewUrl(base + "/preview");
         if (computePresignFlag(entity)) {
-            vo.setPresignUrl(base + "/presign?tenantId=" + entity.getTenantId());
+            vo.setPresignUrl(base + "/presign");
         }
         return vo;
     }

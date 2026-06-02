@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.realtime.video.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.realtime.video.model.dto.AiEventIgnoreRequest;
 import com.fgroupboss.ai.psm.realtime.video.model.dto.AiEventIngestRequest;
@@ -62,8 +63,8 @@ public class VideoAiEventController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<VideoAiEventVO>> page(@RequestParam Long tenantId,
-                                                       @RequestParam(required = false) Long cameraId,
+    public ResponseVO<PageResult<VideoAiEventVO>> page(@LoginContext UserContext loginContext,
+                                                                                                         @RequestParam(required = false) Long cameraId,
                                                        @RequestParam(required = false) String eventType,
                                                        @RequestParam(required = false) String status,
                                                        @RequestParam(required = false) String severity,
@@ -72,7 +73,7 @@ public class VideoAiEventController {
                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime occurredTo,
                                                        @RequestParam(defaultValue = "1") int pageNo,
                                                        @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(aiEventService.page(tenantId, cameraId, eventType, status, severity, areaId,
+        return ResponseVO.success(aiEventService.page(loginContext.getTenantId(), cameraId, eventType, status, severity, areaId,
                 occurredFrom, occurredTo, pageNo, pageSize));
     }
 
@@ -85,8 +86,9 @@ public class VideoAiEventController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<VideoAiEventVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(aiEventService.getById(tenantId, id));
+    public ResponseVO<VideoAiEventVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(aiEventService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -98,8 +100,9 @@ public class VideoAiEventController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/to-alarm")
-    public ResponseVO<VideoAiEventVO> toAlarm(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(aiEventService.toAlarm(tenantId, id));
+    public ResponseVO<VideoAiEventVO> toAlarm(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(aiEventService.toAlarm(loginContext.getTenantId(), id));
     }
 
     /**
@@ -112,16 +115,11 @@ public class VideoAiEventController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/ignore")
-    public ResponseVO<VideoAiEventVO> ignore(@PathVariable Long id,
-                                             @RequestParam Long tenantId,
-                                             @Valid @RequestBody AiEventIgnoreRequest request,
-                                             @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                             @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                             @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(aiEventService.ignore(tenantId, id, request, operator(userId, username, operator)));
+    public ResponseVO<VideoAiEventVO> ignore(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                          @Valid @RequestBody AiEventIgnoreRequest request,
+                                                                                                                                       @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        return ResponseVO.success(aiEventService.ignore(loginContext.getTenantId(), id, request, UserContextResolver.operator(loginContext, operator)));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

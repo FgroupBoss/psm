@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.risk.inspection.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.risk.inspection.model.dto.ChecklistTemplateRequest;
 import com.fgroupboss.ai.psm.risk.inspection.model.vo.ChecklistTemplateVO;
@@ -41,11 +43,11 @@ public class ChecklistTemplateController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<ChecklistTemplateVO>> page(@RequestParam Long tenantId,
-                                                            @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<ChecklistTemplateVO>> page(@LoginContext UserContext loginContext,
+                                                                                                              @RequestParam(required = false) String keyword,
                                                             @RequestParam(defaultValue = "1") int pageNo,
                                                             @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(templateService.page(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(templateService.page(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -57,8 +59,9 @@ public class ChecklistTemplateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<ChecklistTemplateVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(templateService.getById(tenantId, id));
+    public ResponseVO<ChecklistTemplateVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(templateService.getById(loginContext.getTenantId(), id));
     }
 
     /**

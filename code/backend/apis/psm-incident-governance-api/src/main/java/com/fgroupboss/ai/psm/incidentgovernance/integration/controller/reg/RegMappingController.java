@@ -1,5 +1,7 @@
 package com.fgroupboss.ai.psm.incidentgovernance.integration.controller.reg;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.dto.RegMappingSaveRequest;
 import com.fgroupboss.ai.psm.incidentgovernance.integration.model.vo.RegMappingVO;
@@ -36,10 +38,10 @@ public class RegMappingController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<RegMappingVO> list(@RequestParam Long tenantId,
-                                         @RequestParam String platformCode,
+    public ResponseVO<RegMappingVO> list(@LoginContext UserContext loginContext,
+                                                                                           @RequestParam String platformCode,
                                          @RequestParam(required = false) String dataDomain) {
-        return ResponseVO.success(mappingService.list(tenantId, platformCode, dataDomain));
+        return ResponseVO.success(mappingService.list(loginContext.getTenantId(), platformCode, dataDomain));
     }
 
     /**

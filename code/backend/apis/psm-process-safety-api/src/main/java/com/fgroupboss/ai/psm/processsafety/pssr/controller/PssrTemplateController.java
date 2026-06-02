@@ -1,8 +1,9 @@
 package com.fgroupboss.ai.psm.processsafety.pssr.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.dto.PssrTemplateRequest;
 import com.fgroupboss.ai.psm.processsafety.pssr.model.vo.PssrTemplateVO;
 import com.fgroupboss.ai.psm.processsafety.pssr.service.PssrTemplateService;
@@ -43,11 +44,11 @@ public class PssrTemplateController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<PssrTemplateVO>> page(@RequestParam Long tenantId,
-                                                     @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<PssrTemplateVO>> page(@LoginContext UserContext loginContext,
+                                                                                                       @RequestParam(required = false) String keyword,
                                                      @RequestParam(defaultValue = "1") int pageNo,
                                                      @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(pssrTemplateService.page(tenantId, keyword, pageNo, pageSize));
+        return ResponseVO.success(pssrTemplateService.page(loginContext.getTenantId(), keyword, pageNo, pageSize));
     }
 
     /**
@@ -59,8 +60,9 @@ public class PssrTemplateController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
-    public ResponseVO<PssrTemplateVO> get(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(pssrTemplateService.getById(tenantId, id));
+    public ResponseVO<PssrTemplateVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(pssrTemplateService.getById(loginContext.getTenantId(), id));
     }
 
     /**
@@ -98,10 +100,10 @@ public class PssrTemplateController {
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @DeleteMapping("/{id}")
-    public ResponseVO<Void> delete(@PathVariable Long id,
-                                   @RequestParam Long tenantId,
-                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        pssrTemplateService.delete(tenantId, id, operator);
+    public ResponseVO<Void> delete(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                      @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        pssrTemplateService.delete(loginContext.getTenantId(), id, operator);
         return ResponseVO.success();
     }
 }

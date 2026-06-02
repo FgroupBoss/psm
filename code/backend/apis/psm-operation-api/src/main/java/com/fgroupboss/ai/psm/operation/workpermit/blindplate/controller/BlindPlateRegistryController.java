@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.blindplate.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.BlindPlateRegistryRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.vo.BlindPlateRegistryVO;
@@ -42,9 +43,9 @@ public class BlindPlateRegistryController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<List<BlindPlateRegistryVO>> list(@RequestParam Long tenantId,
-                                                       @RequestParam(required = false) String status) {
-        return ResponseVO.success(blindPlateService.listRegistry(tenantId, status));
+    public ResponseVO<List<BlindPlateRegistryVO>> list(@LoginContext UserContext loginContext,
+                                                                                                         @RequestParam(required = false) String status) {
+        return ResponseVO.success(blindPlateService.listRegistry(loginContext.getTenantId(), status));
     }
 
     /**
@@ -56,8 +57,9 @@ public class BlindPlateRegistryController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{registryId}")
-    public ResponseVO<BlindPlateRegistryVO> get(@PathVariable Long registryId, @RequestParam Long tenantId) {
-        return ResponseVO.success(blindPlateService.getRegistry(tenantId, registryId));
+    public ResponseVO<BlindPlateRegistryVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable Long registryId) {
+        return ResponseVO.success(blindPlateService.getRegistry(loginContext.getTenantId(), registryId));
     }
 
     /**
@@ -67,12 +69,12 @@ public class BlindPlateRegistryController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping
-    public ResponseVO<BlindPlateRegistryVO> create(@Valid @RequestBody BlindPlateRegistryRequest request,
-                                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(blindPlateService.createRegistry(request.getTenantId(), request,
-                operator(userId, username, operator)));
+    public ResponseVO<BlindPlateRegistryVO> create(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody BlindPlateRegistryRequest request,
+                                                                                                                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(blindPlateService.createRegistry(loginContext.getTenantId(), request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -83,16 +85,13 @@ public class BlindPlateRegistryController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/{registryId}")
-    public ResponseVO<BlindPlateRegistryVO> update(@PathVariable Long registryId,
+    public ResponseVO<BlindPlateRegistryVO> update(@LoginContext UserContext loginContext,
+                                        @PathVariable Long registryId,
                                                    @Valid @RequestBody BlindPlateRegistryRequest request,
-                                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(blindPlateService.updateRegistry(request.getTenantId(), registryId, request,
-                operator(userId, username, operator)));
+                                                                                                                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(blindPlateService.updateRegistry(loginContext.getTenantId(), registryId, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

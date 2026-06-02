@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.realtime.location.controller;
 
 import com.fgroupboss.ai.psm.common.PageResult;
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.realtime.location.model.dto.LocTagBindRequest;
 import com.fgroupboss.ai.psm.realtime.location.model.dto.LocTagRequest;
@@ -43,12 +45,12 @@ public class LocTagController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping
-    public ResponseVO<PageResult<LocTagVO>> page(@RequestParam Long tenantId,
-                                                 @RequestParam(required = false) String keyword,
+    public ResponseVO<PageResult<LocTagVO>> page(@LoginContext UserContext loginContext,
+                                                                                                   @RequestParam(required = false) String keyword,
                                                  @RequestParam(required = false) String status,
                                                  @RequestParam(defaultValue = "1") int pageNo,
                                                  @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(tagService.page(tenantId, keyword, status, pageNo, pageSize));
+        return ResponseVO.success(tagService.page(loginContext.getTenantId(), keyword, status, pageNo, pageSize));
     }
 
     /**
@@ -60,8 +62,9 @@ public class LocTagController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{tagNo}")
-    public ResponseVO<LocTagVO> get(@PathVariable String tagNo, @RequestParam Long tenantId) {
-        return ResponseVO.success(tagService.getByTagNo(tenantId, tagNo));
+    public ResponseVO<LocTagVO> get(@LoginContext UserContext loginContext,
+                                        @PathVariable String tagNo) {
+        return ResponseVO.success(tagService.getByTagNo(loginContext.getTenantId(), tagNo));
     }
 
     /**
@@ -97,7 +100,8 @@ public class LocTagController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{tagNo}/unbind")
-    public ResponseVO<LocTagBindingVO> unbind(@PathVariable String tagNo, @RequestParam Long tenantId) {
-        return ResponseVO.success(tagService.unbind(tagNo, tenantId));
+    public ResponseVO<LocTagBindingVO> unbind(@LoginContext UserContext loginContext,
+                                        @PathVariable String tagNo) {
+        return ResponseVO.success(tagService.unbind(tagNo, loginContext.getTenantId()));
     }
 }

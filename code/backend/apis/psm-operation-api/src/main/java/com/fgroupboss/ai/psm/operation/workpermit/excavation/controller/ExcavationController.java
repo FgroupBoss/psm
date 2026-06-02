@@ -1,7 +1,8 @@
 package com.fgroupboss.ai.psm.operation.workpermit.excavation.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.common.ResponseVO;
-import com.fgroupboss.ai.psm.common.UserContextHeaders;
 import com.fgroupboss.ai.psm.common.UserContextResolver;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.ExcavationCountersignRequest;
 import com.fgroupboss.ai.psm.operation.api.workpermit.dto.ExcavationSiteCheckRequest;
@@ -50,8 +51,9 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/detail")
-    public ResponseVO<ExcavationWorkDetailVO> getDetail(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(excavationService.getDetail(tenantId, id));
+    public ResponseVO<ExcavationWorkDetailVO> getDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(excavationService.getDetail(loginContext.getTenantId(), id));
     }
 
     /**
@@ -62,13 +64,13 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PutMapping("/detail")
-    public ResponseVO<ExcavationWorkDetailVO> saveDetail(@PathVariable Long id,
+    public ResponseVO<ExcavationWorkDetailVO> saveDetail(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                            @Valid @RequestBody ExcavationWorkDetailRequest request,
-                                                           @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                           @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                           @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(excavationService.saveDetail(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                 @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(excavationService.saveDetail(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -80,9 +82,9 @@ public class ExcavationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/facilities")
-    public ResponseVO<List<ExcavationUndergroundFacilityVO>> listFacilities(@PathVariable Long id,
-                                                                             @RequestParam Long tenantId) {
-        return ResponseVO.success(excavationService.listFacilities(tenantId, id));
+    public ResponseVO<List<ExcavationUndergroundFacilityVO>> listFacilities(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(excavationService.listFacilities(loginContext.getTenantId(), id));
     }
 
     /**
@@ -93,13 +95,13 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/facilities")
-    public ResponseVO<ExcavationUndergroundFacilityVO> addFacility(@PathVariable Long id,
+    public ResponseVO<ExcavationUndergroundFacilityVO> addFacility(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                                    @Valid @RequestBody ExcavationUndergroundFacilityRequest request,
-                                                                   @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                                   @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                                   @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(excavationService.addFacility(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                                         @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(excavationService.addFacility(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -111,9 +113,9 @@ public class ExcavationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/countersigns")
-    public ResponseVO<List<ExcavationCountersignVO>> listCountersigns(@PathVariable Long id,
-                                                                      @RequestParam Long tenantId) {
-        return ResponseVO.success(excavationService.listCountersigns(tenantId, id));
+    public ResponseVO<List<ExcavationCountersignVO>> listCountersigns(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(excavationService.listCountersigns(loginContext.getTenantId(), id));
     }
 
     /**
@@ -124,13 +126,13 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/countersigns")
-    public ResponseVO<ExcavationCountersignVO> addCountersign(@PathVariable Long id,
+    public ResponseVO<ExcavationCountersignVO> addCountersign(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                               @Valid @RequestBody ExcavationCountersignRequest request,
-                                                              @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                              @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(excavationService.addCountersign(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(excavationService.addCountersign(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -143,10 +145,10 @@ public class ExcavationController {
      * @return 列表数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/site-checks")
-    public ResponseVO<List<ExcavationSiteCheckVO>> listSiteChecks(@PathVariable Long id,
-                                                                  @RequestParam Long tenantId,
-                                                                  @RequestParam(required = false) String stage) {
-        return ResponseVO.success(excavationService.listSiteChecks(tenantId, id, stage));
+    public ResponseVO<List<ExcavationSiteCheckVO>> listSiteChecks(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                                    @RequestParam(required = false) String stage) {
+        return ResponseVO.success(excavationService.listSiteChecks(loginContext.getTenantId(), id, stage));
     }
 
     /**
@@ -157,13 +159,13 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/site-checks")
-    public ResponseVO<ExcavationSiteCheckVO> addSiteCheck(@PathVariable Long id,
+    public ResponseVO<ExcavationSiteCheckVO> addSiteCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
                                                           @Valid @RequestBody ExcavationSiteCheckRequest request,
-                                                          @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userId,
-                                                          @RequestHeader(value = UserContextHeaders.USERNAME, required = false) String username,
-                                                          @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
-        return ResponseVO.success(excavationService.addSiteCheck(request.getTenantId(), id, request,
-                operator(userId, username, operator)));
+                                                                                                                                                                              @RequestHeader(value = "X-Operator", defaultValue = "system") String operator) {
+        request.setTenantId(loginContext.getTenantId());
+        return ResponseVO.success(excavationService.addSiteCheck(loginContext.getTenantId(), id, request,
+                UserContextResolver.operator(loginContext, operator)));
     }
 
     /**
@@ -176,10 +178,10 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/pre-check")
-    public ResponseVO<ExcavationPreCheckResultVO> preCheck(@PathVariable Long id,
-                                                            @RequestParam Long tenantId,
-                                                            @RequestParam String checkPoint) {
-        return ResponseVO.success(excavationService.preCheck(tenantId, id, checkPoint));
+    public ResponseVO<ExcavationPreCheckResultVO> preCheck(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id,
+                                                                                                                        @RequestParam String checkPoint) {
+        return ResponseVO.success(excavationService.preCheck(loginContext.getTenantId(), id, checkPoint));
     }
 
     /**
@@ -191,11 +193,9 @@ public class ExcavationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/flow-progress")
-    public ResponseVO<ExcavationFlowProgressVO> flowProgress(@PathVariable Long id, @RequestParam Long tenantId) {
-        return ResponseVO.success(excavationService.getFlowProgress(tenantId, id));
+    public ResponseVO<ExcavationFlowProgressVO> flowProgress(@LoginContext UserContext loginContext,
+                                        @PathVariable Long id) {
+        return ResponseVO.success(excavationService.getFlowProgress(loginContext.getTenantId(), id));
     }
 
-    private String operator(String userId, String username, String fallback) {
-        return UserContextResolver.operator(userId, username, fallback);
-    }
 }

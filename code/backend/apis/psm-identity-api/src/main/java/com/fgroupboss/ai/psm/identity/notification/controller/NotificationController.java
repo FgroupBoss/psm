@@ -1,7 +1,9 @@
 package com.fgroupboss.ai.psm.identity.notification.controller;
 
+import com.fgroupboss.ai.psm.common.LoginContext;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
+import com.fgroupboss.ai.psm.common.UserContext;
 import com.fgroupboss.ai.psm.identity.notification.model.dto.NotificationSendRequest;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationChannelStatusVO;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationHealthVO;
@@ -24,7 +26,7 @@ import javax.validation.Valid;
 /**
  * Notification 模块 HTTP API。
  * <p>基础路径：{@code /api/notifications}</p>
- * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；写操作需透传租户与操作人上下文。</p>
+ * <p>返回体均为 {@link com.fgroupboss.ai.psm.common.ResponseVO}；租户与用户 ID 从登录上下文（X-PSM-* 头）解析，不接受前端 query 传参。</p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +52,10 @@ public class NotificationController {
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/send")
-    public ResponseVO<NotificationMessageVO> send(@Valid @RequestBody NotificationSendRequest request) {
+    public ResponseVO<NotificationMessageVO> send(@LoginContext UserContext loginContext,
+                                                  @Valid @RequestBody NotificationSendRequest request) {
+        request.setTenantId(loginContext.getTenantId());
+        request.setUserId(loginContext.getUserId());
         return ResponseVO.success(notificationService.send(request));
     }
 
@@ -58,8 +63,7 @@ public class NotificationController {
      * 查询inbox。
      * <p>HTTP GET {@code /api/notifications/inbox}</p>
      * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
-     * @param tenantId 租户 ID，多租户隔离必填
-     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param loginContext 当前登录租户与用户（由网关/身份域注入请求头）
      * @param read read 参数
      * @param bizType 业务类型过滤（可选）
      * @param pageNo 页码，从 1 开始
@@ -67,27 +71,26 @@ public class NotificationController {
      * @return 分页数据，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/inbox")
-    public ResponseVO<PageResult<NotificationMessageVO>> inbox(@RequestParam Long tenantId,
-                                                               @RequestParam Long userId,
+    public ResponseVO<PageResult<NotificationMessageVO>> inbox(@LoginContext UserContext loginContext,
                                                                @RequestParam(required = false) Boolean read,
                                                                @RequestParam(required = false) String bizType,
                                                                @RequestParam(defaultValue = "1") int pageNo,
                                                                @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(notificationService.inbox(tenantId, userId, read, bizType, pageNo, pageSize));
+        return ResponseVO.success(notificationService.inbox(
+                loginContext.getTenantId(), loginContext.getUserId(), read, bizType, pageNo, pageSize));
     }
 
     /**
      * 未读消息数量（角标）。
      * <p>HTTP GET {@code /api/notifications/unread-count}</p>
      *
-     * @param tenantId 租户 ID，多租户隔离必填
-     * @param userId   收件人用户 ID
+     * @param loginContext 当前登录租户与用户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/unread-count")
-    public ResponseVO<NotificationUnreadCountVO> unreadCount(@RequestParam Long tenantId,
-                                                              @RequestParam Long userId) {
-        return ResponseVO.success(notificationService.unreadCount(tenantId, userId));
+    public ResponseVO<NotificationUnreadCountVO> unreadCount(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(notificationService.unreadCount(
+                loginContext.getTenantId(), loginContext.getUserId()));
     }
 
     /**
@@ -106,15 +109,14 @@ public class NotificationController {
      * <p>HTTP GET {@code /api/notifications/{id}}</p>
      * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
      * @param id 资源主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
-     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param loginContext 当前登录租户与用户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @GetMapping("/{id}")
     public ResponseVO<NotificationMessageVO> detail(@PathVariable Long id,
-                                                    @RequestParam Long tenantId,
-                                                    @RequestParam Long userId) {
-        return ResponseVO.success(notificationService.get(tenantId, userId, id));
+                                                    @LoginContext UserContext loginContext) {
+        return ResponseVO.success(notificationService.get(
+                loginContext.getTenantId(), loginContext.getUserId(), id));
     }
 
     /**
@@ -122,15 +124,13 @@ public class NotificationController {
      * <p>HTTP POST {@code /api/notifications/{id}/read}</p>
      * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
      * @param id 资源主键 ID
-     * @param tenantId 租户 ID，多租户隔离必填
-     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param loginContext 当前登录租户与用户
      * @return 无业务载荷（成功即可），统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/{id}/read")
     public ResponseVO<Void> markRead(@PathVariable Long id,
-                                     @RequestParam Long tenantId,
-                                     @RequestParam Long userId) {
-        notificationService.markRead(tenantId, userId, id);
+                                     @LoginContext UserContext loginContext) {
+        notificationService.markRead(loginContext.getTenantId(), loginContext.getUserId(), id);
         return ResponseVO.success(null);
     }
 
@@ -138,13 +138,12 @@ public class NotificationController {
      * 新增read all或触发read all相关动作。
      * <p>HTTP POST {@code /api/notifications/read-all}</p>
      * <p>所有查询与变更均按租户隔离。写操作从请求头解析操作人并写入审计字段。</p>
-     * @param tenantId 租户 ID，多租户隔离必填
-     * @param userId 当前操作人用户 ID（请求头透传）
+     * @param loginContext 当前登录租户与用户
      * @return 业务数据对象，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}
      */
     @PostMapping("/read-all")
-    public ResponseVO<Integer> markAllRead(@RequestParam Long tenantId,
-                                           @RequestParam Long userId) {
-        return ResponseVO.success(notificationService.markAllRead(tenantId, userId));
+    public ResponseVO<Integer> markAllRead(@LoginContext UserContext loginContext) {
+        return ResponseVO.success(notificationService.markAllRead(
+                loginContext.getTenantId(), loginContext.getUserId()));
     }
 }
