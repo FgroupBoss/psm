@@ -7,14 +7,20 @@ import com.fgroupboss.ai.psm.common.BusinessException;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.identity.notification.config.DeliveryStatus;
 import com.fgroupboss.ai.psm.identity.notification.config.NotificationChannel;
+import com.fgroupboss.ai.psm.identity.notification.config.NotificationChannelProperties;
 import com.fgroupboss.ai.psm.identity.notification.mapper.NotificationDeliveryLogMapper;
 import com.fgroupboss.ai.psm.identity.notification.mapper.NotificationMessageMapper;
 import com.fgroupboss.ai.psm.identity.notification.model.dto.NotificationSendRequest;
 import com.fgroupboss.ai.psm.identity.notification.model.entity.NotificationDeliveryLogEntity;
 import com.fgroupboss.ai.psm.identity.notification.model.entity.NotificationMessageEntity;
+import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationChannelStatusVO;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationHealthVO;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationMessageVO;
+import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationUnreadCountVO;
+import com.fgroupboss.ai.psm.identity.notification.outbound.OutboundSendRequest;
+import com.fgroupboss.ai.psm.identity.notification.service.NotificationExternalDeliveryService;
 import com.fgroupboss.ai.psm.identity.notification.service.NotificationService;
+import com.fgroupboss.ai.psm.identity.notification.support.NotificationRecipientResolver;
 import com.fgroupboss.ai.psm.identity.notification.support.NotificationTemplateSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +29,27 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
+    private static final List<String> EXTERNAL_CHANNELS = Arrays.asList(
+            NotificationChannel.SMS,
+            NotificationChannel.EMAIL,
+            NotificationChannel.WECHAT,
+            NotificationChannel.DINGTALK);
+
     private final NotificationMessageMapper messageMapper;
     private final NotificationDeliveryLogMapper deliveryLogMapper;
+    private final NotificationExternalDeliveryService externalDeliveryService;
+    private final NotificationChannelProperties channelProperties;
 
     @Override
     public NotificationHealthVO health() {
@@ -64,36 +81,77 @@ public class NotificationServiceImpl implements NotificationService {
                 content = rendered.getContent();
             }
         }
-        NotificationMessageEntity message = new NotificationMessageEntity();
-        message.setTenantId(request.getTenantId());
-        message.setUserId(request.getUserId());
-        message.setRequestId(trim(request.getRequestId()));
-        message.setChannel(NotificationChannel.IN_APP);
-        message.setTemplateCode(request.getTemplateCode().trim());
-        message.setTitle(title.trim());
-        message.setContent(content.trim());
-        message.setBizType(trim(request.getBizType()));
-        message.setBizId(request.getBizId());
-        message.setReadFlag(0);
-        message.setCreatedAt(new Date());
-        messageMapper.insert(message);
 
-        NotificationDeliveryLogEntity logEntity = new NotificationDeliveryLogEntity();
-        logEntity.setTenantId(message.getTenantId());
-        logEntity.setMessageId(message.getId());
-        logEntity.setChannel(NotificationChannel.IN_APP);
-        logEntity.setStatus(DeliveryStatus.SENT);
-        logEntity.setSentAt(new Date());
-        logEntity.setCreatedAt(new Date());
-        deliveryLogMapper.insert(logEntity);
+        List<String> channels = resolveChannels(request);
+        NotificationMessageVO result = null;
+        if (channels.contains(NotificationChannel.IN_APP)) {
+            NotificationMessageEntity message = new NotificationMessageEntity();
+            message.setTenantId(request.getTenantId());
+            message.setUserId(request.getUserId());
+            message.setRequestId(trim(request.getRequestId()));
+            message.setChannel(NotificationChannel.IN_APP);
+            message.setTemplateCode(trim(request.getTemplateCode()));
+            message.setTitle(title.trim());
+            message.setContent(content.trim());
+            message.setBizType(trim(request.getBizType()));
+            message.setBizId(request.getBizId());
+            message.setReadFlag(0);
+            message.setCreatedAt(new Date());
+            messageMapper.insert(message);
 
-        log.info("notification sent id={} tenantId={} userId={} template={}",
-                message.getId(), message.getTenantId(), message.getUserId(), message.getTemplateCode());
-        return toVo(message);
+            NotificationDeliveryLogEntity logEntity = new NotificationDeliveryLogEntity();
+            logEntity.setTenantId(message.getTenantId());
+            logEntity.setMessageId(message.getId());
+            logEntity.setRequestId(buildDeliveryRequestId(request.getRequestId(), NotificationChannel.IN_APP));
+            logEntity.setChannel(NotificationChannel.IN_APP);
+            logEntity.setStatus(DeliveryStatus.SENT);
+            logEntity.setSentAt(new Date());
+            logEntity.setCreatedAt(new Date());
+            deliveryLogMapper.insert(logEntity);
+
+            log.info("notification sent id={} tenantId={} userId={} template={}",
+                    message.getId(), message.getTenantId(), message.getUserId(), message.getTemplateCode());
+            result = toVo(message);
+            dispatchExternalChannels(request, channels, title, content, message.getId());
+        } else {
+            dispatchExternalChannels(request, channels, title, content, null);
+            NotificationMessageVO externalOnly = new NotificationMessageVO();
+            externalOnly.setTenantId(request.getTenantId());
+            externalOnly.setUserId(request.getUserId());
+            externalOnly.setTitle(title);
+            externalOnly.setContent(content);
+            result = externalOnly;
+        }
+        return result;
+    }
+
+    private void dispatchExternalChannels(NotificationSendRequest request, List<String> channels,
+                                          String title, String content, Long messageId) {
+        OutboundSendRequest outbound = new OutboundSendRequest();
+        outbound.setTenantId(request.getTenantId());
+        outbound.setUserId(request.getUserId());
+        outbound.setTemplateCode(trim(request.getTemplateCode()));
+        outbound.setTitle(title);
+        outbound.setContent(content);
+        outbound.setRecipientPhone(NotificationRecipientResolver.resolvePhone(request));
+        outbound.setRecipientEmail(NotificationRecipientResolver.resolveEmail(request));
+        outbound.setVariables(request.getVariables());
+
+        for (String channel : channels) {
+            if (!EXTERNAL_CHANNELS.contains(channel)) {
+                continue;
+            }
+            outbound.setChannel(channel);
+            String deliveryRequestId = buildDeliveryRequestId(request.getRequestId(), channel);
+            outbound.setRequestId(deliveryRequestId);
+            externalDeliveryService.deliverAsync(
+                    request.getTenantId(), messageId, channel, deliveryRequestId, outbound);
+        }
     }
 
     @Override
-    public PageResult<NotificationMessageVO> inbox(Long tenantId, Long userId, Boolean read, int pageNo, int pageSize) {
+    public PageResult<NotificationMessageVO> inbox(Long tenantId, Long userId, Boolean read, String bizType,
+                                                 int pageNo, int pageSize) {
         requireTenantUser(tenantId, userId);
         int safePageNo = Math.max(pageNo, 1);
         int safePageSize = Math.min(Math.max(pageSize, 1), 100);
@@ -103,7 +161,11 @@ public class NotificationServiceImpl implements NotificationService {
         if (read != null) {
             wrapper.eq(NotificationMessageEntity::getReadFlag, read ? 1 : 0);
         }
-        wrapper.orderByDesc(NotificationMessageEntity::getCreatedAt);
+        if (StringUtils.hasText(bizType)) {
+            wrapper.eq(NotificationMessageEntity::getBizType, bizType.trim());
+        }
+        wrapper.orderByAsc(NotificationMessageEntity::getReadFlag)
+                .orderByDesc(NotificationMessageEntity::getCreatedAt);
         Page<NotificationMessageEntity> page = messageMapper.selectPage(
                 new Page<NotificationMessageEntity>(safePageNo, safePageSize), wrapper);
         List<NotificationMessageVO> records = new ArrayList<NotificationMessageVO>();
@@ -142,6 +204,80 @@ public class NotificationServiceImpl implements NotificationService {
                 .eq(NotificationMessageEntity::getTenantId, tenantId)
                 .eq(NotificationMessageEntity::getUserId, userId)
                 .eq(NotificationMessageEntity::getReadFlag, 0));
+    }
+
+    @Override
+    public NotificationUnreadCountVO unreadCount(Long tenantId, Long userId) {
+        requireTenantUser(tenantId, userId);
+        Long count = messageMapper.selectCount(new LambdaQueryWrapper<NotificationMessageEntity>()
+                .eq(NotificationMessageEntity::getTenantId, tenantId)
+                .eq(NotificationMessageEntity::getUserId, userId)
+                .eq(NotificationMessageEntity::getReadFlag, 0));
+        NotificationUnreadCountVO vo = new NotificationUnreadCountVO();
+        vo.setUnreadCount(count == null ? 0L : count.longValue());
+        return vo;
+    }
+
+    @Override
+    public List<NotificationChannelStatusVO> channelStatus() {
+        List<NotificationChannelStatusVO> list = new ArrayList<NotificationChannelStatusVO>();
+        list.add(buildChannelStatus(NotificationChannel.SMS, channelProperties.getSms()));
+        list.add(buildChannelStatus(NotificationChannel.EMAIL, channelProperties.getEmail()));
+        list.add(buildChannelStatus(NotificationChannel.WECHAT, channelProperties.getWechat()));
+        list.add(buildChannelStatus(NotificationChannel.DINGTALK, channelProperties.getDingtalk()));
+        return list;
+    }
+
+    private NotificationChannelStatusVO buildChannelStatus(String channel,
+                                                           NotificationChannelProperties.ChannelSettings settings) {
+        NotificationChannelStatusVO vo = new NotificationChannelStatusVO();
+        vo.setChannel(channel);
+        vo.setEnabled(settings.isEnabled());
+        vo.setMode(settings.getMode());
+        vo.setConfigured(settings.isEnabled()
+                && ("HTTP".equalsIgnoreCase(settings.getMode()) && StringUtils.hasText(settings.getHttpUrl())));
+        return vo;
+    }
+
+    private List<String> resolveChannels(NotificationSendRequest request) {
+        Set<String> resolved = new LinkedHashSet<String>();
+        if (request.getChannels() != null) {
+            for (String channel : request.getChannels()) {
+                if (StringUtils.hasText(channel)) {
+                    resolved.add(channel.trim().toUpperCase());
+                }
+            }
+        }
+        if (resolved.isEmpty()) {
+            resolved.add(NotificationChannel.IN_APP);
+            if (channelProperties.isAutoExternal()) {
+                appendEnabledExternal(resolved);
+            }
+        }
+        if (!resolved.contains(NotificationChannel.IN_APP) && resolved.isEmpty()) {
+            resolved.add(NotificationChannel.IN_APP);
+        }
+        return new ArrayList<String>(resolved);
+    }
+
+    private void appendEnabledExternal(Set<String> resolved) {
+        if (channelProperties.getSms().isEnabled()) {
+            resolved.add(NotificationChannel.SMS);
+        }
+        if (channelProperties.getEmail().isEnabled()) {
+            resolved.add(NotificationChannel.EMAIL);
+        }
+        if (channelProperties.getWechat().isEnabled()) {
+            resolved.add(NotificationChannel.WECHAT);
+        }
+        if (channelProperties.getDingtalk().isEnabled()) {
+            resolved.add(NotificationChannel.DINGTALK);
+        }
+    }
+
+    private String buildDeliveryRequestId(String baseRequestId, String channel) {
+        String base = StringUtils.hasText(baseRequestId) ? baseRequestId.trim() : "auto";
+        return base + ":" + channel;
     }
 
     private NotificationMessageEntity findByRequestId(NotificationSendRequest request) {

@@ -16,6 +16,9 @@ public class FileObjectVO {
     private String bizType;
     private Long bizId;
     private String status;
+    private String storageBackend;
     private String downloadUrl;
+    private String previewUrl;
+    private String presignUrl;
     private Date createdAt;
 }

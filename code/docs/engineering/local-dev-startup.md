@@ -129,6 +129,37 @@ npm run dev:dashboard
 
 报警处置（confirm/dispatch/close 等）会双写 `alarm_action_record` 与中央审计 `ALARM_ACTION` / `ALARM`。
 
+## 文件存储配置（psm-identity `psm.file`）
+
+- 接口：`/api/files/upload`、`/download`、`/presign`；配置档：`/api/files/profiles`。
+- 管理端：**平台能力 → 文件存储**。
+
+| 方式 | 配置要点 |
+| --- | --- |
+| 本地 LOCAL | `{"mode":"SDK","storageRoot":"./data/psm-files"}` 或环境变量 `PSM_FILE_STORAGE_ROOT` |
+| MinIO / S3 兼容 SDK | `mode=SDK`，`endpoint`、`accessKey`、`secretKey`、`bucket`；或 `psm.file.minio.*` 环境变量 |
+| 阿里云/腾讯/华为等 HTTP 网关 | `mode=HTTP`，`httpUrl` 指向企业对象网关（POST `/upload`、`/presign`、`/health`） |
+
+环境变量示例：`PSM_FILE_MINIO_ENABLED=true`、`PSM_FILE_MINIO_ENDPOINT=http://127.0.0.1:9000`、`PSM_FILE_MINIO_BUCKET=psm-files`。
+
+## 消息与外通道配置（psm-identity `psm.notification`）
+
+站内信接口：`GET/POST /api/notifications/*`（网关 `18080` 直连 identity）。外通道默认 **PLACEHOLDER**（写投递日志 `SKIPPED`），对接第三方时按通道配置：
+
+| 环境变量 | 说明 |
+| --- | --- |
+| `PSM_NOTIFY_SMS_ENABLED` | `true` 启用短信 |
+| `PSM_NOTIFY_SMS_MODE` | `HTTP` 或 `PLACEHOLDER` |
+| `PSM_NOTIFY_SMS_HTTP_URL` | 企业短信网关 URL（POST JSON，见 `06_消息待办专项/技术设计_消息通知服务落地.md`） |
+| `PSM_NOTIFY_SMS_API_KEY` / `PSM_NOTIFY_SMS_API_SECRET` | 网关鉴权头 `X-Api-Key` / `X-Api-Secret` |
+| `PSM_NOTIFY_SMS_SIGN_NAME` | 短信签名 |
+| `PSM_NOTIFY_EMAIL_*` | 邮件通道，同上（`recipientEmail` 或变量 `email`） |
+| `PSM_NOTIFY_WECHAT_*` / `PSM_NOTIFY_DINGTALK_*` | 企微/钉钉 HTTP 网关 |
+
+发送时指定 `channels: ["IN_APP","SMS"]`，并在 `variables` 中提供 `phone`/`email` 或请求体 `recipientPhone`/`recipientEmail`。
+
+Web 待办：`GET /api/workbench/todos`（代理至 operation `18088`）。
+
 ## 报警服务联调要点
 
 - 去重：同源同等级同区域 5 分钟内 ingest 合并，`occurrence_count` 递增。

@@ -1,5 +1,5 @@
 import { clearTokens, getAccessToken, saveTokens } from '@psm/auth';
-import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API, PHA_API, MOC_API, PSSR_API, BARRIER_API, INCIDENT_API, GOVERNANCE_API } from '@psm/domain-types';
+import { CONTRACTOR_API, MAJOR_HAZARD_API, ALARM_API, WORK_PERMIT_API, REPORT_API, FILE_API, MOBILE_API, NOTIFICATION_API, WORKBENCH_API, DUAL_PREVENTION_API, INSPECTION_API, LOCATION_API, VIDEO_API, SIMOPS_API, INTEGRATION_REG_API, PHA_API, MOC_API, PSSR_API, BARRIER_API, INCIDENT_API, GOVERNANCE_API } from '@psm/domain-types';
 import type {
   ApiResponse,
   AuditLogRecord,
@@ -99,6 +99,14 @@ import type {
   ReportExportTaskRecord,
   TrendSeriesRecord,
   MobileTaskRecord,
+  NotificationMessageRecord,
+  NotificationUnreadCountRecord,
+  NotificationChannelStatusRecord,
+  WorkbenchTodoCountRecord,
+  FileStorageProfileRecord,
+  FileStorageProfileRequest,
+  FileBackendSchemaRecord,
+  FileHealthResult,
   MobileFileUploadRecord,
   TimelineItemRecord,
   RiskUnitRecord,
@@ -1214,18 +1222,159 @@ export async function uploadFile(
   tenantId: number,
   file: File,
   bizType?: string,
-  bizId?: number
+  bizId?: number,
+  storageProfileCode?: string
 ): Promise<FileObjectRecord> {
   const form = new FormData();
   form.append('tenantId', String(tenantId));
   form.append('file', file);
   if (bizType) form.append('bizType', bizType);
   if (bizId != null) form.append('bizId', String(bizId));
+  if (storageProfileCode) form.append('storageProfileCode', storageProfileCode);
   return uploadRequest<FileObjectRecord>(FILE_API.upload, form);
 }
 
+export async function fetchFileBackends(): Promise<FileBackendSchemaRecord[]> {
+  return request<FileBackendSchemaRecord[]>(FILE_API.backends);
+}
+
+export async function fetchFileStorageProfiles(tenantId: number): Promise<FileStorageProfileRecord[]> {
+  return request<FileStorageProfileRecord[]>(`${FILE_API.profiles}?tenantId=${tenantId}`);
+}
+
+export async function fetchDefaultFileStorageProfile(
+  tenantId: number
+): Promise<FileStorageProfileRecord | null> {
+  return request<FileStorageProfileRecord | null>(`${FILE_API.profilesDefault}?tenantId=${tenantId}`);
+}
+
+export async function saveFileStorageProfile(payload: FileStorageProfileRequest): Promise<FileStorageProfileRecord> {
+  return request<FileStorageProfileRecord>(FILE_API.profiles, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function testFileStorageProfile(
+  tenantId: number,
+  profileId: number
+): Promise<FileHealthResult> {
+  return request<FileHealthResult>(`${FILE_API.profileTest(profileId)}?tenantId=${tenantId}`, {
+    method: 'POST'
+  });
+}
+
+export async function fetchFilePresignUrl(id: number, tenantId: number): Promise<{ url: string; expiresInSeconds: number }> {
+  return request<{ url: string; expiresInSeconds: number }>(`${FILE_API.presign(id)}?tenantId=${tenantId}`);
+}
+
+export function psmContextHeaders(tenantId: number, userId: number): Record<string, string> {
+  return {
+    'X-PSM-Tenant-Id': String(tenantId),
+    'X-PSM-User-Id': String(userId)
+  };
+}
+
+export async function fetchNotificationInbox(
+  tenantId: number,
+  userId: number,
+  query: { read?: boolean; bizType?: string; pageNo?: number; pageSize?: number } = {}
+): Promise<PageResult<NotificationMessageRecord>> {
+  const params = new URLSearchParams({
+    tenantId: String(tenantId),
+    userId: String(userId),
+    pageNo: String(query.pageNo || 1),
+    pageSize: String(query.pageSize || 20)
+  });
+  if (query.read !== undefined) {
+    params.set('read', String(query.read));
+  }
+  if (query.bizType) {
+    params.set('bizType', query.bizType);
+  }
+  return request<PageResult<NotificationMessageRecord>>(`${NOTIFICATION_API.inbox}?${params.toString()}`, {
+    headers: psmContextHeaders(tenantId, userId)
+  });
+}
+
+export async function fetchNotificationUnreadCount(
+  tenantId: number,
+  userId: number
+): Promise<NotificationUnreadCountRecord> {
+  return request<NotificationUnreadCountRecord>(
+    `${NOTIFICATION_API.unreadCount}?tenantId=${tenantId}&userId=${userId}`,
+    { headers: psmContextHeaders(tenantId, userId) }
+  );
+}
+
+export async function fetchNotificationDetail(
+  id: number,
+  tenantId: number,
+  userId: number
+): Promise<NotificationMessageRecord> {
+  return request<NotificationMessageRecord>(
+    `${NOTIFICATION_API.detail(id)}?tenantId=${tenantId}&userId=${userId}`,
+    { headers: psmContextHeaders(tenantId, userId) }
+  );
+}
+
+export async function markNotificationRead(id: number, tenantId: number, userId: number): Promise<void> {
+  await request<void>(`${NOTIFICATION_API.markRead(id)}?tenantId=${tenantId}&userId=${userId}`, {
+    method: 'POST',
+    headers: psmContextHeaders(tenantId, userId)
+  });
+}
+
+export async function markAllNotificationsRead(tenantId: number, userId: number): Promise<number> {
+  return request<number>(`${NOTIFICATION_API.readAll}?tenantId=${tenantId}&userId=${userId}`, {
+    method: 'POST',
+    headers: psmContextHeaders(tenantId, userId)
+  });
+}
+
+export async function fetchNotificationChannelStatus(): Promise<NotificationChannelStatusRecord[]> {
+  return request<NotificationChannelStatusRecord[]>(NOTIFICATION_API.channelsStatus);
+}
+
+export async function fetchWorkbenchTodos(
+  tenantId: number,
+  userId: number,
+  role = 'ALL',
+  taskType?: string
+): Promise<MobileTaskRecord[]> {
+  const params = new URLSearchParams({
+    tenantId: String(tenantId),
+    userId: String(userId),
+    role
+  });
+  if (taskType) {
+    params.set('taskType', taskType);
+  }
+  return request<MobileTaskRecord[]>(`${WORKBENCH_API.todos}?${params.toString()}`, {
+    headers: psmContextHeaders(tenantId, userId)
+  });
+}
+
+export async function fetchWorkbenchTodoCount(
+  tenantId: number,
+  userId: number,
+  role = 'ALL'
+): Promise<WorkbenchTodoCountRecord> {
+  return request<WorkbenchTodoCountRecord>(
+    `${WORKBENCH_API.todoCount}?tenantId=${tenantId}&userId=${userId}&role=${role}`,
+    { headers: psmContextHeaders(tenantId, userId) }
+  );
+}
+
 export async function fetchMobileTasks(tenantId: number, userId: number, role = 'ALL'): Promise<MobileTaskRecord[]> {
-  return request<MobileTaskRecord[]>(`${MOBILE_API.tasks}?tenantId=${tenantId}&userId=${userId}&role=${role}`);
+  const params = new URLSearchParams({
+    tenantId: String(tenantId),
+    userId: String(userId),
+    role
+  });
+  return request<MobileTaskRecord[]>(`${MOBILE_API.tasks}?${params.toString()}`, {
+    headers: psmContextHeaders(tenantId, userId)
+  });
 }
 
 export async function fetchMobileWorkPermitDetail(id: number, tenantId: number): Promise<WorkPermitDetailRecord> {

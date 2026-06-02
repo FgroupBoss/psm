@@ -12,6 +12,9 @@ export type AppView =
   | 'iam:menus'
   | 'config'
   | 'audit'
+  | 'notification:inbox'
+  | 'workbench:todos'
+  | 'file:storage'
   | 'contractor:companies'
   | 'contractor:workers'
   | 'hazard:ledger'
@@ -76,6 +79,15 @@ const ROUTE_ALIASES: Record<string, AppView> = {
   audit: 'audit',
   'system/audit': 'audit',
   'MENU_AUDIT': 'audit',
+  'notification/inbox': 'notification:inbox',
+  'notification:inbox': 'notification:inbox',
+  MENU_NOTIFY_INBOX: 'notification:inbox',
+  'workbench/todos': 'workbench:todos',
+  'workbench:todos': 'workbench:todos',
+  MENU_WORKBENCH_TODOS: 'workbench:todos',
+  'file/storage': 'file:storage',
+  'file:storage': 'file:storage',
+  MENU_FILE_STORAGE: 'file:storage',
   'contractor/companies': 'contractor:companies',
   'contractor:companies': 'contractor:companies',
   MENU_CTR_COMPANIES: 'contractor:companies',
@@ -168,6 +180,9 @@ export const DEFAULT_NAV: NavItem[] = [
   { view: 'iam:menus', label: '菜单资源', group: '权限管理' },
   { view: 'config', label: '系统配置与规则', group: '系统配置' },
   { view: 'audit', label: '权限审计', group: '系统配置' },
+  { view: 'notification:inbox', label: '消息中心', group: '消息待办' },
+  { view: 'workbench:todos', label: '工作台待办', group: '消息待办' },
+  { view: 'file:storage', label: '文件存储', group: '平台能力' },
   { view: 'contractor:companies', label: '承包商单位', group: '承包商管理' },
   { view: 'contractor:workers', label: '承包商人员', group: '承包商管理' },
   { view: 'hazard:ledger', label: '危险源台账', group: '重大危险源' },
@@ -207,6 +222,9 @@ const VIEW_TITLES: Record<AppView, string> = {
   'iam:menus': '菜单资源',
   config: '系统配置与规则',
   audit: '权限审计',
+  'notification:inbox': '消息中心',
+  'workbench:todos': '工作台待办',
+  'file:storage': '文件存储配置',
   'contractor:companies': '承包商单位',
   'contractor:workers': '承包商人员',
   'hazard:ledger': '危险源台账',
@@ -316,6 +334,9 @@ const NAV_ICONS: Record<AppView, string> = {
   'iam:menus': 'fa-bars',
   config: 'fa-sliders',
   audit: 'fa-clipboard-list',
+  'notification:inbox': 'fa-envelope',
+  'workbench:todos': 'fa-list-check',
+  'file:storage': 'fa-cloud',
   'contractor:companies': 'fa-building',
   'contractor:workers': 'fa-helmet-safety',
   'hazard:ledger': 'fa-radiation',

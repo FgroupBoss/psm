@@ -20,6 +20,36 @@ mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
 
 psm:
+  notification:
+    auto-external: false
+    sms:
+      enabled: ${PSM_NOTIFY_SMS_ENABLED:false}
+      mode: ${PSM_NOTIFY_SMS_MODE:PLACEHOLDER}
+      http-url: ${PSM_NOTIFY_SMS_HTTP_URL:}
+      api-key: ${PSM_NOTIFY_SMS_API_KEY:}
+      api-secret: ${PSM_NOTIFY_SMS_API_SECRET:}
+      sign-name: ${PSM_NOTIFY_SMS_SIGN_NAME:}
+    email:
+      enabled: ${PSM_NOTIFY_EMAIL_ENABLED:false}
+      mode: ${PSM_NOTIFY_EMAIL_MODE:PLACEHOLDER}
+      http-url: ${PSM_NOTIFY_EMAIL_HTTP_URL:}
+      api-key: ${PSM_NOTIFY_EMAIL_API_KEY:}
+      api-secret: ${PSM_NOTIFY_EMAIL_API_SECRET:}
+      from-address: ${PSM_NOTIFY_EMAIL_FROM:}
+    wechat:
+      enabled: ${PSM_NOTIFY_WECHAT_ENABLED:false}
+      mode: ${PSM_NOTIFY_WECHAT_MODE:PLACEHOLDER}
+      http-url: ${PSM_NOTIFY_WECHAT_HTTP_URL:}
+      corp-id: ${PSM_NOTIFY_WECHAT_CORP_ID:}
+      agent-id: ${PSM_NOTIFY_WECHAT_AGENT_ID:}
+      app-key: ${PSM_NOTIFY_WECHAT_APP_KEY:}
+      api-secret: ${PSM_NOTIFY_WECHAT_APP_SECRET:}
+    dingtalk:
+      enabled: ${PSM_NOTIFY_DINGTALK_ENABLED:false}
+      mode: ${PSM_NOTIFY_DINGTALK_MODE:PLACEHOLDER}
+      http-url: ${PSM_NOTIFY_DINGTALK_HTTP_URL:}
+      app-key: ${PSM_NOTIFY_DINGTALK_APP_KEY:}
+      api-secret: ${PSM_NOTIFY_DINGTALK_APP_SECRET:}
   gateway:
     auth-service-url: http://127.0.0.1:18080
     file-service-url: http://127.0.0.1:18080
@@ -28,5 +58,19 @@ psm:
     risk-control-service-url: http://psm-risk:18101
     process-safety-service-url: http://psm-process-safety:18111
     incident-governance-service-url: http://psm-incident-governance:18115
+  file:
+    default-backend: LOCAL
+    storage-root: ${PSM_FILE_STORAGE_ROOT:./data/psm-files}
+    max-size-bytes: ${PSM_FILE_MAX_BYTES:20971520}
+    allowed-content-types: image/jpeg,image/png,image/webp,application/pdf,application/octet-stream
+    download-mode: ${PSM_FILE_DOWNLOAD_MODE:AUTO}
+    presign-ttl-seconds: ${PSM_FILE_PRESIGN_TTL:300}
+    minio:
+      enabled: ${PSM_FILE_MINIO_ENABLED:false}
+      endpoint: ${PSM_FILE_MINIO_ENDPOINT:}
+      access-key: ${PSM_FILE_MINIO_ACCESS_KEY:}
+      secret-key: ${PSM_FILE_MINIO_SECRET_KEY:}
+      bucket: ${PSM_FILE_MINIO_BUCKET:}
+      region: ${PSM_FILE_MINIO_REGION:}
   central-audit-enabled: false
   central-notification-enabled: false

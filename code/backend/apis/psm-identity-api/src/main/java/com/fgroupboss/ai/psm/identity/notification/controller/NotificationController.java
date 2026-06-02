@@ -3,9 +3,13 @@ package com.fgroupboss.ai.psm.identity.notification.controller;
 import com.fgroupboss.ai.psm.common.PageResult;
 import com.fgroupboss.ai.psm.common.ResponseVO;
 import com.fgroupboss.ai.psm.identity.notification.model.dto.NotificationSendRequest;
+import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationChannelStatusVO;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationHealthVO;
 import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationMessageVO;
+import com.fgroupboss.ai.psm.identity.notification.model.vo.NotificationUnreadCountVO;
 import com.fgroupboss.ai.psm.identity.notification.service.NotificationService;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,9 +69,29 @@ public class NotificationController {
     public ResponseVO<PageResult<NotificationMessageVO>> inbox(@RequestParam Long tenantId,
                                                                @RequestParam Long userId,
                                                                @RequestParam(required = false) Boolean read,
+                                                               @RequestParam(required = false) String bizType,
                                                                @RequestParam(defaultValue = "1") int pageNo,
                                                                @RequestParam(defaultValue = "20") int pageSize) {
-        return ResponseVO.success(notificationService.inbox(tenantId, userId, read, pageNo, pageSize));
+        return ResponseVO.success(notificationService.inbox(tenantId, userId, read, bizType, pageNo, pageSize));
+    }
+
+    /**
+     * 未读消息数量（角标）。
+     * <p>HTTP GET {@code /api/notifications/unread-count}</p>
+     */
+    @GetMapping("/unread-count")
+    public ResponseVO<NotificationUnreadCountVO> unreadCount(@RequestParam Long tenantId,
+                                                              @RequestParam Long userId) {
+        return ResponseVO.success(notificationService.unreadCount(tenantId, userId));
+    }
+
+    /**
+     * 外通道配置状态（不含密钥）。
+     * <p>HTTP GET {@code /api/notifications/channels/status}</p>
+     */
+    @GetMapping("/channels/status")
+    public ResponseVO<List<NotificationChannelStatusVO>> channelStatus() {
+        return ResponseVO.success(notificationService.channelStatus());
     }
 
     /**

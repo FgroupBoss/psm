@@ -9,7 +9,10 @@ import {
   fetchInspectionTasks,
   fetchMobileTasks,
   fetchMobileWorkPermitDetail,
+  fetchNotificationInbox,
+  fetchNotificationUnreadCount,
   login,
+  markNotificationRead,
   mobileAcceptance,
   mobileAlarmFeedback,
   mobileCheckIn,
@@ -31,6 +34,7 @@ import type {
   AuthUser,
   InspectionTaskRecord,
   MobileTaskRecord,
+  NotificationMessageRecord,
   SafetyMeasureRecord,
   TimelineItemRecord,
   WorkPermitDetailRecord
@@ -178,9 +182,11 @@ function App() {
   const [hazardDesc, setHazardDesc] = React.useState('现场发现一般隐患');
   const [hazardLevel, setHazardLevel] = React.useState('GENERAL');
   const [abnormalDesc, setAbnormalDesc] = React.useState('巡检异常项');
+  const [notifications, setNotifications] = React.useState<NotificationMessageRecord[]>([]);
+  const [unreadCount, setUnreadCount] = React.useState(0);
 
-  const alarmTasks = tasks.filter((t) => t.taskType === 'ALARM');
-  const hasNotifications = alarmTasks.length > 0;
+  const alarmTasks = tasks.filter((t) => t.taskType === 'ALARM_FEEDBACK' || t.taskType === 'ALARM');
+  const hasNotifications = unreadCount > 0;
 
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
@@ -197,19 +203,23 @@ function App() {
   }
 
   async function loadAll(current: AuthUser) {
-    const [todoList, inspPage] = await Promise.all([
+    const [todoList, inspPage, inbox, unread] = await Promise.all([
       fetchMobileTasks(current.tenantId, current.id, 'ALL'),
-      fetchInspectionTasks({ tenantId: current.tenantId, pageNo: 1, pageSize: 30 })
+      fetchInspectionTasks({ tenantId: current.tenantId, pageNo: 1, pageSize: 30 }),
+      fetchNotificationInbox(current.tenantId, current.id, { pageNo: 1, pageSize: 30 }),
+      fetchNotificationUnreadCount(current.tenantId, current.id)
     ]);
     setTasks(todoList);
     setInspectionTasks(inspPage.records);
+    setNotifications(inbox.records);
+    setUnreadCount(unread.unreadCount);
   }
 
   async function openTask(task: MobileTaskRecord) {
     setSelectedTask(task);
     setMessage('');
     setError('');
-    if (task.taskType === 'ALARM') {
+    if (task.taskType === 'ALARM' || task.taskType === 'ALARM_FEEDBACK') {
       setScreen('alarm');
       return;
     }
@@ -801,28 +811,43 @@ function App() {
     return (
       <PhoneShell {...shellProps}>
         <div className="page-header">
-          <h1>通知</h1>
+          <h1>消息中心</h1>
+          {unreadCount > 0 && <span className="badge">{unreadCount} 未读</span>}
         </div>
         <Alerts error={error} message={message} />
-        {alarmTasks.length === 0 && (
+        {notifications.length === 0 && (
           <div className="glass-card">
-            <p style={{ textAlign: 'center', margin: 0 }}>暂无新通知</p>
+            <p style={{ textAlign: 'center', margin: 0 }}>暂无站内信</p>
           </div>
         )}
-        {alarmTasks.map((task, index) => (
-          <div key={`alarm-${task.bizId}-${index}`} className="notif-item" onClick={() => openTask(task)}>
-            <div className="notif-item__dot" />
+        {notifications.map((item) => (
+          <div
+            key={item.id}
+            className="notif-item"
+            onClick={() => {
+              if (!user) return;
+              void markNotificationRead(item.id, user.tenantId, user.id).then(() => loadAll(user));
+              if (item.bizType === 'WORK_PERMIT' && item.bizId != null) {
+                void openTask({
+                  taskType: 'SITE_PERMIT',
+                  bizType: 'WORK_PERMIT',
+                  bizId: item.bizId,
+                  title: item.title
+                });
+              } else if (item.bizType === 'ALARM' && item.bizId != null) {
+                void openTask({
+                  taskType: 'ALARM_FEEDBACK',
+                  bizType: 'ALARM',
+                  bizId: item.bizId,
+                  title: item.title
+                });
+              }
+            }}
+          >
+            {!item.read && <div className="notif-item__dot" />}
             <div className="notif-item__body">
-              <strong>{task.title}</strong>
-              <span>{task.taskType} · {task.status || '待处理'}</span>
-            </div>
-          </div>
-        ))}
-        {tasks.filter((t) => t.taskType !== 'ALARM').slice(0, 5).map((task, index) => (
-          <div key={`todo-${task.bizId}-${index}`} className="notif-item" onClick={() => openTask(task)}>
-            <div className="notif-item__body">
-              <strong>{task.title}</strong>
-              <span>{task.taskType} · {task.status || '待办'}</span>
+              <strong>{item.title}</strong>
+              <span>{item.content}</span>
             </div>
           </div>
         ))}
@@ -925,8 +950,8 @@ function App() {
           <div className="feature-card__icon feature-card__icon--orange">
             <i className="fa-solid fa-bell" />
           </div>
-          <h3>报警通知</h3>
-          <p>{alarmTasks.length} 条待处置</p>
+          <h3>消息中心</h3>
+          <p>{unreadCount} 条未读</p>
         </button>
       </div>
 

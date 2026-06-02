@@ -78,6 +78,17 @@ public class GatewayProxyController {
     }
 
     /**
+     * 代理 Web 工作台待办。
+     * <p>HTTP REQUEST {@code /api/workbench/**}</p>
+     */
+    @RequestMapping("/api/workbench/**")
+    public ResponseEntity<byte[]> proxyWorkbench(HttpServletRequest request,
+                                                 @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) throws IOException {
+        AuthPrincipal principal = authService.authenticate(authorization);
+        return proxy(properties.getOperationControlServiceUrl(), request, principal);
+    }
+
+    /**
      * 代理访问**。
      * <p>HTTP REQUEST {@code /api/simops/**}</p>
      * @return 操作结果，统一封装为 {@link com.fgroupboss.ai.psm.common.ResponseVO}

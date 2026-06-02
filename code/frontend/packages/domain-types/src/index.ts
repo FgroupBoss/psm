@@ -338,12 +338,33 @@ export const MASTER_DATA_API = {
 export const FILE_API = {
   health: '/api/files/health',
   upload: '/api/files/upload',
-  base: '/api/files'
+  base: '/api/files',
+  backends: '/api/files/backends',
+  profiles: '/api/files/profiles',
+  profilesDefault: '/api/files/profiles/default',
+  profileTest: (id: number) => `/api/files/profiles/${id}/test`,
+  detail: (id: number) => `/api/files/${id}`,
+  download: (id: number) => `/api/files/${id}/download`,
+  presign: (id: number) => `/api/files/${id}/presign`
 } as const;
 
 /** 消息通知 API。 */
 export const NOTIFICATION_API = {
-  base: '/api/notifications'
+  base: '/api/notifications',
+  health: '/api/notifications/health',
+  send: '/api/notifications/send',
+  inbox: '/api/notifications/inbox',
+  unreadCount: '/api/notifications/unread-count',
+  readAll: '/api/notifications/read-all',
+  channelsStatus: '/api/notifications/channels/status',
+  detail: (id: number) => `/api/notifications/${id}`,
+  markRead: (id: number) => `/api/notifications/${id}/read`
+} as const;
+
+/** Web 工作台待办 API（作业管控域 — psm-operation-api）。 */
+export const WORKBENCH_API = {
+  todos: '/api/workbench/todos',
+  todoCount: '/api/workbench/todos/count'
 } as const;
 
 /** 配置规则 API。 */
@@ -1133,16 +1154,93 @@ export interface FileObjectRecord {
   contentType?: string;
   sizeBytes?: number;
   sha256?: string;
+  storageBackend?: string;
   downloadUrl?: string;
+  previewUrl?: string;
+  presignUrl?: string;
   createdAt?: string;
+}
+
+export interface FileStorageProfileRecord {
+  id: number;
+  tenantId: number;
+  profileCode: string;
+  profileName: string;
+  storageBackend: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  defaultProfile: boolean;
+  lastTestStatus?: string;
+  lastTestAt?: string;
+  configured: boolean;
+}
+
+export interface FileStorageProfileRequest {
+  tenantId: number;
+  profileCode: string;
+  profileName: string;
+  storageBackend: string;
+  config: Record<string, unknown>;
+  enabled?: boolean;
+  defaultProfile?: boolean;
+}
+
+export interface FileBackendSchemaRecord {
+  backend: string;
+  label: string;
+  requiredFields: string[];
+  hint?: string;
+}
+
+export interface FileHealthResult {
+  status: string;
+  message: string;
 }
 
 export interface MobileTaskRecord {
   taskType: string;
-  title: string;
+  bizType?: string;
   bizId: number;
+  title: string;
   status?: string;
+  priority?: string;
+  dueAt?: string;
+  actionHint?: string;
   occurredAt?: string;
+}
+
+export interface NotificationMessageRecord {
+  id: number;
+  tenantId: number;
+  userId: number;
+  channel?: string;
+  templateCode?: string;
+  title: string;
+  content: string;
+  bizType?: string;
+  bizId?: number;
+  read: boolean;
+  readAt?: string;
+  createdAt?: string;
+}
+
+export interface NotificationUnreadCountRecord {
+  unreadCount: number;
+}
+
+export interface NotificationChannelStatusRecord {
+  channel: string;
+  enabled: boolean;
+  mode: string;
+  configured: boolean;
+}
+
+export interface WorkbenchTodoCountRecord {
+  total: number;
+  sitePermit: number;
+  monitor: number;
+  acceptance: number;
+  alarm: number;
 }
 
 export interface TrendPointRecord {

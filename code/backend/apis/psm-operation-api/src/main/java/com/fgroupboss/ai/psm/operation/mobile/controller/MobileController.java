@@ -73,9 +73,10 @@ public class MobileController {
     @GetMapping("/tasks")
     public ResponseVO<List<MobileTaskVO>> tasks(@RequestParam Long tenantId,
                                                 @RequestParam(required = false) String role,
+                                                @RequestParam(required = false) Long userId,
                                                 @RequestHeader(value = UserContextHeaders.USER_ID, required = false) String userIdHeader) {
-        Long userId = parseUserId(userIdHeader);
-        return ResponseVO.success(mobileTaskService.listTasks(tenantId, userId, MobileRole.from(role)));
+        Long resolvedUserId = userId != null ? userId : parseUserId(userIdHeader);
+        return ResponseVO.success(mobileTaskService.listTasks(tenantId, resolvedUserId, MobileRole.from(role)));
     }
 
     /**

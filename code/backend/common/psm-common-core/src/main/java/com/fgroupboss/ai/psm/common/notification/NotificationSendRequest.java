@@ -1,6 +1,8 @@
 package com.fgroupboss.ai.psm.common.notification;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +18,9 @@ public class NotificationSendRequest {
     private String content;
     private String bizType;
     private Long bizId;
+    private List<String> channels = new ArrayList<String>();
+    private String recipientPhone;
+    private String recipientEmail;
     private Map<String, String> variables = new HashMap<String, String>();
 
     public Long getTenantId() {
@@ -88,5 +93,29 @@ public class NotificationSendRequest {
 
     public void setVariables(Map<String, String> variables) {
         this.variables = variables == null ? new HashMap<String, String>() : variables;
+    }
+
+    public List<String> getChannels() {
+        return channels;
+    }
+
+    public void setChannels(List<String> channels) {
+        this.channels = channels == null ? new ArrayList<String>() : channels;
+    }
+
+    public String getRecipientPhone() {
+        return recipientPhone;
+    }
+
+    public void setRecipientPhone(String recipientPhone) {
+        this.recipientPhone = recipientPhone;
+    }
+
+    public String getRecipientEmail() {
+        return recipientEmail;
+    }
+
+    public void setRecipientEmail(String recipientEmail) {
+        this.recipientEmail = recipientEmail;
     }
 }

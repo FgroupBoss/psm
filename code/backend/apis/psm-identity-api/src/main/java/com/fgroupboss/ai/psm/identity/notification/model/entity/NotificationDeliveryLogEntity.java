@@ -15,8 +15,11 @@ public class NotificationDeliveryLogEntity {
     private Long id;
     private Long tenantId;
     private Long messageId;
+    private String requestId;
     private String channel;
     private String status;
+    private String providerMsgId;
+    private String errorCode;
     private String errorMessage;
     private Date sentAt;
     private Date createdAt;

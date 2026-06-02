@@ -19,6 +19,11 @@ public class FileObjectEntity {
     private String contentType;
     private Long sizeBytes;
     private String sha256;
+    private String storageBackend;
+    private Long storageProfileId;
+    private String bucket;
+    private String objectKey;
+    private String region;
     private String storagePath;
     private String bizType;
     private Long bizId;

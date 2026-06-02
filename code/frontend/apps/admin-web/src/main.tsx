@@ -37,6 +37,8 @@ import { buildNavItems, DEFAULT_NAV, groupNavItems, navIconFor, readSidebarColla
 import { BaseDataLedgerPanel, ContractorCompaniesPanel, ContractorWorkersPanel, MajorHazardsPanel, MenusPanel, OrgPanel, RolesPanel, UsersPanel } from './panels';
 import { AcceptancePanel, DashboardPanel, ReportOverviewPanel } from './report-panel';
 import { WorkPermitsPanel } from './work-permit-panel';
+import { NotificationInboxPanel, WorkbenchTodosPanel } from './message-todo-panels';
+import { FileStoragePanel } from './file-storage-panel';
 import {
   DualPreventionHazardsPanel,
   DualPreventionRiskPanel,
@@ -166,6 +168,15 @@ function Shell({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
     }
     if (view === 'audit') {
       return <AuditPanel tenantId={user.tenantId} />;
+    }
+    if (view === 'notification:inbox') {
+      return <NotificationInboxPanel user={user} />;
+    }
+    if (view === 'workbench:todos') {
+      return <WorkbenchTodosPanel user={user} />;
+    }
+    if (view === 'file:storage') {
+      return <FileStoragePanel user={user} />;
     }
     if (view === 'contractor:companies') {
       return <ContractorCompaniesPanel tenantId={user.tenantId} />;
